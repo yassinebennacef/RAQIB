@@ -316,6 +316,11 @@ export interface Metrics {
     transport: { rows: FairnessRow[]; max_min_selection_ratio_ai: number | null };
   };
   n_critical_test: number;
+  ablation_no_value: {
+    removed: string[];
+    fraud: { auc: number; precision_at_5: number; recall_at_5: number };
+    critical: { auc: number; precision_at_5: number; recall_at_5: number };
+  };
   thresholds: { red_p_fraud: number; yellow_p_fraud: number; alert_p_critical: number };
   replay_summary: {
     rate: number;
@@ -350,6 +355,8 @@ export interface DataCard {
   critical_rate: number;
   hs_name_match: { hs6: number; hs4_fallback: number; none: number };
   test_new_operators: Record<"importer" | "declarant" | "seller" | "hs6", number>;
+  missing_seller_share: number;
+  test_unit_value_equals_product_median: number;
   notes: string[];
 }
 

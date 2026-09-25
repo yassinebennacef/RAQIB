@@ -43,7 +43,8 @@ daily inspection capacity. Every day it:
 - docs/ — note de synthèse draft, deck outline, demo script, screenshots.
 
 ## Commands (Windows, Git Bash; never rely on venv activation)
-- Build data + models + metrics: `.venv/Scripts/python -m raqib.build`
+- Build data + models + metrics (+ regenerates README numbers and docs/*.md): `.venv/Scripts/python -m raqib.build`
+- Regenerate only the docs from artifacts: `.venv/Scripts/python -m raqib.report`
 - Serve API + built UI: `.venv/Scripts/python -m raqib.serve --port 8000`
 - Tests: `.venv/Scripts/python -m pytest -q`
 - Front end dev: `cd frontend && corepack pnpm dev` (proxy /api -> 127.0.0.1:8000)

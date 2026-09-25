@@ -2,7 +2,12 @@
 from __future__ import annotations
 
 import argparse
+import os
 import socket
+import threading
+import time
+import urllib.request
+import webbrowser
 
 import uvicorn
 
@@ -20,10 +25,29 @@ def lan_ip() -> str:
         return "127.0.0.1"
 
 
+def open_when_ready(url: str, timeout: float = 90.0) -> None:
+    """Open the browser once /api/health answers (models are loaded at startup)."""
+    if os.environ.get("RAQIB_NO_BROWSER") == "1":
+        return
+
+    def run() -> None:
+        t0 = time.time()
+        while time.time() - t0 < timeout:
+            try:
+                with urllib.request.urlopen(url + "/api/health", timeout=2) as r:
+                    if r.status == 200:
+                        webbrowser.open(url)
+                        return
+            except OSError:
+                time.sleep(0.5)
+    threading.Thread(target=run, daemon=True).start()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Serve the RAQIB API and web app")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--lan", action="store_true", help="listen on all interfaces (open the demo from a phone)")
+    ap.add_argument("--open", action="store_true", help="open the browser when the server is ready")
     args = ap.parse_args()
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     ui = "web app + API" if (C.FRONTEND_DIST / "index.html").exists() else "API only (frontend/dist not built)"
@@ -32,6 +56,8 @@ def main() -> None:
     if args.lan:
         print(f"  Network: http://{lan_ip()}:{args.port}")
     print(f"  API docs: http://127.0.0.1:{args.port}/docs")
+    if args.open:
+        open_when_ready(f"http://127.0.0.1:{args.port}")
     uvicorn.run("raqib.api:app", host=host, port=args.port, log_level="warning")
 
 

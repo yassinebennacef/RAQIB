@@ -454,8 +454,10 @@ export default function ModelLab() {
               <li className="flex gap-2">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-lane-yellow" />
                 <span>
-                  Price carries little signal in this dataset: value and mass account for {pct(valueShare)} of the fraud model's gain (unit values are
-                  nearly constant per product in the synthetic data).
+                  Value and mass matter here ({pct(valueShare)} of the fraud model's gain): without them, duty-fraud precision @5% falls from{" "}
+                  {pct(M.targets.fraud.methods.ai.precision_at_5)} to {pct(M.ablation_no_value.fraud.precision_at_5)} and public-safety recall @5% from{" "}
+                  {pct(critR5)} to {pct(M.ablation_no_value.critical.recall_at_5)}. But {pct(C.test_unit_value_equals_product_median)} of test declarations
+                  carry exactly their product's usual unit value (a synthetic-data artefact), so value signals must be re-validated on real data.
                 </span>
               </li>
               <li className="flex gap-2">

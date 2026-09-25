@@ -136,6 +136,20 @@ def main() -> None:
                 metric="precision" if target == "fraud" else "recall"),
         }
         metrics["targets"][target] = t_out
+    # ablation: same recipe without the value/mass features (does price carry signal here?)
+    from lightgbm import LGBMClassifier
+    from .model import build_X, oof_encode
+    value_feats = ["net_mass", "item_price", "unit"]
+    keep = [f for f in C.FEATURES if f not in value_feats]
+    metrics["ablation_no_value"] = {"removed": value_feats}
+    for target in C.TARGETS:
+        y_tr = train[target].to_numpy(int)
+        tm = res[target]["tm"]
+        X_tr = build_X(oof_encode(train, y_tr, tm.a, tm.prior), train)[keep]
+        mdl = LGBMClassifier(**C.LGBM_PARAMS).fit(X_tr, y_tr)
+        s_ab = mdl.predict_proba(res[target]["X_te"][keep])[:, 1]
+        mm = E.method_metrics(test[target].to_numpy(int), s_ab, tb)
+        metrics["ablation_no_value"][target] = {k: mm[k] for k in ("auc", "precision_at_5", "recall_at_5")}
     metrics["fairness"] = E.fairness(test, test["fraud"].to_numpy(int), raw_f, rules["fraud"]["rule_hs6_history"], tb)
     metrics["n_critical_test"] = int(test["critical"].sum())
     metrics["thresholds"] = th
@@ -171,6 +185,11 @@ def main() -> None:
         print(f"  gain AI - rule ({target}, {g['metric']}): {g['mean_gain']:+.3f} "
               f"[95% CI {g['ci95'][0]:+.3f}, {g['ci95'][1]:+.3f}]")
     print("\n".join(R.summary_table(main_run)))
+    try:  # keep README numbers and docs/*.md in sync with the artifacts
+        from . import report
+        report.main()
+    except Exception as exc:  # noqa: BLE001 - docs must never break the build
+        print(f"[build] WARNING: report generation failed: {exc}")
     print(f"\n[build] done in {time.time() - t0:.1f}s")
 
 

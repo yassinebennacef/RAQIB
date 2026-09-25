@@ -128,6 +128,16 @@ def _split_card(df: pd.DataFrame) -> dict:
     }
 
 
+def _unit_value_share(train: pd.DataFrame, test: pd.DataFrame) -> float:
+    """Share of TEST rows whose unit value equals their product's TRAIN median (within 0.1%)."""
+    uv_tr = train["Item Price"] / np.maximum(train["Net Mass"], 0.1)
+    med = uv_tr.groupby(train["HS6 Code"]).median()
+    uv_te = test["Item Price"] / np.maximum(test["Net Mass"], 0.1)
+    m = test["HS6 Code"].map(med)
+    ok = m.notna() & (m > 0)
+    return float(((uv_te[ok] - m[ok]).abs() / m[ok] < 1e-3).sum() / len(test))
+
+
 def data_card() -> dict:
     train, test = load_train(), load_test()
     full = pd.concat([train, test], ignore_index=True)
@@ -163,6 +173,7 @@ def data_card() -> dict:
             "hs6": float((~test["HS6 Code"].isin(set(train["HS6 Code"]))).mean()),
         },
         "missing_seller_share": float(full["Seller ID"].isna().mean()),
+        "test_unit_value_equals_product_median": _unit_value_share(train, test),
         "notes": [
             "Only inspected (labelled) declarations were synthesised, so the fraud rate is far "
             "higher than among all declarations; the gain over the rule is the claim, not the "
