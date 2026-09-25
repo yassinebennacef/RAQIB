@@ -140,6 +140,8 @@ def replay(d: ReplayData, rate: float = C.DEFAULT_RATE, explore: float = C.DEFAU
         "dates": d.dates,
         "n": n_per_day,
         "capacity": caps,
+        "day_frauds": [int(d.fraud[idx].sum()) for idx in d.day_rows],
+        "day_threats": [int(d.critical[idx].sum()) for idx in d.day_rows],
         "alert_threshold": d.alert_thr,
         "totals": {
             "declarations": int(len(d.day)),

@@ -99,15 +99,22 @@ def train_index() -> dict:
             "prior_fraud": float(tr["fraud"].mean()), "prior_critical": float(tr["critical"].mean())}
 
 
-def operator_history(role: str, op_id: str) -> dict:
+def _missing(v) -> bool:
+    return v is None or (isinstance(v, float) and math.isnan(v)) or v is pd.NA or str(v).strip() == ""
+
+
+def operator_history(role: str, op_id) -> dict:
     s = train_index()["stats"][role]
+    if _missing(op_id):
+        return {"id": None, "role": role, "past_declarations": 0, "is_new": True, "missing": True,
+                "fraud_rate": None, "critical_rate": None, "thin_history": True}
     if op_id in s.index:
         r = s.loc[op_id]
         n = int(r["n"])
-        return {"id": op_id, "role": role, "past_declarations": n, "is_new": False,
+        return {"id": op_id, "role": role, "past_declarations": n, "is_new": False, "missing": False,
                 "fraud_rate": float(r["frauds"] / n), "critical_rate": float(r["criticals"] / n),
                 "thin_history": n < C.THIN_HISTORY}
-    return {"id": op_id, "role": role, "past_declarations": 0, "is_new": True,
+    return {"id": op_id, "role": role, "past_declarations": 0, "is_new": True, "missing": False,
             "fraud_rate": None, "critical_rate": None, "thin_history": True}
 
 
@@ -124,14 +131,15 @@ def small_network(declarant: str, seller: str, importer: str, max_nodes: int = 2
                           "past_declarations": h["past_declarations"], "fraud_rate": h["fraud_rate"]}
         return key
 
-    for role, op in (("declarant", declarant), ("seller", seller)):
+    hubs = [(r, o) for r, o in (("declarant", declarant), ("seller", seller)) if not _missing(o)]
+    for role, op in hubs:
         h = operator_history(role, op)
         nodes[f"{role}:{op}"] = {"id": f"{role}:{op}", "type": role, "label": op, "is_focus": False,
                                  "past_declarations": h["past_declarations"], "fraud_rate": h["fraud_rate"]}
     focus = importer_node(importer, focus=True)
     budget = max_nodes - len(nodes)
-    per_role = max(budget // 2, 0)
-    for role, op in (("declarant", declarant), ("seller", seller)):
+    per_role = max(budget // max(len(hubs), 1), 0)
+    for role, op in hubs:
         src = f"{role}:{op}"
         df = idx["pairs"][role].get(op)
         links_added = 0
@@ -179,9 +187,9 @@ class ScoreRequest(BaseModel):
     hs6: str = Field(..., description="6-digit HS code, e.g. 621149")
     origin: str = Field("", description="ISO alpha-2 country of origin")
     office: int = 40
-    importer_id: str = ""
-    declarant_id: str = ""
-    seller_id: str = ""
+    importer_id: str | None = ""
+    declarant_id: str | None = ""
+    seller_id: str | None = ""
     tax_rate: float = 8.0
     net_mass: float = 1.0
     item_price: float = 1.0
@@ -298,7 +306,8 @@ def declaration(decl_id: str, rate: float = C.DEFAULT_RATE, explore: float = 0.0
             "office": int(r["office"]), "office_label": r["office_label"],
             "transport": int(r["transport"]), "transport_label": r["transport_label"],
             "origin": r["origin"], "departure": r["departure"], "importer": r["importer"],
-            "declarant": r["declarant"], "seller": r["seller"], "courier": r["courier"] or None,
+            "declarant": r["declarant"], "seller": None if _missing(r["seller"]) else r["seller"],
+            "courier": r["courier"] or None,
             "process_type": r["process_type"], "import_type": int(r["import_type"]),
             "import_use": int(r["import_use"]), "payment_type": int(r["payment_type"]),
             "tax_type": r["tax_type"], "origin_indicator": r["origin_indicator"],
@@ -356,7 +365,7 @@ def _presets() -> list[dict]:
     known = t["importer"].isin(train_index()["stats"]["importer"].index) & \
         t["declarant"].isin(train_index()["stats"]["declarant"].index)
     matched = ~t["hs_desc"].str.startswith("HS ")
-    base = t[known & matched]
+    base = t[known & matched & t["seller"].notna()]
     picks = [
         ("high_fraud", "High duty-fraud risk", "Real test declaration with one of the highest duty-fraud scores.",
          base.sort_values("score_fraud", ascending=False).iloc[0]),

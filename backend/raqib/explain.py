@@ -110,6 +110,8 @@ def sentence(g: str, i: int, rc: RowContext) -> tuple[str, bool]:
             return f"HS chapter {code} ({_short(hs2_description(v), 44)}): {rate} {what} on {n:,} past declarations{suffix}.", thin
         if g in NEW_ROLE:
             role = NEW_ROLE[g]
+            if pd.isna(v) or str(v).strip() == "":
+                return f"{role.capitalize()} not declared (treated as average risk).", False
             if n == 0:
                 return f"New {role}: no history (treated as average risk).", False
             return f"{role.capitalize()} {v}: {rate} {what} on {n:,} past declarations (average {avg}){suffix}.", thin
@@ -158,6 +160,8 @@ def explain_frame(tm, df: pd.DataFrame, context: dict, X: pd.DataFrame | None = 
             g = GROUPS[j][0]
             text, thin = sentence(g, i, rc)
             val = float(G[i, j])
+            if g == "tax" and val < 0 and rc.tax[i] > 0:
+                text = f"Tax rate {rc.tax[i]:g}%: little duty at stake."
             if g in rc.stats and rc.stats[g][1][i] > 0:
                 hist = rc.stats[g][0][i] / rc.stats[g][1][i]
                 # history below average but pushes risk up (or the reverse): say so honestly
@@ -181,6 +185,10 @@ def new_operator_notes(tm, df: pd.DataFrame) -> list[list[str]]:
     for g in ("importer", "declarant", "seller"):
         col, name = next((col, name) for gg, _, _, col, name in GROUPS if gg == g)
         _, c = tm.encoder.stats(df, col, name)
+        missing = df[col].isna().to_numpy()
         for i in np.where(c == 0)[0]:
-            notes[i].append(f"New {g}: no history (treated as average risk).")
+            if missing[i]:
+                notes[i].append(f"{g.capitalize()} not declared (treated as average risk).")
+            else:
+                notes[i].append(f"New {g}: no history (treated as average risk).")
     return notes

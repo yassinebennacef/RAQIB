@@ -48,6 +48,9 @@ def _read(files: list[str], split: str) -> pd.DataFrame:
         )
         frames.append(df)
     df = pd.concat(frames, ignore_index=True)
+    # Blank operator IDs are missing values (not one giant anonymous operator)
+    for col in ("Declarant ID", "Importer ID", "Seller ID"):
+        df[col] = df[col].mask(df[col].fillna("").str.strip() == "")
     df["Date"] = pd.to_datetime(df["Date"])
     df["HS6 Code"] = df["HS6 Code"].astype(int)
     df["hs4"] = df["HS6 Code"] // 100
@@ -154,11 +157,12 @@ def data_card() -> dict:
             "none": float((levels == 0).mean()),
         },
         "test_new_operators": {
-            "importer": float((~test["Importer ID"].isin(set(train["Importer ID"]))).mean()),
-            "declarant": float((~test["Declarant ID"].isin(set(train["Declarant ID"]))).mean()),
-            "seller": float((~test["Seller ID"].isin(set(train["Seller ID"]))).mean()),
+            "importer": float((~test["Importer ID"].isin(set(train["Importer ID"].dropna()))).mean()),
+            "declarant": float((~test["Declarant ID"].isin(set(train["Declarant ID"].dropna()))).mean()),
+            "seller": float((test["Seller ID"].notna() & ~test["Seller ID"].isin(set(train["Seller ID"].dropna()))).mean()),
             "hs6": float((~test["HS6 Code"].isin(set(train["HS6 Code"]))).mean()),
         },
+        "missing_seller_share": float(full["Seller ID"].isna().mean()),
         "notes": [
             "Only inspected (labelled) declarations were synthesised, so the fraud rate is far "
             "higher than among all declarations; the gain over the rule is the claim, not the "

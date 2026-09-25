@@ -75,7 +75,8 @@ Day-by-day replay of the test period, computed live (cached per parameters, < 10
 `ai` never explores; `ai_explore` uses `explore`. Capacity per day is identical for all policies.
 ```json
 {"rate": 0.05, "explore": 0.1, "seed": 7, "n_days": 91,
- "dates": ["2021-04-01", "..."], "n": [93, "..."], "capacity": [5, "..."], "alert_threshold": 0.135,
+ "dates": ["2021-04-01", "..."], "n": [93, "..."], "capacity": [5, "..."],
+ "day_frauds": [20, "... frauds among all declarations of the day"], "day_threats": [1, "..."], "alert_threshold": 0.135,
  "totals": {"declarations": 8481, "frauds": 1835, "threats": 73, "inspections": 470},
  "policies": {
    "ai|ai_explore|rule|random": {
