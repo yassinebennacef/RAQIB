@@ -6,3 +6,4 @@
 | 1 — Data | done | 23:54 | Both public datasets cloned to data/raw (gitignored). TRAIN 45,519 / TEST 8,481 rows; 73 critical cases in TEST. data_card.json. |
 | 2 — Models + measured results | done | 23:54 | Recipe reproduced: fraud AUC 0.770, P@5% 0.704 vs rule 0.534; critical AUC 0.949, R@5% 0.767 vs rule 0.548. |
 | 3 — Explanations, replay, scoring | done | 23:54 | TreeSHAP reasons (4 per model), replay at 5%: AI 309 frauds / 40 threats vs rule 259 / 7 vs random 103 / 3. Build 15 s. 7 tests pass. |
+| 4 — API | done | 23:57 | FastAPI: health, data-card, metrics, replay (live, cached), stream, declaration (reasons, rule, history, network), score, presets, HS search, hash-chained decisions. API.md. Warm calls 2-25 ms. 14 tests pass. |
