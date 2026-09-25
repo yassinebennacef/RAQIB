@@ -13,10 +13,37 @@ from . import config as C
 from . import replay as R
 from .model import TargetModel
 
+TRAIN_INDEX = C.ARTIFACTS / "train_index.joblib"
+
+
+def build_train_index(train: pd.DataFrame) -> dict:
+    """Past (TRAIN) relations used for operator history and the small network."""
+    pairs = {}
+    for role, col in (("declarant", "Declarant ID"), ("seller", "Seller ID")):
+        g = train.groupby([col, "Importer ID"]).size().rename("n").reset_index()
+        pairs[role] = {k: v.sort_values("n", ascending=False) for k, v in g.groupby(col)}
+    stats = {}
+    for role, col in (("importer", "Importer ID"), ("declarant", "Declarant ID"), ("seller", "Seller ID")):
+        stats[role] = train.groupby(col).agg(n=("fraud", "size"), frauds=("fraud", "sum"),
+                                             criticals=("critical", "sum"))
+    return {"pairs": pairs, "stats": stats, "hs6_seen": train["HS6 Code"].value_counts(),
+            "prior_fraud": float(train["fraud"].mean()), "prior_critical": float(train["critical"].mean())}
+
+
+@lru_cache(maxsize=1)
+def load_train_index() -> dict:
+    if TRAIN_INDEX.exists():
+        return joblib.load(TRAIN_INDEX)
+    from .data import load_train
+    idx = build_train_index(load_train())
+    joblib.dump(idx, TRAIN_INDEX)
+    return idx
+
+
 REQUIRED = [
     "models/fraud_model.joblib", "models/critical_model.joblib",
     "models/thresholds.json", "models/context.joblib",
-    "test_scored.parquet", "metrics.json", "data_card.json",
+    "test_scored.parquet", "metrics.json", "data_card.json", "train_index.joblib", "hs_names.json",
 ]
 
 

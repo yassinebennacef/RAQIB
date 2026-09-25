@@ -19,11 +19,10 @@ else
 fi
 PY=$(pybin)
 
-if [ ! -f artifacts/metrics.json ]; then
+echo "[2/4] Checking the built artifacts..."
+if ! "$PY" -m raqib.check; then
   echo "[2/4] Building data, models and measured results (about 20 s)..."
   "$PY" -m raqib.build
-else
-  echo "[2/4] Artifacts found - build skipped (delete artifacts/metrics.json to rebuild)."
 fi
 
 if [ ! -f frontend/dist/index.html ]; then

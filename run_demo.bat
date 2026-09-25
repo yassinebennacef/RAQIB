@@ -14,11 +14,11 @@ if not exist .venv\Scripts\python.exe (
   echo [1/4] Python environment found.
 )
 
-if not exist artifacts\metrics.json (
+echo [2/4] Checking the built artifacts...
+.venv\Scripts\python -m raqib.check
+if errorlevel 1 (
   echo [2/4] Building data, models and measured results - about 20 s...
   .venv\Scripts\python -m raqib.build || goto :error
-) else (
-  echo [2/4] Artifacts found - build skipped. Delete artifacts\metrics.json to rebuild.
 )
 
 if not exist frontend\dist\index.html (

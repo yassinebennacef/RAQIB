@@ -17,7 +17,7 @@ from . import config as C
 from . import evaluate as E
 from . import replay as R
 from .baselines import baseline_scores
-from .data import data_available, download, hs_description, load_test, load_train, write_data_card
+from .data import data_available, download, hs_description, load_test, load_train, save_hs_names, write_data_card
 from .explain import GROUP_DEFS, explain_frame
 from .model import fit_target, hs6_unit_context
 
@@ -77,6 +77,10 @@ def main() -> None:
         download()
     train, test = load_train(), load_test()
     card = write_data_card()
+    save_hs_names()
+    import joblib as _jl
+    from .engine import TRAIN_INDEX, build_train_index
+    _jl.dump(build_train_index(train), TRAIN_INDEX)
     _t(f"data: TRAIN {len(train):,} rows, TEST {len(test):,} rows", t0)
 
     res: dict = {}

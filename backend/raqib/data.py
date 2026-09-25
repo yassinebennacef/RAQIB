@@ -74,11 +74,22 @@ def load_test() -> pd.DataFrame:
     return _read(C.TEST_FILES, "test")
 
 
+HS_NAMES_ARTIFACT = C.ARTIFACTS / "hs_names.json"
+
+
 @lru_cache(maxsize=1)
 def hs_table() -> dict[str, str]:
-    """hscode string (2, 4 or 6 digits) -> description."""
-    hs = pd.read_csv(C.HS_CSV, dtype=str, keep_default_na=False)
-    return dict(zip(hs["hscode"], hs["description"]))
+    """hscode string (2, 4 or 6 digits) -> description (raw CSV, or the copy saved by the build)."""
+    if C.HS_CSV.exists():
+        hs = pd.read_csv(C.HS_CSV, dtype=str, keep_default_na=False)
+        return dict(zip(hs["hscode"], hs["description"]))
+    if HS_NAMES_ARTIFACT.exists():
+        return json.loads(HS_NAMES_ARTIFACT.read_text(encoding="utf-8"))
+    raise FileNotFoundError(C.HS_CSV)
+
+
+def save_hs_names() -> None:
+    HS_NAMES_ARTIFACT.write_text(json.dumps(hs_table(), ensure_ascii=False), encoding="utf-8")
 
 
 def hs6_str(code) -> str:

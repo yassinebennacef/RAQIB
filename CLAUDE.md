@@ -72,3 +72,11 @@ out-of-fold TRAIN predictions (KFold 5, seed 1). Ranking uses the raw model scor
   Service / IBS) · no Tunisian data used · advisory: the officer decides".
 - Working first, then polish. Tests must pass before every commit.
 - End of every phase: run tests, append to PROGRESS.md, commit "Phase N: ...", push.
+
+## Release (when the user types "RELEASE")
+1. `.venv/Scripts/python -m raqib.build` (fresh artifacts + regenerated docs), tests, `pnpm lint && pnpm build`.
+2. Force-add the runtime artifacts (the app then runs from a fresh clone without data/raw):
+   `git add -f artifacts/models artifacts/metrics.json artifacts/data_card.json artifacts/replay_default.json
+    artifacts/test_scored.parquet artifacts/train_index.joblib artifacts/hs_names.json frontend/dist`
+   (never decisions.jsonl, logs or screenshots scratch; check the total is < 100 MB).
+3. `git commit -m "Release v1.0"`, `git tag -a v1.0 -m "RAQIB v1.0"`, `git push --follow-tags`.

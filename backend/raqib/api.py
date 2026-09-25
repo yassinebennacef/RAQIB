@@ -21,8 +21,8 @@ from pydantic import BaseModel, Field
 
 from . import config as C
 from . import decisions as D
-from .data import hs_description, hs_table, load_train
-from .engine import Engine, artifacts_status, get_engine
+from .data import hs_description, hs_table
+from .engine import Engine, artifacts_status, get_engine, load_train_index
 from .score import score_new
 
 @asynccontextmanager
@@ -82,21 +82,9 @@ def engine() -> Engine:
         raise HTTPException(503, f"Artifacts missing ({exc.filename}). Run: python -m raqib.build") from exc
 
 
-@lru_cache(maxsize=1)
 def train_index() -> dict:
-    """Past (TRAIN) relations used for operator history and the small network."""
-    tr = load_train()
-    pairs = {}
-    for role, col in (("declarant", "Declarant ID"), ("seller", "Seller ID")):
-        g = tr.groupby([col, "Importer ID"]).size().rename("n").reset_index()
-        pairs[role] = {k: v.sort_values("n", ascending=False) for k, v in g.groupby(col)}
-    stats = {}
-    for role, col in (("importer", "Importer ID"), ("declarant", "Declarant ID"), ("seller", "Seller ID")):
-        stats[role] = tr.groupby(col).agg(n=("fraud", "size"), frauds=("fraud", "sum"),
-                                          criticals=("critical", "sum"))
-    hs6_seen = tr["HS6 Code"].value_counts()
-    return {"pairs": pairs, "stats": stats, "hs6_seen": hs6_seen,
-            "prior_fraud": float(tr["fraud"].mean()), "prior_critical": float(tr["critical"].mean())}
+    """Past (TRAIN) relations: operator history, network, HS6 frequencies (saved by the build)."""
+    return load_train_index()
 
 
 def _missing(v) -> bool:
