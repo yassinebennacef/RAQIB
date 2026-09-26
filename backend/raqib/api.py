@@ -628,4 +628,5 @@ if (C.FRONTEND_DIST / "index.html").exists():
         f = (C.FRONTEND_DIST / full_path).resolve()
         if full_path and f.is_file() and C.FRONTEND_DIST.resolve() in f.parents:
             return FileResponse(f)
-        return FileResponse(C.FRONTEND_DIST / "index.html")
+        # never cache the page itself, so the browser always loads the latest build (assets are content-hashed)
+        return FileResponse(C.FRONTEND_DIST / "index.html", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
