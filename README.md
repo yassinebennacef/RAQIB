@@ -91,7 +91,7 @@ declaration data leaves the laptop. It is optional: with `RAQIB_LLM=off` (or Oll
 template / rule mode.
 
 ```bash
-ollama pull qwen3:4b-instruct-2507-q4_K_M   # Qwen3-4B instruct (non-thinking), ~2.5 GB, fits a 4 GB GPU
+ollama pull qwen3:4b-instruct   # Qwen3-4B instruct (non-thinking), ~2.5 GB, fits a 4 GB GPU
 set RAQIB_LLM=ollama                          # default: on if Ollama answers at start-up, else off
 .venv/Scripts/python scripts/eval_llm.py      # measures it -> artifacts/llm_eval.json
 ```

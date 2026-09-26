@@ -60,8 +60,10 @@ def test_nlq_falls_back_to_rules_on_timeout(monkeypatch):
     def boom(*a, **k):
         raise client.LLMError("timed out")
     monkeypatch.setattr(client, "chat", boom)
-    r = parse("red declarations from China above 90%", VOCAB)
-    assert r["source"] == "rules" and r["filter"]["origin"] == ["CN"] and r["warnings"]
+    r = parse("anything odd the rules cannot read", VOCAB)  # unrecognised -> LLM -> timeout -> rules
+    assert r["source"] == "rules" and r["warnings"]
+    r = parse("red declarations from China above 90%", VOCAB)  # recognised -> rules first (no LLM call)
+    assert r["source"] == "rules" and r["filter"]["origin"] == ["CN"] and r["filter"]["min_fraud"] == 0.9
 
 
 def test_brief_falls_back_to_template_on_timeout(monkeypatch, tmp_path):

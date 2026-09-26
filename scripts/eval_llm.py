@@ -38,11 +38,11 @@ def norm(d: dict) -> dict:
     return out
 
 
-def score_nlq(cases: list[dict], vocab, use_llm: bool) -> dict:
+def score_nlq(cases: list[dict], vocab, use_llm: bool, mode: str = "hybrid") -> dict:
     exact, fields, per_lang, rows = 0, 0, {}, []
     t0 = time.time()
     for c in cases:
-        r = parse(c["q"], vocab, use_llm=use_llm)
+        r = parse(c["q"], vocab, use_llm=use_llm, mode=mode)
         got, exp = norm(r["filter"]), norm(c["expected"])
         ok_fields = sum(got[f] == exp[f] for f in FIELDS)
         is_exact = ok_fields == len(FIELDS)
@@ -63,6 +63,7 @@ def score_nlq(cases: list[dict], vocab, use_llm: bool) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--briefs", type=int, default=50)
+    ap.add_argument("--skip-briefs", action="store_true", help="re-measure NLQ only, keep the previous brief results")
     args = ap.parse_args()
     from raqib.api import _llm_brief_inputs, _nlq_vocab, worklist
     from raqib.brief import template_brief
@@ -71,12 +72,22 @@ def main() -> None:
     cases = json.loads((ROOT / "tests" / "data" / "nlq_cases.json").read_text(encoding="utf-8"))
     client.refresh_status()
     out: dict = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                 "model": client.status()["model"], "nlq": {"rules": score_nlq(cases, vocab, use_llm=False)}}
+                 "model": client.status()["model"], "nlq": {"rules": score_nlq(cases, vocab, use_llm=False, mode="rules")}}
     if not client.available():
         out.update({"skipped": True, "reason": "Ollama not reachable: LLM parts skipped"})
     else:
         client.warm_up()
-        out["nlq"]["qwen"] = score_nlq(cases, vocab, use_llm=True)
+        out["nlq"]["qwen"] = score_nlq(cases, vocab, use_llm=True, mode="llm")
+        out["nlq"]["hybrid"] = score_nlq(cases, vocab, use_llm=True, mode="hybrid")
+        out["nlq"]["note"] = ("The rule parser was written alongside these 30 questions, so its score is optimistic; "
+                              "Qwen handles free phrasings the rules do not know (hybrid = rules first, then Qwen).")
+        if args.skip_briefs:
+            prev = json.loads((C.ARTIFACTS / "llm_eval.json").read_text(encoding="utf-8"))
+            if "brief" in prev:
+                out["brief"] = prev["brief"]
+            (C.ARTIFACTS / "llm_eval.json").write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
+            print({k: (round(v["exact_match"], 3), round(v["field_accuracy"], 3)) for k, v in out["nlq"].items() if isinstance(v, dict)})
+            return
         rng = np.random.default_rng(0)
         items = worklist(page_size=500, sort="p_fraud")["items"]
         ids = [items[i]["id"] for i in sorted(rng.choice(len(items), size=min(args.briefs, len(items)), replace=False))]

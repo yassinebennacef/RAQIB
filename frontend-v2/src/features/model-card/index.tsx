@@ -10,7 +10,7 @@ import { ErrorState, PageShell } from '@/components/raqib/kit'
 type Eval = {
   skipped?: boolean
   model?: string | null
-  nlq?: { rules?: { exact_match: number; field_accuracy: number }; qwen?: { exact_match: number; field_accuracy: number } }
+  nlq?: { rules?: { exact_match: number; field_accuracy: number }; qwen?: { exact_match: number; field_accuracy: number }; hybrid?: { exact_match: number; field_accuracy: number } }
   brief?: { n: number; guard_pass_rate: number; fallback_rate: number; latency_ms_p50: number; latency_ms_p95: number }
 }
 
@@ -22,8 +22,8 @@ function LocalLlmCard() {
   if (!e) return null
   const rows: [string, string][] = [
     ['Model', e.model ?? 'not installed (template mode)'],
-    ['Ask RAQIB, exact filter (Qwen / rules)', `${pctx(e.nlq?.qwen?.exact_match)} / ${pctx(e.nlq?.rules?.exact_match)}`],
-    ['Ask RAQIB, field accuracy (Qwen / rules)', `${pctx(e.nlq?.qwen?.field_accuracy)} / ${pctx(e.nlq?.rules?.field_accuracy)}`],
+    ['Ask RAQIB exact filter: rules-first hybrid', pctx(e.nlq?.hybrid?.exact_match)],
+    ['Ask RAQIB: Qwen alone, exact / per field', `${pctx(e.nlq?.qwen?.exact_match)} / ${pctx(e.nlq?.qwen?.field_accuracy)}`],
     ['Brief: numbers verified (guard pass)', pctx(e.brief?.guard_pass_rate)],
     ['Brief: template fallback', pctx(e.brief?.fallback_rate)],
     ['Brief latency p50 / p95', e.brief ? `${(e.brief.latency_ms_p50 / 1000).toFixed(1)} s / ${(e.brief.latency_ms_p95 / 1000).toFixed(1)} s` : '—'],
@@ -44,6 +44,7 @@ function LocalLlmCard() {
           </div>
         ))}
       </div>
+      <p className='text-xs text-muted-foreground'>30 test questions (FR / EN / AR) and 70 briefs (50 FR, 10 AR, 10 EN). The rule parser was written alongside these questions, so its score is optimistic; Qwen handles free phrasings the rules do not know.</p>
       {e.skipped && <p className='text-xs text-muted-foreground'>LLM measurements skipped (Ollama not running when evaluated).</p>}
     </Card>
   )

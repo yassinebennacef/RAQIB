@@ -29,6 +29,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="http://127.0.0.1:8000")
     ap.add_argument("--shots", default=str(ROOT / "docs" / "screenshots" / "v2"))
+    ap.add_argument("--brief-wait", type=int, default=1500, help="ms to wait for the officer brief")
+    ap.add_argument("--offline", action="store_true", help="block every request that does not go to --url (offline demo)")
     args = ap.parse_args()
     shots = Path(args.shots)
     shots.mkdir(parents=True, exist_ok=True)
@@ -36,7 +38,17 @@ def main() -> int:
     with urllib.request.urlopen(args.url + "/api/worklist?lane=RED&uncertain=false&page_size=1") as r:
         red_id = json.loads(r.read())["items"][0]["id"]
 
+    blocked: list[str] = []
+
     def watch(page):
+        if args.offline:
+            def gate(route):
+                if route.request.url.startswith(args.url):
+                    route.continue_()
+                else:
+                    blocked.append(route.request.url)
+                    route.abort()
+            page.route("**/*", gate)
         page.on("console", lambda m: errors.append(f"console {m.type}: {m.text}") if m.type == "error" else None)
         page.on("pageerror", lambda e: errors.append(f"pageerror: {e}"))
 
@@ -63,6 +75,14 @@ def main() -> int:
         page.wait_for_selector("text=declarations", timeout=15000)
         page.wait_for_timeout(1200)
         page.screenshot(path=str(shots / "03_worklist.png"))
+        page.get_by_label("Ask RAQIB in French, English or Arabic").fill("déclarations rouges d'origine CN au chapitre 85 au-dessus de 80%")
+        page.get_by_role("button", name="Understand").click()
+        page.wait_for_selector("text=Apply filter", timeout=40000)
+        page.screenshot(path=str(shots / "03b_ask_raqib_chips.png"))
+        page.get_by_role("button", name="Apply filter").click()
+        page.wait_for_selector("text=Ask RAQIB filter applied", timeout=15000)
+        page.wait_for_timeout(1000)
+        page.screenshot(path=str(shots / "03c_ask_raqib_applied.png"))
         page.locator("tbody tr").first.click()
         page.wait_for_selector("text=Open full inspector", timeout=15000)
         page.wait_for_timeout(1000)
@@ -74,7 +94,9 @@ def main() -> int:
         page.wait_for_timeout(1500)
         page.screenshot(path=str(shots / "05_inspector.png"), full_page=True)
         page.get_by_role("tab", name="العربية").click()
-        page.wait_for_timeout(600)
+        page.wait_for_selector("text=Regenerate", timeout=10000)
+        page.wait_for_timeout(args.brief_wait)
+        page.screenshot(path=str(shots / "05b_brief_ar.png"))
         page.get_by_role("button", name="Inspect", exact=True).click()
         page.wait_for_selector("text=Decision logged", timeout=10000)
 
@@ -133,6 +155,8 @@ def main() -> int:
         small.screenshot(path=str(shots / "15_control_room_1366.png"))
         browser.close()
 
+    if args.offline:
+        print(f"offline mode: {len(blocked)} external request(s) blocked {blocked[:3]}")
     if errors:
         print("FAIL - console errors:")
         for e in errors:

@@ -328,3 +328,44 @@ Without an OpenAI key the brief is a deterministic template built only from the 
                  "fraud_rate_all": 0.216, "green_to_yellow": 120, "fraud_rate_green_to_yellow": 0.18},
  "efficiency": {"...": "matching + pooled, as in /api/efficiency"}}
 ```
+
+
+---
+
+# Local LLM additions (optional, Qwen3-4B via Ollama)
+
+The LLM never scores, ranks, chooses a lane or decides. With `RAQIB_LLM=off` (or Ollama not reachable) every
+endpoint below still answers, using the deterministic template / rule-based parser.
+
+## POST /api/brief
+Request `{"id": "54794554", "lang": "fr|ar|en", "refresh": false}` →
+```json
+{"text": "4 sentences ...\nContrôle suggéré: ...", "lang": "fr", "dir": "ltr|rtl", "source": "qwen3-4b|template",
+ "model": "qwen3:4b-instruct-2507-q4_K_M", "guard_passed": true, "latency_ms": 6900, "cached": false,
+ "facts_used": {"declaration_id": "...", "lane": "...", "fraud_risk_percent": 70.2, "risk_indicators": ["..."]}}
+```
+Guards: every number must be in the facts (rounding, percent/fraction and Arabic-Indic digits handled), banned
+accusatory claims, right language, no echo of the instructions; one retry at temperature 0, then the template.
+Cached in `artifacts/brief_cache/{id}_{lang}.json`. (The older `POST /api/brief/{id}?lang=` template endpoint is kept.)
+
+## POST /api/nlq
+Request `{"q": "déclarations rouges d'origine CN au chapitre 85 au-dessus de 80%"}` →
+```json
+{"filter": {"lane": ["RED"], "min_fraud": 0.8, "safety_only": false, "uncertain_only": false, "origin": ["CN"],
+            "hs_prefix": ["85"], "office": null, "importer": null, "date_from": null, "date_to": null,
+            "sort": "fraud_desc", "limit": 50},
+ "source": "rules|qwen3-4b", "warnings": [], "explanation": "lane RED · fraud risk ≥ 80% · origin CN · HS 85 · ..."}
+```
+Rules first (when the rule parser recognises the question), otherwise Qwen with a JSON schema; always validated
+against the real data vocabularies. `explanation` is generated from the filter, not by the LLM.
+
+## POST /api/worklist/query
+Request `{"filter": {...NLQ filter...}, "page": 1, "page_size": 50}` → same shape as `GET /api/worklist`.
+`GET /api/worklist` also accepts `hs_prefix`, `importer`, `date_from`, `date_to`, `alert` (safety alerts only).
+
+## GET /api/llm/status
+`{"enabled": true, "mode": "ollama|off", "model": "...", "reachable": true, "warm": true, "avg_latency_ms": 6665,
+  "calls": 7, "errors": 0, "installed_models": ["..."]}`
+
+## GET /api/llm/eval
+Contents of `artifacts/llm_eval.json` (written by `scripts/eval_llm.py`), or `{"skipped": true}`.

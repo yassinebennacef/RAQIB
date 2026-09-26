@@ -75,7 +75,7 @@ COUNTRIES = {
 }
 LANE_WORDS = {"RED": ["rouge", "rouges", "red", "أحمر", "الحمراء", "حمراء"],
               "YELLOW": ["jaune", "jaunes", "yellow", "أصفر", "الصفراء", "صفراء"],
-              "GREEN": ["vert", "verts", "verte", "green", "أخضر", "الخضراء", "خضراء"]}
+              "GREEN": ["vert", "verts", "verte", "vertes", "green", "أخضر", "الخضراء", "خضراء"]}
 SAFETY_WORDS = ["sécurité", "securite", "safety", "menace", "threat", "alerte", "alert", "danger", "أمني", "الأمني",
                 "السلامة", "تنبيه", "التنبيه", "خطر أمني"]
 UNCERTAIN_WORDS = ["incertain", "incertains", "uncertain", "désaccord", "desaccord", "disagree", "disagreement",
@@ -154,7 +154,8 @@ def _system_prompt(vocab: Vocab) -> str:
         "check, GREEN = release), min_fraud (fraud probability threshold between 0 and 1, e.g. 'above 80%' -> 0.8), "
         "safety_only (public-safety alerts), uncertain_only (the two models disagree), origin (ISO-2 country codes), "
         "hs_prefix (2 to 6 digit HS code prefixes), office (office codes), importer (importer ID), date_from/date_to "
-        f"(ISO dates between {vocab.date_min} and {vocab.date_max}), sort (fraud_desc | critical_desc | date_desc), "
+        f"(ISO dates between {vocab.date_min} and {vocab.date_max}; null unless a month or date is asked), "
+        "sort (fraud_desc by default; critical_desc only for safety questions; date_desc only for 'recent' / 'latest'), "
         "limit (default 50). "
         f"Office codes: {offices}. HS chapters: {gloss}. "
         "Examples: 'déclarations rouges d'origine CN au chapitre 85 au-dessus de 80%' -> lane [RED], origin [CN], "
@@ -226,6 +227,9 @@ def validate(raw: dict, vocab: Vocab) -> tuple[NLQFilter, list[str]]:
                 out[k] = s
             else:
                 w.append(f"ignored {k} '{v}' (outside {vocab.date_min}..{vocab.date_max})")
+    if out.get("date_from") == vocab.date_min and out.get("date_to") == vocab.date_max:
+        out.pop("date_from")
+        out.pop("date_to")  # the whole period: not a filter
     if raw.get("sort") in ("fraud_desc", "critical_desc", "date_desc"):
         out["sort"] = raw["sort"]
     try:
@@ -262,17 +266,25 @@ def explain(f: NLQFilter, offices: dict[str, str] | None = None) -> str:
     return " · ".join(parts)
 
 
-def parse(q: str, vocab: Vocab, use_llm: bool = True) -> dict:
+def parse(q: str, vocab: Vocab, use_llm: bool = True, mode: str = "hybrid") -> dict:
+    """mode: "hybrid" (default: the rule parser when it recognises the question - measured more exact on our test
+    set - otherwise Qwen for free phrasing), "llm" (Qwen only), "rules" (rules only)."""
     q = (q or "").strip()[:300]
     source = "rules"
     raw: dict = {}
     warnings: list[str] = []
+    rules = rules_parse(q, vocab) if mode != "llm" else {}
+    if mode == "rules" or (mode == "hybrid" and rules):
+        f, w = validate(rules, vocab)
+        return {"filter": f.model_dump(), "source": "rules", "warnings": w, "explanation": explain(f, vocab.offices)}
     if use_llm and client.available():
         try:
             content, _ = client.chat(_system_prompt(vocab), f"Question: {q}", schema=SCHEMA, temperature=0.0,
                                      num_predict=200)
             raw = json.loads(content)
             source = "qwen3-4b"
+            if raw.get("sort") == "critical_desc" and not raw.get("safety_only"):
+                raw["sort"] = "fraud_desc"  # a safety ordering only makes sense for a safety question
         except (client.LLMError, ValueError) as exc:
             warnings.append(f"LLM unavailable ({exc}); used the rule-based parser")
             raw = {}

@@ -22,11 +22,20 @@ SCHEMA = {"type": "object", "properties": {"brief": {"type": "string"}, "suggest
           "required": ["brief", "suggested_check"]}
 SYSTEM = ("You are an assistant writing a short inspection brief for a customs officer. Use ONLY the facts provided "
           "in JSON. Do not invent numbers, names, or causes. Do not say the goods ARE fraudulent: say 'risk indicators'. "
-          "Write 4-6 sentences in {lang}. In suggested_check, name what to verify (documents, value, origin, physical "
-          "exam) based on the reasons, in {lang}.")
+          "Write {length} in {lang}. In suggested_check, name in a few words what to "
+          "verify (documents, value, origin, physical exam) based on the reasons, in {lang}. {terms}")
+LENGTH = {"fr": "exactly 4 short sentences (at most 80 words)", "en": "exactly 4 short sentences (at most 80 words)",
+          "ar": "exactly 3 short sentences (at most 55 words)"}
+TERMS = {
+    "fr": ("Vocabulaire : déclaration, indicateurs de risque, voie rouge (inspection physique), voie jaune (contrôle "
+           "documentaire), voie verte (mainlevée), agent des douanes, règle actuelle."),
+    "ar": ("استعمل المصطلحات: التصريح الديواني، مؤشرات الخطر، المسار الأحمر (تفتيش مادي)، المسار الأصفر (مراقبة وثائقية)، "
+           "المسار الأخضر (رفع اليد)، العون الديواني، القاعدة الحالية. لا تقل إن البضاعة مغشوشة."),
+    "en": "",
+}
 LANE_WORDS = {"RED": "RED (physical inspection)", "YELLOW": "YELLOW (document check)", "GREEN": "GREEN (release)"}
-ECHO_MARKERS = ["FACTS", "TASK", "4-6 sentences", "4 to 6 sentences", "suggested_check", "in French", "in English",
-                "Modern Standard Arabic"]
+ECHO_MARKERS = ["FACTS =", "TASK:", "4-6 sentences", "4 short sentences", "3 short sentences", "suggested_check", "Modern Standard Arabic",
+                "Use ONLY the facts"]
 
 
 def facts_from_detail(d: dict) -> dict:
@@ -58,9 +67,9 @@ def _language_ok(text: str, lang: str) -> bool:
         letters = [ch for ch in text if ch.isalpha()]
         return bool(letters) and sum("؀" <= ch <= "ۿ" for ch in letters) / len(letters) > 0.6
     words = {"fr": [" le ", " la ", " de ", " des ", " est ", " et ", " du "],
-             "en": [" the ", " of ", " and ", " is ", " to "]}[lang]
+             "en": [" the ", " of ", " and ", " is ", " to ", " a ", " with ", " for ", " risk ", " should "]}[lang]
     low = f" {text.lower()} "
-    return sum(w in low for w in words) >= 3
+    return sum(w in low for w in words) >= (3 if lang == "fr" else 2)
 
 
 def check(text: str, facts: dict, lang: str) -> list[str]:
@@ -72,7 +81,7 @@ def check(text: str, facts: dict, lang: str) -> list[str]:
     claims = banned_claims(text)
     if claims:
         problems.append(f"banned claims: {', '.join(claims)}")
-    if any(m.lower() in text.lower() for m in ECHO_MARKERS):
+    if any(m in text for m in ECHO_MARKERS):
         problems.append("echoes the instructions")
     if len(text) < 120:
         problems.append("too short")
@@ -85,7 +94,8 @@ def _generate(facts: dict, lang: str, temperature: float) -> tuple[str, int]:
     name = LANG_NAME[lang]
     user = (f"Write the inspection brief in {name} for the declaration below.\n"
             f"FACTS = {json.dumps(facts, ensure_ascii=False)}")
-    content, ms = client.chat(SYSTEM.format(lang=name), user, schema=SCHEMA, temperature=temperature, num_predict=450)
+    content, ms = client.chat(SYSTEM.format(lang=name, terms=TERMS[lang], length=LENGTH[lang]), user, schema=SCHEMA, temperature=temperature,
+                              num_predict=320)
     obj = json.loads(content)
     brief = re.sub(r"\s+", " ", str(obj.get("brief", ""))).strip()
     check_line = re.sub(r"\s+", " ", str(obj.get("suggested_check", ""))).strip()
