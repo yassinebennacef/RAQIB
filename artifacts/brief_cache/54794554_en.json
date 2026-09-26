@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk indicators: product 731815 has 36% fraud history, origin MX has 45% fraud, and declared value aligns with usual values. Risk stems from product and origin history, not value or physical traits. Suggested_check: Verify documents, declared value, origin, and physical items.\nSuggested check: documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 4256,
+  "cached": false,
+  "generated_at": "2026-09-26T01:47:20+00:00"
+}

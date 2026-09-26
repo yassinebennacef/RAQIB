@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 31163152 présente des indicateurs de risque élevés : valeur unitaire anormale, historique de fraude du produit et de l'origine GB. L'agent des douanes doit vérifier la déclaration, la valeur, l'origine et effectuer une voie rouge (inspection physique). Le risque de fraude est élevé, malgré une règle actuelle de mainlevée. L'inspection physique est nécessaire en raison de l'interaction entre historique de produit et de chapitre.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7420,
+  "cached": false,
+  "generated_at": "2026-09-26T01:36:35+00:00"
+}

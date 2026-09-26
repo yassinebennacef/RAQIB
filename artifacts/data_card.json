@@ -1,0 +1,62 @@
+{
+  "dataset": "Customs Import Declaration Datasets (synthetic, CTGAN) - IBS & Korea Customs Service",
+  "licence": "MIT",
+  "source_url": "https://github.com/Seondong/Customs-Declaration-Datasets",
+  "hs_names": {
+    "source_url": "https://github.com/datasets/harmonized-system",
+    "licence": "ODC-PDDL-1.0"
+  },
+  "rows": 54000,
+  "columns": 22,
+  "train": {
+    "rows": 45519,
+    "period": [
+      "2020-01-01",
+      "2021-03-31"
+    ],
+    "days": 456,
+    "fraud_rate": 0.2156901513653639,
+    "critical_rate": 0.010369296337793009,
+    "n_fraud": 9818,
+    "n_critical": 472
+  },
+  "test": {
+    "rows": 8481,
+    "period": [
+      "2021-04-01",
+      "2021-06-30"
+    ],
+    "days": 91,
+    "fraud_rate": 0.2163659945761113,
+    "critical_rate": 0.008607475533545572,
+    "n_fraud": 1835,
+    "n_critical": 73
+  },
+  "unique": {
+    "importers": 14482,
+    "declarants": 1238,
+    "sellers": 12201,
+    "hs6": 2489,
+    "origins": 119,
+    "offices": 43
+  },
+  "fraud_rate": 0.2157962962962963,
+  "critical_rate": 0.010092592592592592,
+  "hs_name_match": {
+    "hs6": 0.9578888888888889,
+    "hs4_fallback": 0.03901851851851852,
+    "none": 0.0030925925925925925
+  },
+  "test_new_operators": {
+    "importer": 0.10482254451126047,
+    "declarant": 0.00023582124749439923,
+    "seller": 0.09998820893762528,
+    "hs6": 0.007074637424831978
+  },
+  "missing_seller_share": 0.09631481481481481,
+  "test_unit_value_equals_product_median": 0.7845772904138663,
+  "notes": [
+    "Only inspected (labelled) declarations were synthesised, so the fraud rate is far higher than among all declarations; the gain over the rule is the claim, not the absolute precision.",
+    "Item price is the assessed value in KRW; net mass in kg."
+  ]
+}

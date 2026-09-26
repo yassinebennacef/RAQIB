@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 97947375 présente des indicateurs de risque élevés pour le produit 851890, notamment une histoire de fraude passée de 37 % et une valeur déclarée cohérente avec le marché. L'importateur a un taux de fraude passé de 50 %. Le modèle de produit et la valeur déclarée renforcent le risque. Suggested_check: voie rouge (inspection physique) – vérifier la conformité physique, les documents, la valeur déclarée et l'origine.\nContrôle suggéré: voie rouge (inspection physique) – vérifier la conformité physique, les documents, la valeur déclarée et l'origine.",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 8354,
+  "cached": false,
+  "generated_at": "2026-09-26T01:37:23+00:00"
+}

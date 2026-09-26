@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 25870355 présente des indicateurs de risque élevés concernant le produit 960330 et son origine LK. L'agent des douanes doit vérifier la déclaration, la valeur unitaire et l'origine. La voie rouge (inspection physique) est recommandée en raison de l'histoire de fraude du produit et de l'origine. La règle actuelle prévoit une libération, mais le risque élevé justifie une vérification physique.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7237,
+  "cached": false,
+  "generated_at": "2026-09-26T01:35:00+00:00"
+}

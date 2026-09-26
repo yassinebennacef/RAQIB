@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 43837273 présente des indicateurs de risque élevés, notamment une origine VN avec 21 % de fraude historique et un produit 310490 frauduleux dans 100 % de ses déclarations passées. L'agent des douanes doit vérifier la valeur, l'origine et la conformité physique. Suggestion de contrôle : voie rouge (inspection physique) en raison de risques élevés. Règle actuelle : inspect.\nContrôle suggéré: vérifier la valeur, l'origine, l'examens physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7174,
+  "cached": false,
+  "generated_at": "2026-09-26T01:34:46+00:00"
+}

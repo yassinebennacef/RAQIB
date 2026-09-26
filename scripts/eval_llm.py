@@ -60,15 +60,51 @@ def score_nlq(cases: list[dict], vocab, use_llm: bool, mode: str = "hybrid") -> 
             "seconds": round(time.time() - t0, 1), "cases": rows}
 
 
+REFUSAL_MARKERS = ["ne trouve pas", "cannot find", "can't find", "don't find", "do not find", "لا أجد", "ne figure pas",
+                   "pas dans la base", "not in the knowledge base"]
+
+
+def eval_assistant() -> dict:
+    from raqib.api import AssistantRequest, assistant
+    client.warm_up()
+    cases = json.loads((ROOT / "tests" / "data" / "assistant_cases.json").read_text(encoding="utf-8"))
+    rows = []
+    for c in cases:
+        t0 = time.time()
+        r = assistant(AssistantRequest(messages=[{"role": "user", "content": c["q"]}], lang=c["lang"], page=c["page"]))
+        refused = r["source"] == "faq" and bool(r.get("out_of_scope")) or any(m in r["answer"].lower() for m in REFUSAL_MARKERS)
+        rows.append({"q": c["q"], "lang": c["lang"], "source": r["source"], "guard_passed": r["guard_passed"],
+                     "latency_ms": int((time.time() - t0) * 1000), "out_of_scope": bool(c.get("out_of_scope")),
+                     "refused": refused, "answer": r["answer"][:300]})
+    ins = [r for r in rows if not r["out_of_scope"]]
+    oos = [r for r in rows if r["out_of_scope"]]
+    lat = np.array([r["latency_ms"] for r in ins])
+    return {"n": len(rows), "in_scope_n": len(ins), "guard_pass_rate": float(np.mean([r["guard_passed"] for r in ins])),
+            "fallback_rate": float(np.mean([r["source"] == "faq" for r in ins])),
+            "latency_ms_p50": int(np.percentile(lat, 50)), "latency_ms_p95": int(np.percentile(lat, 95)),
+            "out_of_scope_n": len(oos), "out_of_scope_refused": int(sum(r["refused"] for r in oos)),
+            "in_scope_wrongly_refused": int(sum(r["refused"] for r in ins)), "cases": rows}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--briefs", type=int, default=50)
     ap.add_argument("--skip-briefs", action="store_true", help="re-measure NLQ only, keep the previous brief results")
+    ap.add_argument("--assistant-only", action="store_true", help="measure the assistant only, keep the other results")
     args = ap.parse_args()
     from raqib.api import _llm_brief_inputs, _nlq_vocab, worklist
     from raqib.brief import template_brief
 
     vocab = _nlq_vocab()
+    if args.assistant_only:
+        client.refresh_status()
+        prev = json.loads((C.ARTIFACTS / "llm_eval.json").read_text(encoding="utf-8")) if (C.ARTIFACTS / "llm_eval.json").exists() else {}
+        prev["assistant"] = eval_assistant()
+        (C.ARTIFACTS / "llm_eval.json").write_text(json.dumps(prev, indent=2, ensure_ascii=False), encoding="utf-8")
+        a = prev["assistant"]
+        print(f"Assistant: guard pass {a['guard_pass_rate']:.0%} (in scope), fallback {a['fallback_rate']:.0%}, "
+              f"out-of-scope refused {a['out_of_scope_refused']}/{a['out_of_scope_n']}, p50 {a['latency_ms_p50']} ms, p95 {a['latency_ms_p95']} ms")
+        return
     cases = json.loads((ROOT / "tests" / "data" / "nlq_cases.json").read_text(encoding="utf-8"))
     client.refresh_status()
     out: dict = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

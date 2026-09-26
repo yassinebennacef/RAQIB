@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 37626295 présente des indicateurs de risque élevés pour le produit 401519 et l'origine PK. L'agent des douanes doit vérifier la déclaration, la valeur déclarée et l'origine physique. Voie rouge : inspection physique du bien. Règle actuelle : libération, malgré les risques.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6035,
+  "cached": false,
+  "generated_at": "2026-09-26T01:36:12+00:00"
+}

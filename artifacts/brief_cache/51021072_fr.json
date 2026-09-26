@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 51021072 présente des indicateurs de risque élevés : historique de fraude du produit et de l'importateur. L'agent des douanes doit vérifier la déclaration, la valeur déclarée, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle prévoit une libération, mais le risque de fraude est important. L'inspection physique est nécessaire en raison de l'interaction entre le produit et la valeur déclarée.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7367,
+  "cached": false,
+  "generated_at": "2026-09-26T01:39:33+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 90997688 présente des indicateurs de risque élevés : historique de fraude du produit et interaction masse-net. L'agent des douanes doit vérifier la déclaration, la valeur unitaire, l'origine et effectuer une voie rouge. La règle actuelle permet une mainlevée, malgré les risques. S'assurer que les documents sont complets et que la masse physique correspond à la déclaration.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6744,
+  "cached": false,
+  "generated_at": "2026-09-26T01:39:02+00:00"
+}

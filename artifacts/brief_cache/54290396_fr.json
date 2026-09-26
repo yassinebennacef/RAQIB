@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 54290396 présente des indicateurs de risque élevés pour le produit HS 611790. L'agent des douanes doit vérifier la déclaration, la valeur unitaire, l'origine et effectuer une voie rouge (inspection physique). Le risque de fraude est élevé en raison de l'historique du déclarant et des 4 déclarations passées. La règle actuelle prévoit une libération, mais la voie rouge s'applique en raison des indicateurs de risque.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7870,
+  "cached": false,
+  "generated_at": "2026-09-26T01:49:45+00:00"
+}

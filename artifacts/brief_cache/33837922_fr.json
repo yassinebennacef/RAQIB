@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 33837922 présente des indicateurs de risque élevés : historique de fraude pour le produit et l'origine ES. L'agent des douanes doit vérifier la déclaration, la valeur et l'origine. Voie rouge : examen physique des marchandises. Règle actuelle : libération.\nContrôle suggéré: déclaration, valeur, origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6443,
+  "cached": false,
+  "generated_at": "2026-09-26T01:48:34+00:00"
+}

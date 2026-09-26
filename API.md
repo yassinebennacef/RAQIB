@@ -419,3 +419,26 @@ and, when the page is a declaration, that declaration's computed facts; RAQIB nu
 question is allowed; it never scores, ranks, picks a lane or decides.
 Errors: `422` empty question; `503` `{"detail": "LLM local indisponible : ...", "llm": {enabled, reachable, model, url}}`
 when Ollama is off or unreachable (the panel then explains how to start it).
+
+## POST /api/assistant — Assistant RAQIB (grounded helper chat)
+Request:
+```json
+{"messages": [{"role": "user", "content": "Pourquoi cette déclaration est ROUGE ?"}], "lang": "fr|ar|en",
+ "page": "/declaration/54794554", "declaration_id": null}
+```
+(`declaration_id` is taken from `page` when it is a declaration page; only the last 6 turns are used.)
+Response:
+```json
+{"answer": "...", "lang": "fr", "dir": "ltr|rtl", "source": "qwen3-4b|faq|rules", "citations": [{"key": "why_red",
+ "title": "Pourquoi une déclaration est ROUGE", "page": "/declaration"}], "guard_passed": true, "latency_ms": 8000,
+ "declaration_id": "54794554", "kind": "filter", "filter": {"...": "NLQ filter, only for filter requests"},
+ "question": "...", "out_of_scope": false}
+```
+Grounding: BM25 over `docs/assistant_kb.md` (43 sections generated from the measured artifacts by `python -m raqib.kb`)
++ the computed facts of the declaration. Guards: numbers must appear in the facts or the retrieved sections, banned
+accusatory words, language check; one retry at temperature 0 within a 25-second total budget. If the model declines
+despite relevant declaration facts, the FAQ fallback gives a short, localized answer from those facts.
+A common “why is this RED?” declaration starter uses a synchronous, localized FAQ answer so it remains fast with a
+cold or unavailable local model.
+A filter request ("montre-moi les rouges de Chine…") returns the parsed Ask RAQIB filter (`kind: "filter"`).
+The assistant never scores, ranks, picks a lane or decides.

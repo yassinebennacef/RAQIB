@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 47782225 présente des indicateurs de risque élevés, notamment un historique de fraude pour le produit 610342 et le vendeur V5GYLVJ. L'agent des douanes doit vérifier la déclaration, la valeur unitaire, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle prévoit une libération, mais le risque élevé justifie une vérification physique. Le produit est de type textile, de provenance coréenne.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7948,
+  "cached": false,
+  "generated_at": "2026-09-26T01:49:30+00:00"
+}

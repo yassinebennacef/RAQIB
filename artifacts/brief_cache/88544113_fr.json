@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 88544113 présente des indicateurs de risque élevés liés à l'histoire frauduleuse du produit 940591 et à la valeur déclarée. L'agent des douanes doit vérifier la conformité de la déclaration, la valeur, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle impose une inspection. Le risque de fraude est élevé, mais aucun alerte de sécurité n'est détecté.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7149,
+  "cached": false,
+  "generated_at": "2026-09-26T01:36:20+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (96.4%) due to product's 100% past fraud in 5 declarations and glass-box interaction. Risk indicators show strong historical fraud pattern. Origin (JP) slightly reduces risk (17% fraud). Product value is typical. Suggested_check: Verify documents, value, origin, and physical exam to confirm authenticity and compliance.\nSuggested check: documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 5061,
+  "cached": false,
+  "generated_at": "2026-09-26T01:41:38+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 41532360 présente des indicateurs de risque élevés : historique de fraude totale pour le produit 900850 et interaction entre valeur déclarée et historique de fraude. L'agent des douanes doit vérifier la conformité de la déclaration, la valeur et l'origine. S'agissant d'une voie rouge, une inspection physique est requise. La règle actuelle prévoit un contrôle par inspection physique.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7061,
+  "cached": false,
+  "generated_at": "2026-09-26T01:34:39+00:00"
+}

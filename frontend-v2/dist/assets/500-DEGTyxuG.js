@@ -1,0 +1,1 @@
+import{n as e}from"./index-BS_f3zMp.js";var t=e;export{t as component};

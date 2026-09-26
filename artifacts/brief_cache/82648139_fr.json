@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 82648139 présente des indicateurs de risque élevés : 100 % des déclarations passées de ce produit ont montré une fraude. L'agent des douanes doit vérifier la déclaration, la valeur et l'origine. Suggestion de contrôle : voie rouge (inspection physique) en raison de l'histoire de fraude. Règle actuelle : inspection.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6166,
+  "cached": false,
+  "generated_at": "2026-09-26T01:34:25+00:00"
+}

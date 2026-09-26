@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BadgeCheck, Cpu, Languages, Loader2, RefreshCw, Sparkles, X } from 'lucide-react'
 import { apiLLM, type LlmBrief, type NlqFilter, type NlqResult } from '@/lib/api'
 import { useMoney } from '@/lib/currency'
@@ -164,16 +164,31 @@ export function FilterChips({ f, onRemove }: { f: NlqFilter; onRemove?: (c: { ke
   )
 }
 
-export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: NlqFilter, label: string) => void }) {
+export function AskRaqib({
+  initial,
+  autoApply = false,
+  onApply,
+}: {
+  initial?: string
+  autoApply?: boolean
+  onApply: (f: NlqFilter, label: string) => void
+}) {
   const [q, setQ] = useState(initial ?? '')
   const [res, setRes] = useState<NlqResult | null>(null)
   const [pending, setPending] = useState<NlqFilter | null>(null)
+  const applyNext = useRef(autoApply)
   const ask = useMutation({
     mutationFn: (text: string) => apiLLM.nlq(text),
     onSuccess: (r) => {
       setRes(r)
       setPending(r.filter)
       notifyLlmFallback(r.llm_fallback, r.warnings[0])
+      if (r.understood === false) {
+        toast.info('Question non comprise', { description: `Reformulez, par exemple : « ${ASK_EXAMPLES[0]} »` })
+      } else if (applyNext.current) {
+        applyNext.current = false
+        onApply(r.filter, r.explanation)
+      }
     },
     onError: (e) => toast.error(`Question non comprise : ${e instanceof Error ? e.message : String(e)}`),
   })
@@ -181,13 +196,20 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
     if (initial && initial.trim()) ask.mutate(initial.trim())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial])
+  const submit = (text: string) => {
+    const t = text.trim()
+    if (!t || ask.isPending) return
+    setRes(null)
+    setPending(null)
+    ask.mutate(t)
+  }
   return (
     <Card className='gap-3 border-primary/30 p-4'>
       <form
         className='flex flex-wrap items-center gap-2'
         onSubmit={(e) => {
           e.preventDefault()
-          if (q.trim()) ask.mutate(q.trim())
+          submit(q)
         }}
       >
         <Sparkles className='size-4 text-primary' />
@@ -201,13 +223,19 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
           dir='auto'
           aria-label='Ask RAQIB in French, English or Arabic'
         />
-        <Button type='submit' size='sm' disabled={ask.isPending || !q.trim()}>
-          {ask.isPending ? <Loader2 className='animate-spin' /> : <Sparkles />} Understand
+        <Button type='submit' size='sm' disabled={ask.isPending || !q.trim()} aria-busy={ask.isPending}>
+          {ask.isPending ? <Loader2 className='animate-spin' /> : <Sparkles />} {ask.isPending ? 'Analyse…' : 'Comprendre'}
         </Button>
       </form>
-      {!res && (
+      {ask.isPending && (
+        <div role='status' className='flex items-center gap-2 text-xs text-muted-foreground'>
+          <Loader2 className='size-3.5 animate-spin text-primary' /> Analyse en cours… (règles instantanées, Qwen local pour les
+          formulations libres)
+        </div>
+      )}
+      {!res && !ask.isPending && (
         <div className='flex flex-wrap gap-2 text-xs text-muted-foreground'>
-          Try:
+          Exemples :
           {ASK_EXAMPLES.map((ex) => (
             <button
               key={ex}
@@ -216,7 +244,7 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
               className='rounded-full border px-2 py-0.5 hover:bg-accent hover:text-foreground'
               onClick={() => {
                 setQ(ex)
-                ask.mutate(ex)
+                submit(ex)
               }}
             >
               {ex}
@@ -225,17 +253,18 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
         </div>
       )}
       {res && pending && (
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-2' data-testid='ask-result'>
           <div className='flex flex-wrap items-center gap-2 text-xs text-muted-foreground'>
-            Understood as
-            <Badge variant='outline'>{res.source === 'qwen3-4b' ? 'Qwen3-4B · local' : 'rule-based parser (exact match, Qwen not needed)'}</Badge>
-            — review, remove what you do not want, then apply (never applied automatically).
+            Compris comme
+            <Badge variant='outline'>{res.source === 'qwen3-4b' ? 'Qwen3-4B · local' : 'parseur à règles'}</Badge>
+            — vérifiez, retirez ce qui ne convient pas, puis appliquez (jamais appliqué automatiquement).
           </div>
           <FilterChips f={pending} onRemove={(c) => setPending(removeChip(pending, c))} />
+          <div className='text-xs'>{res.explanation}</div>
           {res.warnings.length > 0 && <div className='text-[11px] text-lane-yellow'>{res.warnings.join(' · ')}</div>}
           <div className='flex gap-2'>
             <Button size='sm' onClick={() => onApply(pending, res.explanation)}>
-              Apply filter
+              Appliquer
             </Button>
             <Button
               size='sm'
@@ -245,7 +274,7 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
                 setPending(null)
               }}
             >
-              Cancel
+              Annuler
             </Button>
           </div>
         </div>

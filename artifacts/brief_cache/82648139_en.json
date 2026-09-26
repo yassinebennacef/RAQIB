@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (94.9%) due to 100% fraudulent past declarations for product 847780. Risk indicators show thin history and elevated fraud pattern. Despite unit value aligning with usual rates, overall fraud risk dominates. Suggested_check: verify documents, value, origin, and physical exam to confirm legitimacy and match past declarations.\nSuggested check: verify documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 5347,
+  "cached": false,
+  "generated_at": "2026-09-26T01:41:49+00:00"
+}

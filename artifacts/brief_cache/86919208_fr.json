@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 86919208 présente des indicateurs de risque élevés : historique de fraude du produit et de l'importateur, ainsi que le chapitre HS 09. Le risque de fraude est estimé à 70,6 %. L'agent des douanes doit vérifier la déclaration, la valeur déclarée, l'origine et effectuer une voie rouge (inspection physique).\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6477,
+  "cached": false,
+  "generated_at": "2026-09-26T01:36:06+00:00"
+}

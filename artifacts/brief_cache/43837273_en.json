@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (93.8%) for product 310490 from VN, with 100% past fraud in 5 declarations. Risk indicators show origin and product history raise concern. Despite unit value matching usual rates, overall risk is elevated. Suggested_check: verify documents, value, origin, and physical exam of fertilizers.\nSuggested check: verify documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 4965,
+  "cached": false,
+  "generated_at": "2026-09-26T01:42:03+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (95.4%) for product 940210 due to 100% past fraud in similar declarations and 86% below usual unit value. Risk amplified by HS chapter 94 fraud history and glass-box interaction. Product history shows thin record; unit value and origin are key concerns. Suggested_check: Verify documents, value, origin, and physical exam for consistency with declared product and value.\nSuggested check: documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 5907,
+  "cached": false,
+  "generated_at": "2026-09-26T01:41:44+00:00"
+}

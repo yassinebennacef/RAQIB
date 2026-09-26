@@ -707,6 +707,7 @@ export interface NlqResult {
   warnings: string[];
   explanation: string;
   llm_fallback?: "unavailable" | "rejected" | null;
+  understood?: boolean;
 }
 
 export interface LlmStatus {

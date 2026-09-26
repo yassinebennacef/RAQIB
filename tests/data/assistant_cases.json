@@ -1,0 +1,22 @@
+[
+  {"lang": "fr", "page": "/", "q": "Comment RAQIB choisit les contrôles ?"},
+  {"lang": "fr", "page": "/lab", "q": "Que signifie précision à 5 % ?"},
+  {"lang": "fr", "page": "/about", "q": "D'où viennent les données ?"},
+  {"lang": "fr", "page": "/", "q": "Que fait l'exploration ?"},
+  {"lang": "fr", "page": "/declaration/54794554", "q": "Pourquoi cette déclaration est ROUGE ?", "declaration": true},
+  {"lang": "ar", "page": "/declaration/54794554", "q": "لماذا هذا التصريح في المسار الأحمر؟", "declaration": true},
+  {"lang": "fr", "page": "/journal", "q": "À quoi sert le journal SHA-256 ?"},
+  {"lang": "fr", "page": "/", "q": "Quelle est la capitale de l'Australie ?", "out_of_scope": true},
+  {"lang": "en", "page": "/worklist", "q": "What does models disagree mean?"},
+  {"lang": "en", "page": "/impact", "q": "How many fewer inspections does RAQIB need than the rule?"},
+  {"lang": "en", "page": "/explainability", "q": "Is the glass-box EBM as accurate as LightGBM?"},
+  {"lang": "en", "page": "/lab", "q": "What are the limits of the data?"},
+  {"lang": "en", "page": "/", "q": "Which football team won the 2018 World Cup?", "out_of_scope": true},
+  {"lang": "en", "page": "/", "q": "Who decides in the end, the AI or the officer?"},
+  {"lang": "ar", "page": "/", "q": "كيف يختار رقيب عمليات التفتيش؟"},
+  {"lang": "ar", "page": "/worklist", "q": "ماذا يعني اختلاف النموذجين؟"},
+  {"lang": "ar", "page": "/about", "q": "من أين تأتي البيانات؟"},
+  {"lang": "ar", "page": "/worklist", "q": "ما هي المسارات الثلاثة؟"},
+  {"lang": "ar", "page": "/", "q": "ما هو الاستكشاف؟"},
+  {"lang": "ar", "page": "/lab", "q": "ماذا تعني الدقة عند 5%؟"}
+]

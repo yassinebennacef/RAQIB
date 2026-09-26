@@ -1,0 +1,82 @@
+{
+  "experiments": [
+    {
+      "key": "ebm",
+      "title": "Glass-box model (Explainable Boosting Machine)",
+      "decision": "kept",
+      "hypothesis": "A fully transparent additive model can match the black-box gradient boosting.",
+      "method": "Same features, EBM with 5 pairwise interactions and 4 outer bags; test period metrics.",
+      "result": {
+        "fraud_auc": 0.7708618242437114,
+        "fraud_precision_at_5": 0.7176470588235294,
+        "critical_auc": 0.9255585026654328,
+        "critical_recall_at_5": 0.6712328767123288
+      },
+      "baseline": {
+        "fraud_auc": 0.7696092218301804,
+        "fraud_precision_at_5": 0.7105882352941176,
+        "critical_auc": 0.9518446228640695,
+        "critical_recall_at_5": 0.7808219178082192
+      },
+      "reason": "As accurate as LightGBM while every prediction is an exact sum of readable contributions."
+    },
+    {
+      "key": "disagreement",
+      "title": "Uncertainty from model disagreement",
+      "decision": "kept",
+      "hypothesis": "Where the glass box and the black box disagree, a human should look.",
+      "method": "|p(EBM) - p(LightGBM)| above the 95th percentile of out-of-sample disagreement on the last 4 training weeks.",
+      "result": {
+        "threshold": 0.17932323463497127,
+        "n_flagged": 371,
+        "share_flagged": 0.04374484141021106,
+        "fraud_rate_flagged": 0.444743935309973,
+        "fraud_rate_all": 0.2163659945761113,
+        "green_to_yellow": 136,
+        "fraud_rate_green_to_yellow": 0.19117647058823528,
+        "fraud_rate_green_after": 0.15449599083619703,
+        "shadow": {
+          "late_period": [
+            "2021-03-04",
+            "2021-03-31"
+          ],
+          "n_late": 3015
+        }
+      },
+      "reason": "Flagged declarations are never released green; they go to a document check."
+    },
+    {
+      "key": "isolation_forest",
+      "title": "Anomaly detection (Isolation Forest)",
+      "decision": "rejected",
+      "hypothesis": "Unusual declarations (value per kg far from the product's usual value, odd mass or volume) are more often fraudulent.",
+      "method": "IsolationForest(300 trees) on unit-value z-score vs the product median, log mass, log value, tax rate and product/seller/declarant volumes, fitted on TRAIN.",
+      "result": {
+        "fraud_auc": 0.4774955495551195,
+        "critical_auc": 0.48630788681360215,
+        "top1_fraud_rate": 0.24705882352941178,
+        "base_rate": 0.2163659945761113,
+        "k": 85
+      },
+      "reason": "No signal: the top 1% anomalies are fraudulent at about the base rate."
+    },
+    {
+      "key": "network_2hop",
+      "title": "2-hop network features",
+      "decision": "rejected",
+      "hypothesis": "An importer using sellers or declarants that serve fraudulent importers is riskier.",
+      "method": "Out-of-fold smoothed fraud rate of the OTHER importers sharing the seller / declarant, added to LightGBM.",
+      "result": {
+        "auc_with": 0.7689652910398257,
+        "auc_without": 0.7696092218301804,
+        "p5_with": 0.7011764705882353,
+        "p5_without": 0.7105882352941176,
+        "features": [
+          "seller_others_rate",
+          "declarant_others_rate"
+        ]
+      },
+      "reason": "No gain. CTGAN synthesises rows independently, so cross-row links are artefacts; re-test on real Tunisian data."
+    }
+  ]
+}

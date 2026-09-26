@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (98.1%) for product 610452 from TR, with past fraud in 100% of declarations and seller H9NE890 at 23%. Origin TR and seller history raise red flags. Despite unit value matching usual rates, risk indicators are strong. Suggested_check: verify documents, value, origin, and physical exam of skirts.\nSuggested check: verify documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 15489,
+  "cached": false,
+  "generated_at": "2026-09-26T01:41:19+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 98646711 présente des indicateurs de risque élevés : 55 % de fraude dans les déclarations passées pour le produit 871200 et un vendeur à risque (22 % de fraude). La valeur unitaire est conforme, mais le vendeur est un facteur de risque. La règle actuelle permet la libération. Suggested_check: voie rouge (inspection physique) pour vérifier la nature physique des vélos et la conformité des documents.\nContrôle suggéré: voie rouge (inspection physique)",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6891,
+  "cached": false,
+  "generated_at": "2026-09-26T01:38:16+00:00"
+}
