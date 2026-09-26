@@ -646,7 +646,7 @@ class BriefRequest(BaseModel):
 
 
 class NLQRequest(BaseModel):
-    q: str = Field(..., max_length=300)
+    q: str = Field(..., max_length=2000)  # long questions are truncated by the parser, never rejected
 
 
 class WorklistQuery(BaseModel):

@@ -693,6 +693,7 @@ export interface NlqResult {
   source: "qwen3-4b" | "rules";
   warnings: string[];
   explanation: string;
+  understood?: boolean;
 }
 
 export interface LlmStatus {

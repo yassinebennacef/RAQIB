@@ -196,8 +196,9 @@ export function Worklist() {
         />
       </div>
       <AskRaqib
-        key={search.ask ?? 'ask'}
+        key={`${search.ask ?? 'ask'}-${search.apply ?? ''}`}
         initial={search.ask}
+        autoApply={search.apply === '1'}
         onApply={(filter, label) => {
           setNlq({ filter, label })
           setPagination((p) => ({ ...p, pageIndex: 0 }))
@@ -206,10 +207,10 @@ export function Worklist() {
       {nlq && (
         <div className='flex flex-wrap items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 text-xs'>
           <Sparkles className='size-3.5 text-primary' />
-          <span className='font-medium'>Ask RAQIB filter applied:</span>
+          <span className='font-medium'>Filtre Ask RAQIB appliqué :</span>
           <FilterChips f={nlq.filter} />
           <Button size='sm' variant='ghost' className='ms-auto h-7' onClick={() => setNlq(null)}>
-            <X /> Clear
+            <X /> Effacer
           </Button>
         </div>
       )}

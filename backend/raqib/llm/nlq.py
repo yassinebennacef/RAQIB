@@ -15,6 +15,9 @@ from pydantic import BaseModel, Field
 from . import client
 
 
+NLQ_TIMEOUT = 6.0  # seconds for the LLM path; the rule parser answers instantly anyway
+
+
 class NLQFilter(BaseModel):
     lane: list[Literal["RED", "YELLOW", "GREEN"]] | None = None
     min_fraud: float | None = Field(default=None, ge=0, le=1)
@@ -276,20 +279,23 @@ def parse(q: str, vocab: Vocab, use_llm: bool = True, mode: str = "hybrid") -> d
     rules = rules_parse(q, vocab) if mode != "llm" else {}
     if mode == "rules" or (mode == "hybrid" and rules):
         f, w = validate(rules, vocab)
-        return {"filter": f.model_dump(), "source": "rules", "warnings": w, "explanation": explain(f, vocab.offices)}
+        return {"filter": f.model_dump(), "source": "rules", "warnings": w, "explanation": explain(f, vocab.offices),
+                "understood": f != NLQFilter()}
     if use_llm and client.available():
         try:
+            # short budget: the officer is waiting; if the GPU is busy the rules answer instead
             content, _ = client.chat(_system_prompt(vocab), f"Question: {q}", schema=SCHEMA, temperature=0.0,
-                                     num_predict=200)
+                                     num_predict=200, timeout=NLQ_TIMEOUT)
             raw = json.loads(content)
             source = "qwen3-4b"
             if raw.get("sort") == "critical_desc" and not raw.get("safety_only"):
                 raw["sort"] = "fraud_desc"  # a safety ordering only makes sense for a safety question
         except (client.LLMError, ValueError) as exc:
-            warnings.append(f"LLM unavailable ({exc}); used the rule-based parser")
+            warnings.append("Assistant local indisponible → règles")
             raw = {}
     if source == "rules":
         raw = rules_parse(q, vocab)
     f, w = validate(raw, vocab)
+    empty = f == NLQFilter()
     return {"filter": f.model_dump(), "source": source, "warnings": warnings + w,
-            "explanation": explain(f, vocab.offices)}
+            "explanation": explain(f, vocab.offices), "understood": not empty}
