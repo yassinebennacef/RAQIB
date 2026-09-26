@@ -19,7 +19,7 @@ import { ErrorState, Gauge, InfoTip, LaneBadge, ReasonList, UncertainBadge, Wate
 import { NetworkGraph } from '@/components/raqib/network-graph'
 
 export function useDeclaration(id: string, rate = 0.05, explore = 0) {
-  return useQuery({ queryKey: ['declaration', id, rate, explore], queryFn: () => apiV2.declaration(id, rate, explore) })
+  return useQuery({ queryKey: ['declaration', id, rate, explore], queryFn: () => apiV2.declaration(id, rate, explore), enabled: id !== '' })
 }
 
 function readOfficer() {
