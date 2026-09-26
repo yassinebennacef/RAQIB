@@ -11,7 +11,7 @@ inspection capacity**, which declarations to inspect (RED), to check on document
 (GREEN), for two objectives: **revenue** (duty fraud) and **public safety** (critical violations).
 
 ## 2. Technical approach
-1. **Two supervised models** (LightGBM) learn from past inspection outcomes: duty fraud and critical fraud.
+1. **Two supervised models** learn from past inspection outcomes: duty fraud (primary: EBM) and critical fraud (primary: LIGHTGBM); each has a twin (glass-box EBM and LightGBM) and their disagreement flags uncertain cases.
 2. **Risk history as features**: for 8 keys (product HS6, HS4, HS2, importer, declarant, seller, origin, office),
    the smoothed past fraud rate and volume, computed *out-of-fold* so the model never sees its own labels;
    plus tax rate, net mass, value and unit value.
@@ -19,12 +19,12 @@ inspection capacity**, which declarations to inspect (RED), to check on document
 4. **Daily allocation**: capacity = 5% of the day's declarations (adjustable); public-safety alerts (top 1% of
    critical risk) take slots first, then the highest fraud probabilities; an optional 10% random **exploration**
    keeps the system learning; the next 10% go to YELLOW, the rest to GREEN.
-5. **Explanations**: exact TreeSHAP contributions grouped into the 4 strongest reasons, written with the real
+5. **Explanations**: exact additive contributions (EBM terms or TreeSHAP) grouped into the 4 strongest reasons and an exact waterfall, written with the real
    historical numbers (e.g. "Product 731815 (Iron or steel; threaded screws and bolts n.e.c. in item n…) was fraudulent in 36% of its 127 past declarations (average 22%)."), shown next to what the
    current rule would decide.
 6. **Human in the loop**: the officer decides; every decision is appended to a hash-chained, tamper-evident journal.
 
-Stack: Python (pandas, scikit-learn, LightGBM), FastAPI, React. The full pipeline trains in about 15 seconds on
+Stack: Python (pandas, scikit-learn, LightGBM, InterpretML EBM), FastAPI, React (shadcn-admin template). The full pipeline trains in about 15 seconds on
 a laptop CPU; a new declaration is scored in about 0.1 s. No LLM is used for scoring or decisions.
 
 ## 3. Data
@@ -57,7 +57,15 @@ Product names: datasets/harmonized-system (ODC-PDDL). **No Tunisian data; no acc
 | Current rule (product history) | 470 | 259 | 7 | 55.1% | 163 |
 | Random | 470 | 103 | 3 | 21.9% | 309 |
 
-With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **317 frauds and 41 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+58 frauds (+22%) and 5.9x the threats**, same workload. Exploration (10% of slots at random) costs 23 frauds but widens
+With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **317 frauds and 41 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+58 frauds (+22%) and 5.9x the threats**, same workload.
+
+**Same frauds with fewer inspections:** the rule needs 470 inspections (5% a day) to catch 259 frauds; RAQIB catches 263 with 379 (3.9% a day): **19% fewer inspections** (pooled ranking: 302 vs 425, 29% fewer).
+
+**Glass box, no accuracy lost:** the transparent EBM reaches duty-fraud AUC 0.771 and precision @5% 71.8% vs 0.770 / 71.1% for the black-box LightGBM; primary model: fraud = EBM, critical = LIGHTGBM.
+
+**When the two models disagree, RAQIB asks a human:** 371 test declarations (4.4%) are flagged, with a fraud rate of 44% (average 22%); 136 of them move from GREEN to a document check.
+
+Exploration (10% of slots at random) costs 23 frauds but widens
 coverage from 261 to 280 distinct products. The AI releases
 82% of declarations in the green lane.
 
@@ -83,7 +91,7 @@ coverage from 261 to 280 distinct products. The AI releases
    Law 2004-63 on personal data and review by the INPDP.
 
 ## 7. Third-party components
-Libraries: pandas, NumPy, PyArrow, scikit-learn, LightGBM, joblib, FastAPI, Uvicorn, Pydantic, React, Vite,
-Tailwind CSS, Recharts, Framer Motion, Lucide, Sonner (all permissive licences; full list in THIRD_PARTY.md).
+Libraries: pandas, NumPy, PyArrow, scikit-learn, LightGBM, InterpretML (EBM), joblib, FastAPI, Uvicorn, Pydantic, React, Vite,
+Tailwind CSS, shadcn-admin template, Radix UI, TanStack, Recharts, Framer Motion, Lucide, Sonner (all permissive licences; full list in THIRD_PARTY.md).
 Datasets: Customs Import Declaration Datasets (MIT), datasets/harmonized-system (ODC-PDDL).
 AI coding assistant: Claude Code (Anthropic) was used to write and test the code. Scoring uses only the models above.

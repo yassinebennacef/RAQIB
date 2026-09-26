@@ -1,6 +1,6 @@
 # RAQIB model card
 
-*Version v2 - generated 2026-09-26T00:21:36+00:00 by `python -m raqib.report`*
+*Version v2 - generated 2026-09-26T00:43:09+00:00 by `python -m raqib.report`*
 
 ## Intended use
 

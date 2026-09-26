@@ -36,7 +36,8 @@ daily inspection capacity. Every day it:
   - replay.py (day-by-day capacity replay), score.py (score a new declaration)
   - decisions.py (hash-chained decision log), build.py (`python -m raqib.build`)
   - api.py (FastAPI, see API.md), serve.py (`python -m raqib.serve`)
-- frontend/ — Vite + React + TypeScript + Tailwind control-room UI; talks only to /api.
+- frontend-v2/ — v2 web app (default): shadcn-admin (MIT) shell, TanStack Router/Query/Table; pages in src/features.
+- frontend/ — v1 control-room UI, kept as the fallback (`python -m raqib.serve --ui v1`).
 - artifacts/ — build outputs (gitignored until release): models/, metrics.json,
   data_card.json, replay_default.json, test_scored.parquet, decisions.jsonl.
 - data/raw/ — downloaded datasets (gitignored; `python -m raqib.data --download`).
@@ -77,6 +78,7 @@ out-of-fold TRAIN predictions (KFold 5, seed 1). Ranking uses the raw model scor
 1. `.venv/Scripts/python -m raqib.build` (fresh artifacts + regenerated docs), tests, `pnpm lint && pnpm build`.
 2. Force-add the runtime artifacts (the app then runs from a fresh clone without data/raw):
    `git add -f artifacts/models artifacts/metrics.json artifacts/data_card.json artifacts/replay_default.json
-    artifacts/test_scored.parquet artifacts/train_index.joblib artifacts/hs_names.json frontend/dist`
+    artifacts/test_scored.parquet artifacts/train_index.joblib artifacts/hs_names.json artifacts/efficiency.json
+    artifacts/experiments.json artifacts/xai_global.json artifacts/model_card.json frontend/dist frontend-v2/dist`
    (never decisions.jsonl, logs or screenshots scratch; check the total is < 100 MB).
 3. `git commit -m "Release v1.0"`, `git tag -a v1.0 -m "RAQIB v1.0"`, `git push --follow-tags`.

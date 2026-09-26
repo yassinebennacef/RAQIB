@@ -76,16 +76,16 @@ export function Worklist() {
         id: 'product',
         header: 'Product',
         cell: ({ row }) => (
-          <div className='max-w-[260px]'>
+          <div className='max-w-[220px] truncate'>
             <span className='font-mono text-xs text-muted-foreground'>{row.original.hs6}</span>{' '}
             <span className='text-xs' title={row.original.hs_desc}>
-              {truncate(row.original.hs_desc, 48)}
+              {truncate(row.original.hs_desc, 40)}
             </span>
           </div>
         ),
       },
       { accessorKey: 'origin', header: 'Origin', cell: ({ row }) => <span className='text-xs'>{row.original.origin}</span>, enableSorting: false },
-      { accessorKey: 'office', header: 'Office', cell: ({ row }) => <span className='text-xs'>{truncate(row.original.office_label, 22)}</span>, enableSorting: false },
+      { accessorKey: 'office', header: 'Office', cell: ({ row }) => <span className='text-xs'>{truncate(row.original.office_label, 18)}</span>, enableSorting: false },
       { accessorKey: 'hs2', header: 'Chapter', enableHiding: true, cell: ({ row }) => <span className='text-xs'>{row.original.hs2}</span>, enableSorting: false },
       {
         accessorKey: 'lane',
@@ -117,7 +117,7 @@ export function Worklist() {
         id: 'top_reason',
         header: 'Top reason',
         cell: ({ row }) => (
-          <span className='line-clamp-2 max-w-[340px] text-xs text-muted-foreground' title={row.original.top_reason}>
+          <span className='block max-w-[260px] truncate text-xs text-muted-foreground' title={row.original.top_reason}>
             {row.original.top_reason}
           </span>
         ),
@@ -158,7 +158,7 @@ export function Worklist() {
     enableRowSelection: true,
     pageCount: wl.data ? Math.max(1, Math.ceil(wl.data.total / pagination.pageSize)) : 1,
     getCoreRowModel: getCoreRowModel(),
-    initialState: { columnVisibility: { hs2: false } },
+    initialState: { columnVisibility: { hs2: false, item_price: false } },
   })
 
   const laneOpts = (['RED', 'YELLOW', 'GREEN'] as const).map((l) => ({ label: `${l} (${num(F?.lane[l] ?? 0)})`, value: l }))

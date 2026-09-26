@@ -32,5 +32,10 @@ else
   echo "[3/4] Web app already built."
 fi
 
+if [ ! -f frontend-v2/dist/index.html ]; then
+  echo "[3b/4] Building the v2 web app..."
+  ( cd frontend-v2 && { corepack pnpm install --frozen-lockfile && corepack pnpm build; } || { npm install && npm run build; } ) || echo "v2 build failed: serving v1"
+fi
+
 echo "[4/4] Starting RAQIB at http://127.0.0.1:8000 (Ctrl+C to stop)"
 exec "$PY" -m raqib.serve --port 8000 --open

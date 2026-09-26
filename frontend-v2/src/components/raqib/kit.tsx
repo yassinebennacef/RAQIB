@@ -342,7 +342,7 @@ export function WaterfallChart({ w, compact = false }: { w: Waterfall; compact?:
         const width = Math.max(Math.abs(r.end - r.start), 0.003)
         const delta = r.end - r.start
         return (
-          <div key={i} className={cn('grid items-center gap-3', compact ? 'grid-cols-[130px_1fr_52px]' : 'grid-cols-[180px_1fr_64px]')}>
+          <div key={i} className={cn('grid items-center gap-3', compact ? 'grid-cols-[130px_1fr_64px]' : 'grid-cols-[180px_1fr_72px]')}>
             <div className={cn('truncate text-xs', r.kind === 'final' ? 'font-semibold' : 'text-muted-foreground')} title={r.label}>
               {r.label}
             </div>
@@ -356,7 +356,7 @@ export function WaterfallChart({ w, compact = false }: { w: Waterfall; compact?:
               />
             </div>
             <div className='text-right text-xs tabular-nums'>
-              {r.kind === 'base' || r.kind === 'final' ? pct(r.end, 1) : `${delta >= 0 ? '+' : '−'}${Math.abs(delta * 100).toFixed(1)}`}
+              {r.kind === 'base' || r.kind === 'final' ? pct(r.end, 1) : `${delta >= 0 ? '+' : '−'}${Math.abs(delta * 100).toFixed(1)} pts`}
             </div>
           </div>
         )

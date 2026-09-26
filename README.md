@@ -20,7 +20,7 @@ With the same 470 inspections over 91 test days (5% of declarations), RAQIB catc
 **When the two models disagree, RAQIB asks a human:** 371 test declarations (4.4%) are flagged, with a fraud rate of 44% (average 22%); 136 of them move from GREEN to a document check.
 <!-- END:pitch -->
 
-![Control room after the 91-day replay](docs/screenshots/03_control_room_end.png)
+![Control room after the 91-day replay](docs/screenshots/v2/01_control_room.png)
 
 ## Run it (one command)
 
@@ -42,15 +42,17 @@ py -3.12 -m venv .venv && .venv/Scripts/pip install -r requirements.txt && .venv
 cd frontend && corepack pnpm install && corepack pnpm build && cd ..
 .venv/Scripts/python -m raqib.serve --open    # add --lan to open the demo from a phone on the same Wi-Fi
 ```
-Front-end development: `python -m raqib.serve` + `cd frontend && corepack pnpm dev` (http://localhost:5173, `/api` proxied).
+Front-end development: `python -m raqib.serve` + `cd frontend-v2 && corepack pnpm dev` (http://localhost:5174, `/api` proxied; v1: `cd frontend`, port 5173).
 
-## Screenshots
+## Screenshots (v2 web app)
 
-| Control room (replay) | Inspector |
+| Worklist | Inspector (exact waterfall, brief FR/EN/AR) |
 |---|---|
-| ![](docs/screenshots/02_control_room_replay.png) | ![](docs/screenshots/04_inspector.png) |
-| **Try a declaration** | **Model lab** |
-| ![](docs/screenshots/06_try_declaration.png) | ![](docs/screenshots/07_model_lab.png) |
+| ![](docs/screenshots/v2/03_worklist.png) | ![](docs/screenshots/v2/05_inspector.png) |
+| **Explainability (glass box, what-if, tested ideas)** | **Impact simulator** |
+| ![](docs/screenshots/v2/08_explainability.png) | ![](docs/screenshots/v2/07_impact.png) |
+
+The v1 control room (`frontend/`) is kept as a fallback: `python -m raqib.serve --ui v1` (screenshots in docs/screenshots/).
 
 ## Measured results (test period, never used for training)
 

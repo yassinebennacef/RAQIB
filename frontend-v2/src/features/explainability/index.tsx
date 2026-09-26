@@ -93,10 +93,11 @@ export function Explainability() {
   const xai = useQuery({ queryKey: ['xai'], queryFn: apiV2.xaiGlobal })
   const m = useQuery({ queryKey: ['metrics-v2'], queryFn: apiV2.metrics })
   const ex = useQuery({ queryKey: ['experiments'], queryFn: apiV2.experiments })
-  const top = useQuery({ queryKey: ['worklist-top'], queryFn: () => apiV2.worklist({ lane: 'RED', uncertain: false, page_size: 1 }) })
+  const top = useQuery({ queryKey: ['worklist-top'], queryFn: () => apiV2.worklist({ lane: 'RED', uncertain: false, page_size: 30 }) })
   const [idText, setIdText] = useState('')
   const [id, setId] = useState<string | null>(null)
-  const current = id ?? top.data?.items[0]?.id ?? null
+  const solid = top.data?.items.find((it) => !it.top_reason.includes('thin history') && it.top_reason.startsWith('Product'))
+  const current = id ?? solid?.id ?? top.data?.items[0]?.id ?? null
   const decl = useDeclaration(current ?? '', 0.05, 0)
   const d = current ? decl.data : undefined
 
