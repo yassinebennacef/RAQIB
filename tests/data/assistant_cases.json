@@ -4,7 +4,7 @@
   {"lang": "fr", "page": "/about", "q": "D'où viennent les données ?"},
   {"lang": "fr", "page": "/", "q": "Que fait l'exploration ?"},
   {"lang": "fr", "page": "/declaration/54794554", "q": "Pourquoi cette déclaration est ROUGE ?", "declaration": true},
-  {"lang": "fr", "page": "/declaration/54794554", "q": "Que dois-je vérifier en priorité ?", "declaration": true},
+  {"lang": "ar", "page": "/declaration/54794554", "q": "لماذا هذا التصريح في المسار الأحمر؟", "declaration": true},
   {"lang": "fr", "page": "/journal", "q": "À quoi sert le journal SHA-256 ?"},
   {"lang": "fr", "page": "/", "q": "Quelle est la capitale de l'Australie ?", "out_of_scope": true},
   {"lang": "en", "page": "/worklist", "q": "What does models disagree mean?"},

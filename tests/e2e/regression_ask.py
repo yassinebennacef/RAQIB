@@ -7,6 +7,7 @@ question never fails silently; a busy/slow LLM shows a visible 'Analyse en cours
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 
@@ -25,10 +26,11 @@ def launch(p):
 
 
 def main() -> int:
+    sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="http://127.0.0.1:8000")
     args = ap.parse_args()
-    errors, results = [], []
+    errors, results, diagnostics = [], [], []
 
     with sync_playwright() as p:
         browser = launch(p)
@@ -41,13 +43,28 @@ def main() -> int:
             box = page.get_by_label("Ask RAQIB in French, English or Arabic")
             box.wait_for(timeout=20000)
             box.fill(text)
-            t0 = time.time()
-            if how == "enter":
-                box.press("Enter")
-            else:
-                page.get_by_role("button", name="Comprendre").click()
+            t0 = time.perf_counter()
+            with page.expect_response(lambda r: r.url.endswith("/api/nlq"), timeout=30000) as response_info:
+                if how == "enter":
+                    box.press("Enter")
+                else:
+                    page.get_by_role("button", name="Comprendre").click()
+            response = response_info.value
+            body = response.text()
+            try:
+                body = json.loads(body)
+            except json.JSONDecodeError:
+                pass
+            diagnostics.append({
+                "action": how,
+                "onClick_or_submit_fired": response.request.method == "POST",
+                "url": response.url,
+                "status": response.status,
+                "response_ms": round((time.perf_counter() - t0) * 1000),
+                "body": body,
+            })
             page.wait_for_selector("[data-testid=ask-result], [data-sonner-toast]", timeout=30000)
-            return time.time() - t0
+            return time.perf_counter() - t0
 
         dt = ask(FR, "click")
         ok = page.locator("[data-testid=ask-result]").count() == 1 and page.locator("text=Origin CN").count() > 0
@@ -81,12 +98,24 @@ def main() -> int:
         page.keyboard.press("Control+k")
         page.keyboard.type("rouges de Chine au chapitre 85")
         page.wait_for_selector("text=Ask RAQIB:", timeout=10000)
-        page.keyboard.press("Enter")
+        with page.expect_response(lambda r: r.url.endswith("/api/nlq"), timeout=30000) as ctrl_response:
+            page.keyboard.press("Enter")
+        ctrl = ctrl_response.value
+        diagnostics.append({
+            "action": "Ctrl+K + Enter",
+            "onClick_or_submit_fired": ctrl.request.method == "POST",
+            "url": ctrl.url,
+            "status": ctrl.status,
+            "response_ms": None,
+            "body": ctrl.json(),
+        })
         page.wait_for_selector("[data-testid=ask-result]", timeout=30000)
         results.append(("Ctrl+K -> worklist with chips", True, ""))
         browser.close()
 
     ok_all = all(r[1] for r in results) and not errors
+    for diagnostic in diagnostics:
+        print("DIAGNOSTIC", json.dumps(diagnostic, ensure_ascii=False))
     for name, ok, extra in results:
         print(f"{'PASS' if ok else 'FAIL'}  {name} {extra}")
     for e in errors:

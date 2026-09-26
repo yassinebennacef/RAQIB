@@ -387,6 +387,9 @@ Response:
 ```
 Grounding: BM25 over `docs/assistant_kb.md` (39 sections generated from the measured artifacts by `python -m raqib.kb`)
 + the computed facts of the declaration. Guards: numbers must appear in the facts or the retrieved sections, banned
-accusatory words, language check; one retry at temperature 0; otherwise the FAQ answer (best section, French).
+accusatory words, language check; one retry at temperature 0 within a 25-second total budget. If the model declines
+despite relevant declaration facts, the FAQ fallback gives a short, localized answer from those facts.
+A common “why is this RED?” declaration starter uses a synchronous, localized FAQ answer so it remains fast with a
+cold or unavailable local model.
 A filter request ("montre-moi les rouges de Chine…") returns the parsed Ask RAQIB filter (`kind: "filter"`).
 The assistant never scores, ranks, picks a lane or decides.

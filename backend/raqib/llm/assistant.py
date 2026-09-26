@@ -19,6 +19,7 @@ from .. import config as C
 from . import client
 from .brief import _language_ok
 from .guard import banned_claims, unmatched_numbers
+from . import config as LLM_CONFIG
 
 KB_PATH = C.ROOT / "docs" / "assistant_kb.md"
 CACHE_DIR = C.ARTIFACTS / "assistant_cache"
@@ -39,7 +40,7 @@ STARTERS = {
 
 def _cache_key(q: str, lang: str, page: str, facts: dict | None) -> str:
     ctx = facts.get("declaration_id") if facts else ("decl" if page.startswith("/declaration") else "general")
-    raw = f"{lang}|{ctx}|{' '.join(_tokens(q))}"
+    raw = f"raqib-assistant-v2|{lang}|{ctx}|{' '.join(_tokens(q))}"
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:20]
 LANG_NAME = {"fr": "French", "ar": "Modern Standard Arabic", "en": "English"}
 SCHEMA = {"type": "object", "properties": {"answer": {"type": "string"}, "page": {"type": "string"}},
@@ -146,13 +147,45 @@ def is_filter_request(q: str) -> bool:
     return any(re.search(rf"(?<!\w){re.escape(_fold(v))}", ql) for v in FILTER_VERBS)
 
 
+def _asks_about_declaration(q: str) -> bool:
+    folded = _fold(q)
+    return any(w in folded for w in (
+        "pourquoi", "why", "rouge", "red", "verifier", "check", "regle", "rule",
+        "لماذا", "أحمر", "الأحمر", "المسار", "القاعدة",
+    ))
+
+
+def _asks_why_red(q: str) -> bool:
+    folded = _fold(q)
+    why = any(w in folded for w in ("pourquoi", "why", "لماذا"))
+    red = any(w in folded for w in ("rouge", "red", "احمر", "الأحمر"))
+    return why and red
+
+
+def _faq_guard_passed(text: str, lang: str, evidence: dict, in_scope: bool) -> bool:
+    language_ok = _language_ok(text, lang) or text.startswith(FAQ_LEAD[lang])
+    return (in_scope and not unmatched_numbers(text, evidence) and not banned_claims(text) and language_ok)
+
+
 def _faq(q: str, lang: str, hits: list[tuple[dict, float]], facts: dict | None) -> str:
-    if facts and any(w in _fold(q) for w in ("pourquoi", "why", "rouge", "red", "verifier", "check", "regle", "rule", "لماذا")):
-        lines = [f"{facts.get('lane', '')} : risque de fraude {facts.get('fraud_risk_percent')} %, risque sécurité "
-                 f"{facts.get('safety_risk_percent')} %."]
-        lines += [f"- {r}" for r in facts.get("risk_indicators", [])[:3]]
-        lines.append(f"Règle actuelle : {facts.get('current_rule_decision')}. L'agent décide. Page : Inspecteur de la déclaration.")
-        return FAQ_LEAD[lang] + "\n".join(lines)
+    if facts and _asks_about_declaration(q):
+        fraud = facts.get("fraud_risk_percent")
+        safety = facts.get("safety_risk_percent")
+        decision = facts.get("current_rule_decision")
+        if lang == "ar":
+            return (f"هذا التصريح في المسار الأحمر للفحص المادي. مؤشرات الخطر المحسوبة: خطر الغش {fraud}٪ "
+                    f"وخطر السلامة {safety}٪. كانت القاعدة الحالية ستقوم بـ"
+                    f"{'فحص التصريح' if decision == 'inspect' else 'الإفراج عن التصريح'}؛ وهذا لا يغيّر مسار رقيب. "
+                    "افتح صفحة فاحص التصريح للاطلاع على الأسباب الأربعة وشلال المخاطر.")
+        if lang == "en":
+            return (f"This declaration is in RAQIB's RED lane for physical inspection. Its calculated risk indicators "
+                    f"are {fraud}% for fraud and {safety}% for safety. The current rule would "
+                    f"{'inspect' if decision == 'inspect' else 'release'} it; that does not change RAQIB's lane. "
+                    "Open the declaration inspector for the four reasons and risk waterfall.")
+        return (f"Cette déclaration est en voie ROUGE (inspection physique) selon RAQIB. Ses indicateurs de risque "
+                f"calculés sont de {fraud} % pour la fraude et de {safety} % pour la sécurité. La règle actuelle "
+                f"l'aurait {'inspectée' if decision == 'inspect' else 'libérée'} ; cela ne change pas la voie RAQIB. "
+                "Ouvrez l'inspecteur de la déclaration pour les quatre raisons et la cascade des risques.")
     if not hits or hits[0][1] < 1.0:
         return REFUSAL[lang]
     s = hits[0][0]
@@ -186,8 +219,15 @@ def answer(messages: list[dict], lang: str = "fr", page: str = "/", facts: dict 
     hits = retrieve(q, 3, page)
     cites = [{"key": s["key"], "title": s["title"], "page": s["page"]} for s, sc in hits if sc > 0]
     grounded = [s for s, sc in hits if sc >= 1.0]
-    in_scope = bool(grounded) or bool(facts)
+    in_scope = bool(grounded)
     problems: list[str] = []
+    evidence = {"facts": facts or {}, "sections": [s["text"] for s in grounded]}
+    if facts and in_scope and _asks_why_red(q):
+        faq = _faq(q, lang, hits, facts)
+        return {**base, "answer": faq, "source": "faq", "citations": cites, "guard_passed":
+                _faq_guard_passed(faq, lang, evidence, in_scope), "out_of_scope": False,
+                "attempts": 0, "latency_ms": int((time.time() - t0) * 1000)}
+    attempts = 0
     if client.available() and in_scope:
         lean = dict(facts or {})
         if lean.get("risk_indicators"):
@@ -199,12 +239,15 @@ def answer(messages: list[dict], lang: str = "fr", page: str = "/", facts: dict 
         user = (("Conversation so far:\n" + "\n".join(history) + "\n\n") if history else "") + \
                f"Question: {q}\n\nCONTEXT = {json.dumps(ctx, ensure_ascii=False)}"
         system = SYSTEM.format(lang=LANG_NAME[lang], pages=", ".join(PAGE_NAMES.values()), n=3 if lang == "ar" else 4)
-        attempts = 0
         for temperature in (0.2, 0.0):
+            remaining = LLM_CONFIG.TIMEOUT - (time.time() - t0)
+            if remaining <= 0:
+                problems.append("assistant timeout")
+                break
             try:
                 attempts += 1
                 content, ms = client.chat(system, user, schema=SCHEMA, temperature=temperature,
-                                          num_predict=380 if lang == "ar" else 230)
+                                          num_predict=380 if lang == "ar" else 230, timeout=remaining)
                 obj = json.loads(content)
                 text = re.sub(r"\s+", " ", str(obj.get("answer", ""))).strip()
                 pg = str(obj.get("page", "")).strip()
@@ -214,7 +257,6 @@ def answer(messages: list[dict], lang: str = "fr", page: str = "/", facts: dict 
                 problems.append(str(exc))
                 continue
             problems = []
-            evidence = {"facts": facts or {}, "sections": [s["text"] for s in grounded]}
             bad = unmatched_numbers(text, evidence)
             if bad:
                 problems.append(f"numbers not in the sources: {', '.join(bad[:5])}")
@@ -222,6 +264,10 @@ def answer(messages: list[dict], lang: str = "fr", page: str = "/", facts: dict 
                 problems.append("banned claims")
             if not _language_ok(text, lang) and len(text) > 80:
                 problems.append(f"not in {LANG_NAME[lang]}")
+            if facts and _asks_about_declaration(q) and any(
+                marker in _fold(text) for marker in ("not enough context", "insufficient context", "لا توجد معلومات كافية")
+            ):
+                problems.append("answer declined despite declaration facts")
             if len(text) < 20:
                 problems.append("too short")
             if not problems:
@@ -231,8 +277,10 @@ def answer(messages: list[dict], lang: str = "fr", page: str = "/", facts: dict 
                     CACHE_DIR.mkdir(parents=True, exist_ok=True)
                     (CACHE_DIR / f"{ck}.json").write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
                 return {**out, "cached": False}
-    return {**base, "answer": _faq(q, lang, hits, facts), "source": "faq", "citations": cites if in_scope else [],
-            "guard_passed": False, "out_of_scope": not in_scope, "rejected": problems,
+    faq = _faq(q, lang, hits, facts)
+    return {**base, "answer": faq, "source": "faq", "citations": cites if in_scope else [],
+            "guard_passed": _faq_guard_passed(faq, lang, evidence, in_scope), "out_of_scope": not in_scope,
+            "rejected": problems, "attempts": attempts,
             "latency_ms": int((time.time() - t0) * 1000)}
 
 
