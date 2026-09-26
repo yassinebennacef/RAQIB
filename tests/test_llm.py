@@ -91,15 +91,19 @@ def test_brief_guard_rejects_then_accepts(monkeypatch, tmp_path):
 
 
 @pytest.fixture(scope="module")
-def off_client(built):
+def off_client(built, tmp_path_factory):
     import os
     os.environ["RAQIB_LLM"] = "off"
     from raqib.llm import config as K
     K.MODE_ENV = "off"
     client._state["checked"] = False
+    # an empty brief cache: briefs a live Qwen cached during the demo would otherwise be served (by design)
+    saved_cache = LB.CACHE_DIR
+    LB.CACHE_DIR = tmp_path_factory.mktemp("brief_cache")
     from raqib.api import app
     with TestClient(app) as c:
         yield c
+    LB.CACHE_DIR = saved_cache
     os.environ.pop("RAQIB_LLM", None)
     K.MODE_ENV = ""
     client._state["checked"] = False
