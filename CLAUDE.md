@@ -19,8 +19,11 @@ daily inspection capacity. Every day it:
 
 ## Hard rules
 - Data: ONLY the public datasets in data/raw (Customs Import Declaration Datasets, MIT,
-  IBS + Korea Customs Service; datasets/harmonized-system, ODC-PDDL). No Tunisian data, no
-  scraping, no contact with any government or administration website or system.
+  IBS + Korea Customs Service; datasets/harmonized-system, ODC-PDDL) and the public Tunisian
+  statistics saved in data/public_tn (UN Comtrade reporter 788, FRED KRW rates; SOURCES.md).
+  Tunisian data is information only (never a model input). No scraping, no .gov.tn site, no
+  contact with any administration system. No official Tunisian logo/emblem/"République
+  Tunisienne" branding: "prototype conçu pour la Douane tunisienne", never official.
 - Never invent or hard-code a result. Every number shown in the app or in the docs is
   computed by the code from the data (artifacts/metrics.json, replay_default.json...).
 - Every third-party library and dataset is listed with its licence in THIRD_PARTY.md
@@ -69,8 +72,10 @@ out-of-fold TRAIN predictions (KFold 5, seed 1). Ranking uses the raw model scor
   Colours: AI #2a78d6, RULE #eb6834, RANDOM #9a9893, RED lane #EF4444,
   YELLOW #F59E0B, GREEN #22C55E. Self-hosted fonts (@fontsource Inter, JetBrains Mono):
   the demo must work offline. Every number on screen comes from the API.
-- Footer on every page: "Real customs declarations (public MIT dataset, Korea Customs
-  Service / IBS) · no Tunisian data used · advisory: the officer decides".
+- Footer on every page: prototype for Tunisian Customs · dataset (MIT, Korea Customs Service /
+  IBS) with amounts converted from KRW · real public data UN Comtrade (Tunisia) · advisory.
+- Money: dataset values are KRW; show TND (default) / EUR / USD via raqib/currency.py and
+  frontend-v2 src/lib/currency.ts (useMoney); French number format.
 - Working first, then polish. Tests must pass before every commit.
 - End of every phase: run tests, append to PROGRESS.md, commit "Phase N: ...", push.
 
@@ -80,6 +85,7 @@ out-of-fold TRAIN predictions (KFold 5, seed 1). Ranking uses the raw model scor
    `git add -f artifacts/models artifacts/metrics.json artifacts/data_card.json artifacts/replay_default.json
     artifacts/test_scored.parquet artifacts/train_index.joblib artifacts/hs_names.json artifacts/efficiency.json
     artifacts/experiments.json artifacts/xai_global.json artifacts/model_card.json artifacts/llm_eval.json
+    artifacts/tunisia_ref.json
     artifacts/brief_cache frontend/dist frontend-v2/dist`
    (never decisions.jsonl, logs or screenshots scratch; check the total is < 100 MB).
 3. `git commit -m "Release v1.0"`, `git tag -a v1.0 -m "RAQIB v1.0"`, `git push --follow-tags`.

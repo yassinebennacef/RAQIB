@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Search, XCircle } from 'lucide-react'
 import { Area, Bar, BarChart, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { apiV2, type Experiment, type TargetKey, type XaiTarget } from '@/lib/api'
+import { useMoney } from '@/lib/currency'
 import { COLORS } from '@/lib/colors'
 import { compact, dec, num, pct, pts } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -22,6 +23,10 @@ function fmtX(x: number, scale: 'linear' | 'log') {
 }
 
 function ShapeCard({ s }: { s: XaiTarget['shapes'][number] }) {
+  const money = useMoney()
+  const isKrw = s.x_label.includes('KRW')
+  const xLabel = isKrw ? s.x_label.replace('KRW', money.label) : s.x_label
+  const cx = (v: number) => (isKrw ? money.fromKrw(v) : v)
   const data = s.points.map((p) => ({ x: s.x_scale === 'log' ? Math.log10(Math.max(p.x, 1e-3)) : p.x, raw: p.x, y: p.y, band: [p.lower, p.upper] }))
   return (
     <div className='rounded-lg border bg-muted/20 p-3'>
@@ -35,12 +40,12 @@ function ShapeCard({ s }: { s: XaiTarget['shapes'][number] }) {
               type='number'
               domain={['dataMin', 'dataMax']}
               tick={{ fontSize: 9 }}
-              tickFormatter={(v) => fmtX(s.x_scale === 'log' ? 10 ** v : v, s.x_scale)}
+              tickFormatter={(v) => fmtX(cx(s.x_scale === 'log' ? 10 ** v : v), s.x_scale)}
             />
             <YAxis tick={{ fontSize: 9 }} />
             <Tooltip
               contentStyle={tooltipStyle}
-              labelFormatter={(v) => `${s.x_label}: ${fmtX(s.x_scale === 'log' ? 10 ** Number(v) : Number(v), s.x_scale)}`}
+              labelFormatter={(v) => `${xLabel}: ${fmtX(cx(s.x_scale === 'log' ? 10 ** Number(v) : Number(v)), s.x_scale)}`}
               formatter={(v, n) => (n === 'y' ? [dec(Number(v), 2), 'effect (log-odds)'] : [null, null])}
             />
             <Area dataKey='band' stroke='none' fill={COLORS.ebm} fillOpacity={0.15} isAnimationActive={false} />
@@ -49,7 +54,7 @@ function ShapeCard({ s }: { s: XaiTarget['shapes'][number] }) {
         </ResponsiveContainer>
       </div>
       <div className='text-[10px] text-muted-foreground'>
-        x: {s.x_label}
+        x: {xLabel}
         {s.x_scale === 'log' ? ' (log scale)' : ''} · y: effect on risk (log-odds; above 0 raises risk)
       </div>
     </div>

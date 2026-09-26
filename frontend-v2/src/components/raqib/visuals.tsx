@@ -2,6 +2,7 @@ import { animate, motion } from "framer-motion";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { Lane, Reason } from "@/lib/api";
+import { useMoney } from "@/lib/currency";
 import { num } from "@/lib/format";
 import { LANE_META } from "@/lib/lanes";
 import { cn } from "@/lib/utils";
@@ -151,6 +152,7 @@ export function Gauge({
 
 /* ------------------------------------------------------------------ Reasons with contribution bars */
 export function ReasonList({ reasons, compact = false }: { reasons: Reason[]; compact?: boolean }) {
+  const money = useMoney()
   const max = Math.max(...reasons.map((r) => Math.abs(r.contribution)), 0.01);
   return (
     <ol className={cn("flex flex-col", compact ? "gap-2" : "gap-3")}>
@@ -181,7 +183,7 @@ export function ReasonList({ reasons, compact = false }: { reasons: Reason[]; co
                 />
               </div>
             </div>
-            <p className={cn("mt-1.5 leading-snug text-foreground", compact ? "text-xs" : "text-sm")}>{r.text}</p>
+            <p className={cn("mt-1.5 leading-snug text-foreground", compact ? "text-xs" : "text-sm")}>{money.text(r.text)}</p>
           </motion.li>
         );
       })}

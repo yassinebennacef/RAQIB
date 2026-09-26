@@ -16,7 +16,8 @@ import { toast } from 'sonner'
 import { apiLLM, apiV2, type NlqFilter, type WorklistItem } from '@/lib/api'
 import { AskRaqib, FilterChips } from '@/components/raqib/llm'
 import { COLORS } from '@/lib/colors'
-import { compact, num, pct, truncate } from '@/lib/format'
+import { useMoney } from '@/lib/currency'
+import { num, pct, truncate } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -62,6 +63,7 @@ export function Worklist() {
   const all = useQuery({ queryKey: ['worklist-facets'], queryFn: () => apiV2.worklist({ page_size: 1 }) })
   const F = all.data?.facets
 
+  const money = useMoney()
   const columns = useMemo<ColumnDef<WorklistItem>[]>(
     () => [
       {
@@ -125,8 +127,8 @@ export function Worklist() {
         id: 'top_reason',
         header: 'Top reason',
         cell: ({ row }) => (
-          <span className='block max-w-[260px] truncate text-xs text-muted-foreground' title={row.original.top_reason}>
-            {row.original.top_reason}
+          <span className='block max-w-[260px] truncate text-xs text-muted-foreground' title={money.text(row.original.top_reason)}>
+            {money.text(row.original.top_reason)}
           </span>
         ),
       },
@@ -139,9 +141,36 @@ export function Worklist() {
           </span>
         ),
       },
-      { accessorKey: 'item_price', header: ({ column }) => <DataTableColumnHeader column={column} title='Value' />, cell: ({ row }) => <span className='text-xs tabular-nums'>{compact(row.original.item_price)}</span> },
+      {
+        accessorKey: 'item_price',
+        header: ({ column }) => <DataTableColumnHeader column={column} title={`Valeur (${money.label})`} />,
+        cell: ({ row }) => (
+          <span className='text-xs whitespace-nowrap tabular-nums'>
+            {row.original.value ? money.m(row.original.value) : money.krw(row.original.item_price)}
+          </span>
+        ),
+      },
+      {
+        id: 'tn_ref_gap',
+        header: 'Écart prix réf. TN',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const g = row.original.tn_ref_gap
+          if (g == null) return <span className='text-xs text-muted-foreground'>pas de réf.</span>
+          const under = g < -0.5
+          return (
+            <span
+              className={under ? 'text-xs font-semibold text-amber-600 tabular-nums dark:text-amber-400' : 'text-xs tabular-nums'}
+              title='Valeur déclarée/kg vs moyenne des importations tunisiennes du même SH6 (UN Comtrade) — information seulement'
+            >
+              {g >= 0 ? '+' : '−'}
+              {Math.abs(g * 100).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} %
+            </span>
+          )
+        },
+      },
     ],
-    []
+    [money]
   )
 
   const table = useReactTable({
@@ -166,7 +195,7 @@ export function Worklist() {
     enableRowSelection: true,
     pageCount: wl.data ? Math.max(1, Math.ceil(wl.data.total / pagination.pageSize)) : 1,
     getCoreRowModel: getCoreRowModel(),
-    initialState: { columnVisibility: { hs2: false, item_price: false } },
+    initialState: { columnVisibility: { hs2: false, item_price: false, tn_ref_gap: false } },
   })
 
   const laneOpts = (['RED', 'YELLOW', 'GREEN'] as const).map((l) => ({ label: `${l} (${num(F?.lane[l] ?? 0)})`, value: l }))
@@ -181,7 +210,7 @@ export function Worklist() {
 
   return (
     <PageShell
-      title='Worklist'
+      title='Liste de travail'
       why="The officer's inbox for the test period: every declaration with its lane, both risks, the models' agreement, the top reason and what the current rule would do."
     >
       <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>

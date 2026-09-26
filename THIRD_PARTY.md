@@ -10,7 +10,13 @@ All components are used under permissive licences. Versions are those installed 
 | Customs Import Declaration Datasets — Institute for Basic Science & Korea Customs Service (https://github.com/Seondong/Customs-Declaration-Datasets, paper arXiv:2208.02484) | MIT | Training and test data (54,000 synthetic import declarations with fraud / critical-fraud outcomes). Downloaded to `data/raw/` (not redistributed in the repo). |
 | datasets/harmonized-system (https://github.com/datasets/harmonized-system) | ODC-PDDL-1.0 (public domain) | HS6 / HS4 / HS2 product descriptions shown in the app and in the reasons. |
 
-No Tunisian data is used. No administration website or information system is accessed.
+| UN Comtrade Database — United Nations Statistics Division (https://comtradeplus.un.org), public preview API | Terms of use: https://comtradeplus.un.org/TermsOfUse (public statistics, non-commercial use with attribution "Source: UN Comtrade Database") | **Real public Tunisian data** (reporter 788, year 2024): Tunisia's imports by HS2, by partner and for the test set's HS6 codes, and partners' mirror exports. Raw answers saved in `data/public_tn/` (see `data/public_tn/SOURCES.md`); information only, never a model input. |
+| FRED — Federal Reserve Bank of St. Louis, series EXKOUS / AEXKOUS (source: Board of Governors of the Federal Reserve System, H.10) | https://fred.stlouisfed.org/legal/ (cite FRED; no copyright notice on these series) | KRW per USD over the dataset period (mean Jan 2020 - Jun 2021 = 1,158.87), to convert the dataset's KRW values. |
+| countryeconomy.com — Tunisian dinar exchange rates (https://countryeconomy.com/currencies/tunisia) | Public web page, rates quoted with source and date | Reference rates of 23/09/2026: 1 EUR = 3.3701 TND, 1 USD = 2.9508 TND (`config/rates.json`). |
+
+No confidential data is used. Tunisian data comes only from the public UN Comtrade statistics above; no Tunisian
+administration website (.gov.tn) or information system is accessed or scraped. RAQIB is a prototype designed for
+Tunisian Customs ("prototype conçu pour la Douane tunisienne"), not an official tool, and uses no official logo or emblem.
 
 ## Python (backend and pipeline)
 

@@ -6,7 +6,8 @@ import { Eye, FileSearch, Gavel, Hash, ShieldAlert, ShieldCheck, UserRound } fro
 import { toast } from 'sonner'
 import { api, apiV2, type DeclarationDetailV2, type DecisionEntry, type OperatorHistory } from '@/lib/api'
 import { COLORS } from '@/lib/colors'
-import { compact, num, pct, pctile, shortHash } from '@/lib/format'
+import { useMoney } from '@/lib/currency'
+import { num, pct, pctile, shortHash } from '@/lib/format'
 import { LANE_META } from '@/lib/lanes'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -17,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ErrorState, Gauge, InfoTip, LaneBadge, ReasonList, UncertainBadge, WaterfallChart } from '@/components/raqib/kit'
 import { NetworkGraph } from '@/components/raqib/network-graph'
 import { OfficerBrief } from '@/components/raqib/llm'
+import { TunisiaRefCard } from '@/components/raqib/tn-ref'
 
 export function useDeclaration(id: string, rate = 0.05, explore = 0) {
   return useQuery({ queryKey: ['declaration', id, rate, explore], queryFn: () => apiV2.declaration(id, rate, explore), enabled: id !== '' })
@@ -234,6 +236,7 @@ export function RiskCard({ d }: { d: DeclarationDetailV2 }) {
 /** Compact inspector for side sheets (worklist, control room). */
 export function MiniInspector({ id, rate = 0.05, explore = 0 }: { id: string; rate?: number; explore?: number }) {
   const q = useDeclaration(id, rate, explore)
+  const money = useMoney()
   if (q.error) return <ErrorState message={String(q.error)} onRetry={() => q.refetch()} />
   if (!q.data) return <Skeleton className='h-96' />
   const d = q.data
@@ -248,7 +251,7 @@ export function MiniInspector({ id, rate = 0.05, explore = 0 }: { id: string; ra
           <span className='font-mono'>{d.declaration.hs6}</span> · {d.declaration.hs_desc}
         </p>
         <p className='text-xs text-muted-foreground'>
-          {d.declaration.date} · {d.declaration.office_label} · origin {d.declaration.origin} · {compact(d.declaration.item_price)} KRW
+          {d.declaration.date} · {d.declaration.office_label} · origin {d.declaration.origin} · {d.declaration.value ? money.m(d.declaration.value) : money.krw(d.declaration.item_price)}
         </p>
       </div>
       <div className='grid grid-cols-2 gap-2'>
@@ -257,6 +260,7 @@ export function MiniInspector({ id, rate = 0.05, explore = 0 }: { id: string; ra
       </div>
       <WaterfallChart w={d.waterfall} compact />
       <ReasonList reasons={d.ai.reasons_fraud} compact />
+      <TunisiaRefCard r={d.tunisia_ref} compact />
       <DecisionPanel d={d} />
       <Button asChild variant='outline'>
         <Link to='/declaration/$id' params={{ id }}>
@@ -269,6 +273,7 @@ export function MiniInspector({ id, rate = 0.05, explore = 0 }: { id: string; ra
 
 export function FullInspector({ d }: { d: DeclarationDetailV2 }) {
   const { declaration: dc, ai, history, network } = d
+  const money = useMoney()
   return (
     <div className='flex flex-col gap-4'>
       <div className='grid grid-cols-1 gap-4 xl:grid-cols-12'>
@@ -285,6 +290,7 @@ export function FullInspector({ d }: { d: DeclarationDetailV2 }) {
               <DecisionPanel d={d} />
             </CardContent>
           </Card>
+          <TunisiaRefCard r={d.tunisia_ref} />
           <OfficerBrief id={dc.id} />
         </div>
         <div className='flex flex-col gap-4 xl:col-span-7'>
@@ -345,8 +351,8 @@ export function FullInspector({ d }: { d: DeclarationDetailV2 }) {
                     ['Seller', dc.seller ?? 'not declared'],
                     ['Tax type / rate', `${dc.tax_type} / ${dc.tax_rate}%`],
                     ['Net mass', `${num(dc.net_mass)} kg`],
-                    ['Item price', `${num(dc.item_price)} KRW`],
-                    ['Unit value', `${compact(dc.unit_value)} KRW/kg`],
+                    ['Valeur déclarée', dc.value ? money.m(dc.value) : money.krw(dc.item_price)],
+                    ['Valeur / kg', `${dc.value_per_kg ? money.m(dc.value_per_kg) : money.krw(dc.unit_value)}/kg`],
                     ['Process / payment', `${dc.process_type} / ${dc.payment_type}`],
                     ['Origin indicator', dc.origin_indicator],
                   ] as [string, string][]

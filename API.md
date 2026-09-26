@@ -378,3 +378,34 @@ background brief pre-generation.
 
 ## GET /api/llm/eval
 Contents of `artifacts/llm_eval.json` (written by `scripts/eval_llm.py`), or `{"skipped": true}`.
+
+---
+# Tunisian edition (TND / EUR / USD, UN Comtrade)
+
+Every dataset amount (KRW) is also returned as a `Money` object `{"tnd": .., "eur": .., "usd": ..}`:
+KRW -> USD at the data-period mean (FRED EXKOUS Jan 2020 - Jun 2021), USD -> TND / EUR at the reference rates
+(`config/rates.json`, 23/09/2026). New fields:
+- `/api/stream` items, `/api/worklist` items, `/api/declaration/{id}.declaration`, `/api/score.input`:
+  `value` (Money), `value_per_kg` (Money, mass floored at 0.1 kg as in the model).
+- `/api/worklist` items: `net_mass`, `tn_ref_gap` (declared value/kg ÷ Tunisian reference − 1, or null).
+- `/api/declaration/{id}` and `/api/score`: `tunisia_ref` =
+  `{"available": true, "hs6", "declared_usd_per_kg", "ref_usd_per_kg", "ratio", "gap", "under" (ratio < 0.5),
+  "year", "source", "declared_per_kg": Money, "ref_per_kg": Money, "dataset_share_under", "dataset_median_ratio"}`
+  or `{"available": false, "reason": "pas de référence"}`. Information only: never a model input.
+
+## GET /api/currency
+`{"tnd_per_eur": 3.3701, "tnd_per_usd": 2.9508, "eur_per_usd", "krw_per_usd": 1158.87, "reference_date": "2026-09-23",
+"reference_source", "krw_period": "2020-01 / 2021-06", "krw_source", "default": "tnd"}`
+
+## GET /api/tunisia
+From `artifacts/tunisia_ref.json` (built offline from `data/public_tn/`, no network at run time):
+`{"source": "UN Comtrade (Tunisie, 2024)", "year", "fetched", "url", "api", "total_imports": Money,
+"top_chapters": [{"hs2", "label", "usd", "value": Money}] (15), "top_origins": [{"code", "name", "iso2", "usd", "value"}] (15),
+"mirror": [{"code", "name", "reported", "tn_imports": Money, "partner_exports": Money|null, "gap", "chapters": [..]}],
+"caveat_mirror", "threshold": 0.5, "n_hs6_ref", "check": {"RED"|"YELLOW"|"GREEN"|"fraud"|"no_fraud":
+{"n", "with_ref", "under", "share_under"}, "coverage", "median_ratio", "share_under_all", "caveat"}, "rates"}`
+
+## GET /api/tunisia/duties?rate=0.05
+Illustrative duties and taxes at stake on the frauds each policy catches at that capacity (same selection as the replay):
+`{"rate", "vat_rate": 0.19, "note", "policies": {"ai"|"rule"|"random": {"frauds_caught", "declared_value", "duties", "vat", "total"}}}`
+(all amounts Money). Duties = declared value × dataset tax rate; TVA 19% (Tunisian standard rate, assumption) on value + duties.

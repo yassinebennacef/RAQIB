@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { BadgeCheck, Cpu, Languages, Loader2, RefreshCw, Sparkles, X } from 'lucide-react'
 import { apiLLM, type LlmBrief, type NlqFilter, type NlqResult } from '@/lib/api'
+import { useMoney } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ function notifyLlmFallback(kind: LlmBrief['llm_fallback'], detail?: string | nul
 /* ------------------------------------------------------------------ Officer brief */
 export function OfficerBrief({ id }: { id: string }) {
   const [lang, setLang] = useState<'fr' | 'ar' | 'en'>('fr')
+  const money = useMoney()
   const qc = useQueryClient()
   const q = useQuery({ queryKey: ['llm-brief', id, lang], queryFn: () => apiLLM.brief(id, lang), retry: 0, staleTime: Infinity })
   const regen = useMutation({
@@ -86,7 +88,7 @@ export function OfficerBrief({ id }: { id: string }) {
             lang={b.lang}
             className={cn('text-sm leading-relaxed whitespace-pre-line', b.lang === 'ar' && 'text-right font-arabic text-base')}
           >
-            {b.text}
+            {money.text(b.text)}
           </div>
         )}
         {b && !busy && (

@@ -70,6 +70,8 @@ export interface StreamItem {
   transport_label: string;
   item_price: number;
   net_mass: number;
+  value?: Money;
+  value_per_kg?: Money;
   lane: Lane;
   alert: boolean;
   explored: boolean;
@@ -165,7 +167,10 @@ export interface DeclarationDetail {
     net_mass: number;
     item_price: number;
     unit_value: number;
+    value?: Money;
+    value_per_kg?: Money;
   };
+  tunisia_ref?: TnRef;
   ai: {
     p_fraud: number;
     p_critical: number;
@@ -228,6 +233,7 @@ export interface ScoreResult {
   notes: string[];
   thresholds: { red_p_fraud: number; yellow_p_fraud: number; alert_p_critical: number };
   transport_used_by_model: boolean;
+  tunisia_ref?: TnRef;
 }
 
 export interface Preset {
@@ -447,6 +453,10 @@ export interface WorklistItem {
   office_label: string;
   transport_label: string;
   item_price: number;
+  net_mass?: number;
+  value?: Money;
+  value_per_kg?: Money;
+  tn_ref_gap?: number | null;
   lane: Lane;
   alert: boolean;
   uncertain: boolean;
@@ -716,4 +726,58 @@ export const apiLLM = {
     post<Worklist>("/worklist/query", { filter, page, page_size }),
   status: () => request<LlmStatus>("/llm/status"),
   evaluation: () => request<Record<string, unknown>>("/llm/eval"),
+};
+
+/* ------------------------------------------------------------------ Tunisian edition */
+export interface Money { tnd: number; eur: number; usd: number }
+
+export interface Rates {
+  tnd_per_eur: number;
+  tnd_per_usd: number;
+  eur_per_usd: number;
+  krw_per_usd: number;
+  reference_date: string;
+  reference_source: string;
+  krw_period: string;
+  krw_source: string;
+  default: string;
+}
+
+export interface TnRef {
+  available: boolean;
+  reason?: string;
+  hs6?: string;
+  ratio?: number;
+  gap?: number;
+  under?: boolean;
+  year?: number;
+  source?: string;
+  declared_per_kg?: Money;
+  ref_per_kg?: Money;
+  dataset_share_under?: number | null;
+  dataset_median_ratio?: number | null;
+}
+
+export interface TnValueRow { usd: number; value: Money; hs2?: string; label?: string; code?: number; name?: string; iso2?: string }
+export interface TnMirrorChapter { hs2: string; label: string; tn_imports_usd: number; partner_exports_usd: number; gap: number }
+export interface TnMirror {
+  code: number; name: string; iso2: string; reported: boolean;
+  tn_imports: Money; partner_exports: Money | null; gap: number | null; chapters: TnMirrorChapter[];
+}
+export interface TnCheckRow { n: number; with_ref: number; under: number; share_under: number | null }
+export interface Tunisia {
+  source: string; year: number; fetched: string; url: string; api: string;
+  caveat_mirror: string; threshold: number; n_hs6_ref: number;
+  total_imports: Money | null;
+  top_chapters: TnValueRow[]; top_origins: TnValueRow[]; mirror: TnMirror[];
+  check: (Record<'RED' | 'YELLOW' | 'GREEN' | 'fraud' | 'no_fraud', TnCheckRow> & { coverage: number; caveat: string; median_ratio: number | null; share_under_all: number }) | null;
+  rates: Rates;
+}
+export interface DutyPolicy { frauds_caught: number; declared_value: Money; duties: Money; vat: Money; total: Money }
+export interface Duties { rate: number; vat_rate: number; note: string; policies: Record<'ai' | 'rule' | 'random', DutyPolicy> }
+
+export const apiTN = {
+  currency: () => request<Rates>("/currency"),
+  tunisia: () => request<Tunisia>("/tunisia"),
+  duties: (rate: number) => request<Duties>(`/tunisia/duties?rate=${rate}`),
 };

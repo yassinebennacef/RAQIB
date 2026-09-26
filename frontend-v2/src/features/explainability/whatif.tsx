@@ -3,6 +3,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ArrowRight, FlaskConical } from 'lucide-react'
 import { apiV2, type DeclarationInput, type WhatIfChanges } from '@/lib/api'
 import { COLORS } from '@/lib/colors'
+import { useMoney } from '@/lib/currency'
 import { compact, pct } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,6 +29,7 @@ export function WhatIfPanel({ declarationId, declaration, base }: { declarationI
   const [massIdx, setMassIdx] = useState(5)
   const [tax, setTax] = useState(base.tax_rate)
   const [newOps, setNewOps] = useState({ importer: false, declarant: false, seller: false })
+  const money = useMoney()
 
   const changes: WhatIfChanges = {}
   if (valueIdx !== 5) changes.item_price = Math.round(base.item_price * FACTORS[valueIdx] * 100) / 100
@@ -55,7 +57,7 @@ export function WhatIfPanel({ declarationId, declaration, base }: { declarationI
         <div className='flex flex-col gap-4 lg:col-span-2'>
           <label className='flex flex-col gap-2 text-xs'>
             <span className='flex justify-between'>
-              Declared value <b className='tabular-nums'>×{FACTORS[valueIdx]} · {compact(base.item_price * FACTORS[valueIdx])} KRW</b>
+              Declared value <b className='tabular-nums'>×{FACTORS[valueIdx]} · {money.krw(base.item_price * FACTORS[valueIdx])}</b>
             </span>
             <RangeSlider value={valueIdx} min={0} max={FACTORS.length - 1} onChange={setValueIdx} label='Declared value factor' />
           </label>

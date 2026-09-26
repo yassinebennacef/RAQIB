@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Clock, ShieldAlert, TrendingDown } from 'lucide-react'
+import { Clock, Coins, ShieldAlert, TrendingDown } from 'lucide-react'
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { apiV2 } from '@/lib/api'
+import { apiTN, apiV2 } from '@/lib/api'
+import { useMoney } from '@/lib/currency'
 import { COLORS } from '@/lib/colors'
 import { num, pct } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
@@ -29,7 +30,7 @@ export function Impact() {
 
   return (
     <PageShell
-      title='Impact simulator'
+      title="Simulateur d'impact"
       why='The same results with fewer inspections: officers freed for the cases that matter, honest traders cleared faster.'
       actions={<Badge variant='outline'>Daily replay of the 91-day test period · no exploration</Badge>}
     >
@@ -173,6 +174,60 @@ export function Impact() {
           </CardContent>
         </Card>
       </div>
+      <DutiesCard ratePct={ratePct} />
     </PageShell>
+  )
+}
+
+/** Illustrative duties and taxes at stake on the frauds each policy catches at the chosen capacity. */
+function DutiesCard({ ratePct }: { ratePct: number }) {
+  const money = useMoney()
+  const q = useQuery({ queryKey: ['duties', ratePct], queryFn: () => apiTN.duties(ratePct / 100), placeholderData: keepPreviousData })
+  const d = q.data
+  const rows = [
+    ['RAQIB AI', 'ai', COLORS.ai],
+    ['Règle actuelle', 'rule', COLORS.rule],
+    ['Aléatoire', 'random', COLORS.random],
+  ] as const
+  return (
+    <Card className='gap-3'>
+      <CardHeader>
+        <CardTitle className='flex items-center gap-2'>
+          <Coins className='size-4' /> Droits et taxes en jeu (estimation)
+          <Badge variant='outline' className='border-lane-yellow/50 text-lane-yellow'>
+            illustratif
+          </Badge>
+        </CardTitle>
+        <CardDescription>
+          Somme, sur les fraudes détectées à {ratePct} % de capacité par jour, de la valeur déclarée × taux de droit du jeu de données, plus
+          la TVA 19 % (taux normal tunisien, hypothèse) sur valeur + droits.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className='flex flex-col gap-2'>
+        {d ? (
+          rows.map(([label, k, color]) => {
+            const p = d.policies[k]
+            return (
+              <div key={k} className='flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm'>
+                <span style={{ color }} className='font-medium'>
+                  {label} <span className='text-xs text-muted-foreground'>· {num(p.frauds_caught)} fraudes</span>
+                </span>
+                <span className='text-xs text-muted-foreground tabular-nums'>
+                  droits {money.m(p.duties)} · TVA {money.m(p.vat)} ·{' '}
+                  <b className='text-sm text-foreground'>total {money.m(p.total)}</b>
+                </span>
+              </div>
+            )
+          })
+        ) : q.error ? (
+          <ErrorState message={String(q.error)} onRetry={() => q.refetch()} />
+        ) : (
+          <Skeleton className='h-28' />
+        )}
+        <p className='text-[11px] text-muted-foreground'>
+          {d?.note} Les montants reflètent l'échelle des valeurs du jeu public synthétique, pas des recettes tunisiennes réelles.
+        </p>
+      </CardContent>
+    </Card>
   )
 }

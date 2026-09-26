@@ -24,6 +24,7 @@ import { Route as AuthenticatedJournalRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedLabRouteImport } from './routes/_authenticated/lab'
 import { Route as AuthenticatedModelCardRouteImport } from './routes/_authenticated/model-card'
 import { Route as AuthenticatedScoreRouteImport } from './routes/_authenticated/score'
+import { Route as AuthenticatedTunisieRouteImport } from './routes/_authenticated/tunisie'
 import { Route as AuthenticatedWorklistRouteImport } from './routes/_authenticated/worklist'
 import { Route as AuthenticatedDeclarationIdRouteImport } from './routes/_authenticated/declaration/$id'
 
@@ -102,6 +103,11 @@ const AuthenticatedScoreRoute = AuthenticatedScoreRouteImport.update({
   path: '/score',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTunisieRoute = AuthenticatedTunisieRouteImport.update({
+  id: '/tunisie',
+  path: '/tunisie',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWorklistRoute = AuthenticatedWorklistRouteImport.update({
   id: '/worklist',
   path: '/worklist',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/lab': typeof AuthenticatedLabRoute
   '/model-card': typeof AuthenticatedModelCardRoute
   '/score': typeof AuthenticatedScoreRoute
+  '/tunisie': typeof AuthenticatedTunisieRoute
   '/worklist': typeof AuthenticatedWorklistRoute
   '/declaration/$id': typeof AuthenticatedDeclarationIdRoute
 }
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/lab': typeof AuthenticatedLabRoute
   '/model-card': typeof AuthenticatedModelCardRoute
   '/score': typeof AuthenticatedScoreRoute
+  '/tunisie': typeof AuthenticatedTunisieRoute
   '/worklist': typeof AuthenticatedWorklistRoute
   '/': typeof AuthenticatedIndexRoute
   '/declaration/$id': typeof AuthenticatedDeclarationIdRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/_authenticated/lab': typeof AuthenticatedLabRoute
   '/_authenticated/model-card': typeof AuthenticatedModelCardRoute
   '/_authenticated/score': typeof AuthenticatedScoreRoute
+  '/_authenticated/tunisie': typeof AuthenticatedTunisieRoute
   '/_authenticated/worklist': typeof AuthenticatedWorklistRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/declaration/$id': typeof AuthenticatedDeclarationIdRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/lab'
     | '/model-card'
     | '/score'
+    | '/tunisie'
     | '/worklist'
     | '/declaration/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/lab'
     | '/model-card'
     | '/score'
+    | '/tunisie'
     | '/worklist'
     | '/'
     | '/declaration/$id'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lab'
     | '/_authenticated/model-card'
     | '/_authenticated/score'
+    | '/_authenticated/tunisie'
     | '/_authenticated/worklist'
     | '/_authenticated/'
     | '/_authenticated/declaration/$id'
@@ -344,6 +356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedScoreRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tunisie': {
+      id: '/_authenticated/tunisie'
+      path: '/tunisie'
+      fullPath: '/tunisie'
+      preLoaderRoute: typeof AuthenticatedTunisieRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/worklist': {
       id: '/_authenticated/worklist'
       path: '/worklist'
@@ -370,6 +389,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLabRoute: typeof AuthenticatedLabRoute
   AuthenticatedModelCardRoute: typeof AuthenticatedModelCardRoute
   AuthenticatedScoreRoute: typeof AuthenticatedScoreRoute
+  AuthenticatedTunisieRoute: typeof AuthenticatedTunisieRoute
   AuthenticatedWorklistRoute: typeof AuthenticatedWorklistRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedDeclarationIdRoute: typeof AuthenticatedDeclarationIdRoute
@@ -384,6 +404,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLabRoute: AuthenticatedLabRoute,
   AuthenticatedModelCardRoute: AuthenticatedModelCardRoute,
   AuthenticatedScoreRoute: AuthenticatedScoreRoute,
+  AuthenticatedTunisieRoute: AuthenticatedTunisieRoute,
   AuthenticatedWorklistRoute: AuthenticatedWorklistRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedDeclarationIdRoute: AuthenticatedDeclarationIdRoute,
