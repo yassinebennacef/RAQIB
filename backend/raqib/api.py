@@ -728,6 +728,29 @@ def llm_eval() -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+class AssistantRequest(BaseModel):
+    messages: list[dict[str, Any]] = Field(default_factory=list)
+    lang: Literal["fr", "ar", "en"] = "fr"
+    page: str = "/"
+    declaration_id: str | None = None
+
+
+@app.post("/api/assistant")
+def assistant(req: AssistantRequest) -> dict:
+    """Grounded helper chat: explains from the knowledge base and the computed facts; never scores or decides."""
+    from .llm.assistant import answer
+    from .llm.nlq import parse
+    e = engine()
+    did = req.declaration_id
+    if not did:
+        m = re.match(r"/declaration/([\w-]+)", req.page or "")
+        did = m.group(1) if m else None
+    facts = _llm_brief_inputs(did)[0] if did and did in e.pos else None
+    msgs = [{"role": str(x.get("role", "user")), "content": str(x.get("content", ""))[:800]} for x in req.messages[-6:]]
+    out = answer(msgs, req.lang, req.page or "/", facts, nlq_parse=lambda q: parse(q, _nlq_vocab()))
+    return py({**out, "declaration_id": did if facts else None})
+
+
 def _pregenerate_briefs() -> None:
     from .llm import brief as LB
     from .llm import client
@@ -745,6 +768,9 @@ def _pregenerate_briefs() -> None:
         return facts, template_brief(tfacts, "fr")
 
     LB.pregenerate(jobs, build)
+    from .llm import assistant as AS
+    # starters of the assistant, after the briefs (Ollama queues the requests)
+    AS.pregenerate(lambda d: _llm_brief_inputs(d)[0], [i for i in ("54794554", "80928101") if i in e.pos])
 
 
 # ---------------------------------------------------------------------------- SPA

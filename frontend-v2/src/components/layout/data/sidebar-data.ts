@@ -1,4 +1,5 @@
 import {
+  Bot,
   BookOpen,
   BrainCircuit,
   ClipboardList,
@@ -26,6 +27,7 @@ export const sidebarData: SidebarData = {
       items: [
         { title: 'Impact simulator', url: '/impact', icon: Gauge },
         { title: 'Explainability', url: '/explainability', icon: BrainCircuit },
+        { title: 'Assistant RAQIB', url: '/assistant', icon: Bot },
       ],
     },
     {

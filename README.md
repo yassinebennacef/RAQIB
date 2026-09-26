@@ -104,6 +104,8 @@ What it does — and only this:
   worklist filter, validated against the real data and shown as chips; the officer clicks Apply. A rule-based parser
   is always available.
 
+- **Assistant RAQIB** (floating button, every page): a grounded helper chat in FR / AR / EN that explains RAQIB and the open declaration from a generated knowledge base (`docs/assistant_kb.md`) and the computed facts, with the same number guard; out-of-scope questions are refused; FAQ mode when the LLM is off.
+
 What it never does: score, rank, choose a lane, raise an alert or decide. Measured numbers are in the Model card page
 (and artifacts/llm_eval.json).
 

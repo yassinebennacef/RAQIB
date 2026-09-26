@@ -369,3 +369,24 @@ Request `{"filter": {...NLQ filter...}, "page": 1, "page_size": 50}` → same sh
 
 ## GET /api/llm/eval
 Contents of `artifacts/llm_eval.json` (written by `scripts/eval_llm.py`), or `{"skipped": true}`.
+
+
+## POST /api/assistant — Assistant RAQIB (grounded helper chat)
+Request:
+```json
+{"messages": [{"role": "user", "content": "Pourquoi cette déclaration est ROUGE ?"}], "lang": "fr|ar|en",
+ "page": "/declaration/54794554", "declaration_id": null}
+```
+(`declaration_id` is taken from `page` when it is a declaration page; only the last 6 turns are used.)
+Response:
+```json
+{"answer": "...", "lang": "fr", "dir": "ltr|rtl", "source": "qwen3-4b|faq|rules", "citations": [{"key": "why_red",
+ "title": "Pourquoi une déclaration est ROUGE", "page": "/declaration"}], "guard_passed": true, "latency_ms": 8000,
+ "declaration_id": "54794554", "kind": "filter", "filter": {"...": "NLQ filter, only for filter requests"},
+ "question": "...", "out_of_scope": false}
+```
+Grounding: BM25 over `docs/assistant_kb.md` (39 sections generated from the measured artifacts by `python -m raqib.kb`)
++ the computed facts of the declaration. Guards: numbers must appear in the facts or the retrieved sections, banned
+accusatory words, language check; one retry at temperature 0; otherwise the FAQ answer (best section, French).
+A filter request ("montre-moi les rouges de Chine…") returns the parsed Ask RAQIB filter (`kind: "filter"`).
+The assistant never scores, ranks, picks a lane or decides.
