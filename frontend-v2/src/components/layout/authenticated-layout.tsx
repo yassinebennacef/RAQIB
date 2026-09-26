@@ -6,6 +6,7 @@ import { SearchProvider } from '@/context/search-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SkipToMain } from '@/components/skip-to-main'
+import { ChatPanel } from '@/components/raqib/chat-panel'
 
 type AuthenticatedLayoutProps = {
   children?: React.ReactNode
@@ -35,6 +36,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
           >
             {children ?? <Outlet />}
           </SidebarInset>
+          <ChatPanel />
         </SidebarProvider>
       </LayoutProvider>
     </SearchProvider>

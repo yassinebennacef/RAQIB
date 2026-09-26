@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -808,6 +808,54 @@ def llm_eval() -> dict:
     if not path.exists():
         return {"skipped": True, "reason": "run python scripts/eval_llm.py"}
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+class ChatRequest(BaseModel):
+    messages: list[dict[str, Any]] = Field(default_factory=list)
+    page: str = "/"
+    declaration_id: str | None = None
+
+
+@app.post("/api/chat")
+def chat(req: ChatRequest):
+    """Ask the local Qwen3 anything (streamed plain text). Grounded in RAQIB's measured facts; never decides."""
+    from .llm import chat as CH
+    from .llm import client as LLM
+    if not any(m.get("role") == "user" and str(m.get("content", "")).strip() for m in req.messages):
+        raise HTTPException(422, "empty question")
+    e = engine()
+    did = req.declaration_id
+    if not did:
+        m = re.match(r"/declaration/([\w-]+)", req.page or "")
+        did = m.group(1) if m else None
+    decl = None
+    if did and did in e.pos:
+        try:
+            decl = _llm_brief_inputs(did)[0]
+        except Exception:  # noqa: BLE001 - the chat still works without the declaration
+            decl = None
+    facts = CH.build_facts(e, TN.load(), C.DEFAULT_RATE, req.page or "/", decl)
+    stream = LLM.stream_chat(CH.build_messages(req.messages, facts), temperature=0.4, num_predict=700)
+    try:
+        first = next(stream)
+    except StopIteration:
+        first = ""
+    except LLM.LLMError as exc:
+        st = LLM.status()
+        return JSONResponse(status_code=503, content={
+            "detail": f"LLM local indisponible : {exc}", "llm": {"enabled": st["enabled"], "reachable": st["reachable"],
+                                                                "model": st["model"], "url": st["url"]}})
+
+    def body():
+        yield first
+        try:
+            yield from stream
+        except (LLM.LLMError, OSError, ValueError) as exc:
+            yield f"\n\n[Réponse interrompue : {exc}]"
+
+    return StreamingResponse(body(), media_type="text/plain; charset=utf-8",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no",
+                                      "X-RAQIB-Model": str(LLM.status()["model"] or "")})
 
 
 def _pregenerate_briefs() -> None:

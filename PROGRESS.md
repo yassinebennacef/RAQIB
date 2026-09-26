@@ -28,3 +28,12 @@
 - Impact: "Droits et taxes en jeu (estimation)", illustrative, TVA 19% as an assumption.
 - Models, metrics, lanes and replay unchanged (317/259/103 frauds, 41/7/3 threats at 470 inspections).
 - Also fixed a Windows timing flake in the LLM re-probe (RECHECK=0 compared with `>` on a 15 ms clock).
+
+## Chat panel "Demander à Qwen" (feat/chat-panel, 2026-09-26)
+- Floating, non-modal panel on every page: free questions to the local Qwen3 (FR / AR / EN), streamed (first token
+  ~1 s once the model is loaded), Stop, clear, conversation kept across pages and reloads (sessionStorage).
+- POST /api/chat: system prompt with RAQIB's measured facts worded as sentences (317/259/103 frauds, 41/7/3 threats,
+  metrics, efficiency, uncertainty, UN Comtrade 2024) + the declaration's facts on /declaration/<id>; 503 with a clear
+  message when Ollama is down. Hidden <think> blocks are filtered from the stream.
+- The previous grounded assistant (branch fix/assistant) refused anything outside its knowledge base; it is left as is.
+- Tests: tests/test_chat.py (fake streaming Ollama), tests/e2e/smoke_chat.py (real Qwen3, browser).

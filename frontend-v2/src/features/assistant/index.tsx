@@ -1,11 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import { Bot, Cpu, FileText, Loader2, RefreshCw, Sparkles } from 'lucide-react'
+import { Bot, Cpu, FileText, Loader2, MessageCircle, RefreshCw, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageShell } from '@/components/raqib/kit'
 import { ASK_EXAMPLES } from '@/components/raqib/llm'
 import { useLlmStatus } from '@/components/raqib/llm-dot'
+import { openChat } from '@/lib/chat'
 import { cn } from '@/lib/utils'
 
 const EXAMPLE_DECLARATION = '54794554'
@@ -16,7 +17,12 @@ export function Assistant() {
   return (
     <PageShell
       title='Assistant local Qwen3'
-      why="Deux fonctions seulement, jamais de décision : la note à l'agent (FR / AR / EN) et « Ask RAQIB » (question → filtre de la liste de travail)."
+      why="Trois usages, jamais de décision : la discussion libre « Demander à Qwen » (bouton en bas à droite, sur toutes les pages), la note à l'agent (FR / AR / EN) et « Ask RAQIB » (question → filtre de la liste de travail)."
+      actions={
+        <Button onClick={() => openChat()} data-testid='assistant-open-chat'>
+          <MessageCircle /> Ouvrir la discussion avec Qwen
+        </Button>
+      }
     >
       <Card className='gap-2'>
         <CardHeader>
