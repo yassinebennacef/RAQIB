@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>RAQIB — Dossier jury</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm; }
+  :root {
+    --ink: #0f172a; --muted: #475569; --line: #e2e8f0; --soft: #f1f5f9;
+    --ai: #2a78d6; --rule: #eb6834; --rand: #9a9893;
+    --red: #EF4444; --yellow: #F59E0B; --green: #22C55E; --navy: #0b1b33;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--ink);
+    font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 10.6pt; line-height: 1.5; }
+  h1, h2, h3 { margin: 0; line-height: 1.2; }
+  h2 { font-size: 17pt; margin-bottom: 4mm; color: var(--navy); }
+  h2 .n { color: var(--ai); margin-right: 3mm; }
+  h3 { font-size: 11.5pt; margin: 4mm 0 1.5mm; color: var(--navy); }
+  p { margin: 0 0 2.6mm; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .lead { font-size: 11.6pt; color: var(--muted); }
+  .muted { color: var(--muted); }
+  .small { font-size: 8.8pt; }
+  strong { color: var(--navy); }
+
+  /* Cover */
+  .cover { background: var(--navy); color: #e2e8f0; border-radius: 4mm; padding: 16mm 14mm; min-height: 257mm;
+    display: flex; flex-direction: column; }
+  .cover .tag { font-size: 9pt; letter-spacing: .18em; text-transform: uppercase; color: #93c5fd; }
+  .cover h1 { font-size: 46pt; color: #fff; margin: 10mm 0 2mm; letter-spacing: .02em; }
+  .cover h1 span { font-size: 30pt; color: #93c5fd; margin-left: 5mm; font-weight: normal; }
+  .cover .sub { font-size: 15pt; color: #cbd5e1; max-width: 150mm; }
+  .cover .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-top: 16mm; }
+  .cover .kpi { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 3mm; padding: 5mm; }
+  .cover .kpi b { display: block; font-size: 28pt; color: #fff; line-height: 1.1; }
+  .cover .kpi span { font-size: 9.4pt; color: #cbd5e1; }
+  .cover .pitch { margin-top: 12mm; font-size: 11.5pt; color: #e2e8f0; border-left: 3px solid var(--ai); padding-left: 5mm; }
+  .cover .foot { margin-top: auto; font-size: 9pt; color: #94a3b8; border-top: 1px solid rgba(255,255,255,.15); padding-top: 4mm; }
+
+  /* Blocks */
+  .callout { background: var(--soft); border-left: 3px solid var(--ai); border-radius: 2mm; padding: 3.5mm 4.5mm; margin: 3mm 0 4mm; }
+  .callout.warn { border-left-color: var(--rule); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .card { border: 1px solid var(--line); border-radius: 2.5mm; padding: 3.5mm 4mm; break-inside: avoid; }
+  .card h4 { margin: 0 0 1.5mm; font-size: 10.6pt; color: var(--navy); }
+  .card p { margin: 0; font-size: 9.3pt; color: var(--muted); }
+  .num { font-size: 22pt; font-weight: bold; color: var(--navy); line-height: 1.1; }
+  .step { display: grid; grid-template-columns: 9mm 1fr; gap: 3mm; margin-bottom: 2.2mm; break-inside: avoid; }
+  .step .dot { width: 8mm; height: 8mm; border-radius: 50%; background: var(--ai); color: #fff; font-weight: bold;
+    display: flex; align-items: center; justify-content: center; font-size: 10pt; }
+  .step h4 { margin: .6mm 0 .8mm; font-size: 10.8pt; color: var(--navy); }
+  .step p { margin: 0; font-size: 9.5pt; }
+  .step .why { color: var(--muted); font-size: 9.2pt; margin-top: 1mm; }
+  .step .why b { color: var(--ai); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.6pt; margin: 2mm 0 3mm; }
+  th, td { padding: 2mm 2.5mm; border-bottom: 1px solid var(--line); text-align: left; }
+  th { background: var(--soft); font-size: 8.8pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  td.r, th.r { text-align: right; }
+  .sw { display: inline-block; width: 3mm; height: 3mm; border-radius: 50%; margin-right: 2mm; vertical-align: middle; }
+
+  .bars { margin: 3mm 0 2mm; }
+  .bar-row { display: grid; grid-template-columns: 42mm 1fr 18mm; align-items: center; gap: 3mm; margin: 2mm 0; font-size: 9.6pt; }
+  .bar { height: 6mm; border-radius: 1mm; }
+  .bar-val { font-weight: bold; text-align: right; }
+
+  .lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin: 2mm 0 3mm; }
+  .lane { border-radius: 2mm; padding: 3mm; color: #fff; font-size: 9.4pt; }
+  .lane b { display: block; font-size: 11pt; }
+  .lane.red { background: var(--red); } .lane.yellow { background: var(--yellow); } .lane.green { background: var(--green); }
+
+  figure { margin: 2mm 0 0; }
+  figure img { width: 100%; border-radius: 2mm; border: 1px solid var(--line); }
+  figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 1.5mm; }
+  ul { margin: 0 0 2.5mm; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  .src { font-size: 8.2pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 2mm; margin-top: 4mm; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : COUVERTURE -->
+<section class="page">
+  <div class="cover">
+    <div class="tag">Hackathon « IA &amp; Finances Publiques » · Défi T2 : Ciblage et orientation automatisés des contrôles</div>
+    <h1>RAQIB <span dir="rtl" lang="ar" style="font-family:'DejaVu Sans'">رقيب</span></h1>
+    <div class="sub">Aider la douane à choisir, chaque jour, les déclarations qui méritent vraiment un contrôle.</div>
+
+    <div class="kpis">
+      <div class="kpi"><b>+22 %</b><span>de fraudes détectées avec <em>exactement</em> le même nombre de contrôles que la meilleure règle actuelle</span></div>
+      <div class="kpi"><b>×5,9</b><span>de menaces pour la sécurité publique interceptées (41 contre 7)</span></div>
+      <div class="kpi"><b>82 %</b><span>des déclarations libérées en circuit vert : dédouanement plus rapide pour les opérateurs honnêtes</span></div>
+    </div>
+
+    <div class="pitch">
+      Les contrôles physiques coûtent cher et sont limités. RAQIB ne remplace pas l’agent :
+      il l’aide à placer chaque contrôle là où il rapporte le plus, en recettes comme en sécurité,
+      explique chacune de ses propositions et laisse toujours la décision finale à l’humain.
+    </div>
+
+    <div class="foot">
+      Équipe RAQIB · Tous les chiffres de ce document sont mesurés sur une période de test jamais utilisée pour l’apprentissage
+      (avril–juin 2021, 8 481 déclarations d’un jeu de données public synthétisé à partir de contrôles douaniers réels).
+      Aucune donnée tunisienne, aucun accès à un système de l’administration.
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 2 : LE PROBLÈME -->
+<section class="page">
+  <h2><span class="n">1</span>Le problème : trop de déclarations, trop peu de contrôles</h2>
+  <p class="lead">Chaque jour, des milliers de marchandises entrent sur le territoire. La douane ne peut en inspecter
+  physiquement qu’une petite fraction. Toute la question est donc : <strong>lesquelles ?</strong></p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Aujourd’hui</h4>
+      <p>La sélection repose surtout sur des règles fixes (par exemple : « ce produit a souvent été fraudé par le passé »)
+      et sur l’expérience des agents. Ces règles sont utiles, mais elles sont rigides, faciles à contourner
+      par les fraudeurs, et regardent un seul critère à la fois.</p>
+    </div>
+    <div class="card">
+      <h4>Conséquence</h4>
+      <p>Beaucoup de contrôles ne trouvent rien, pendant que des fraudes passent. Chaque contrôle inutile
+      immobilise un agent et retarde un opérateur honnête ; chaque fraude manquée est une recette perdue pour l’État
+      ou un risque pour les citoyens.</p>
+    </div>
+  </div>
+
+  <h3>Deux enjeux, pas un seul</h3>
+  <div class="grid2">
+    <div class="card" style="border-left:3px solid var(--ai)">
+      <h4>Les recettes publiques</h4>
+      <p>Sous-évaluation, fausse origine, mauvais classement tarifaire : la <strong>fraude aux droits</strong>
+      fait perdre directement des recettes au budget de l’État.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <h4>La sécurité publique</h4>
+      <p>Produits dangereux, contrefaçons, marchandises interdites : la <strong>fraude critique</strong> est rare,
+      mais une seule manquée peut coûter très cher. Elle ne doit jamais être noyée parmi les fraudes fiscales.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Notre parti pris :</strong> on ne demande pas à la douane de contrôler plus. On lui propose de
+    <strong>contrôler mieux, à effectif constant</strong>. La capacité de contrôle du jour est une contrainte fixe,
+    et c’est à l’outil de s’y adapter, pas l’inverse.
+  </div>
+
+  <h3>Ce que RAQIB produit chaque jour</h3>
+  <p>Pour chaque déclaration, un circuit proposé et <strong>quatre raisons en langage clair</strong> :</p>
+  <div class="lanes">
+    <div class="lane red"><b>ROUGE · contrôle physique</b>Les déclarations les plus risquées, dans la limite de la capacité du jour.</div>
+    <div class="lane yellow"><b>JAUNE · contrôle documentaire</b>Un doute raisonnable : on vérifie les pièces sans ouvrir le conteneur.</div>
+    <div class="lane green"><b>VERT · mainlevée</b>Risque faible : la marchandise sort vite, l’opérateur n’est pas pénalisé.</div>
+  </div>
+  <p class="muted small">À côté, RAQIB affiche ce qu’aurait choisi la meilleure règle actuelle, pour que le gain soit visible
+  déclaration par déclaration. L’agent garde toujours le dernier mot et sa décision est enregistrée dans un journal infalsifiable.</p>
+</section>
+
+<!-- PAGE 3 : LES DONNÉES -->
+<section class="page">
+  <h2><span class="n">2</span>Les données : réelles dans leur structure, publiques, et traitées honnêtement</h2>
+
+  <p>Le cahier des charges interdit, à juste titre, l’usage de données confidentielles. Nous avons donc choisi
+  le jeu de données public de référence pour ce problème :</p>
+
+  <div class="callout">
+    <strong>Customs Import Declaration Datasets</strong> — Institute for Basic Science (Corée) et <strong>Korea Customs Service</strong>,
+    licence MIT. Des déclarations d’importation générées à partir de <strong>déclarations réellement contrôlées</strong>
+    par la douane coréenne, puis anonymisées par une technique de synthèse (les lignes ne correspondent à aucun opérateur réel,
+    mais les liens statistiques sont conservés). Les noms des produits proviennent de la nomenclature du Système harmonisé
+    (jeu public <em>datasets/harmonized-system</em>).
+  </div>
+
+  <div class="grid3" style="margin: 4mm 0">
+    <div class="card"><div class="num">54 000</div><p>déclarations, 22 informations chacune (produit, origine, valeur, poids, taxe, importateur, déclarant…)</p></div>
+    <div class="card"><div class="num">2 489</div><p>produits différents · 14 482 importateurs · 119 pays d’origine</p></div>
+    <div class="card"><div class="num">2 résultats</div><p>connus pour chaque déclaration : y avait-il fraude ? était-elle critique pour la sécurité ?</p></div>
+  </div>
+
+  <h3>Une évaluation qui ne triche pas</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Apprentissage : le passé</h4>
+      <p>45 519 déclarations, de janvier 2020 à mars 2021. C’est tout ce que le modèle a le droit de voir.</p>
+    </div>
+    <div class="card">
+      <h4>Test : le futur</h4>
+      <p>8 481 déclarations d’avril à juin 2021, <strong>jamais montrées au modèle</strong>. On les rejoue jour par jour,
+      exactement comme en conditions réelles.</p>
+    </div>
+  </div>
+  <p style="margin-top:3mm">Ce découpage dans le temps est essentiel : il reproduit la vraie situation d’une douane,
+  qui doit décider aujourd’hui avec ce qu’elle sait d’hier. Un découpage au hasard aurait donné des résultats plus flatteurs, mais faux.</p>
+
+  <h3>Ce que nous disons ouvertement sur les limites</h3>
+  <ul>
+    <li>Les données sont d’origine coréenne et synthétiques. Seules des déclarations contrôlées ont été reproduites,
+      d’où un taux de fraude de 21,6 %, bien au-dessus de la réalité. <strong>Nous ne revendiquons donc pas un taux de
+      réussite absolu, mais le gain par rapport à la règle actuelle</strong>, mesuré sur les mêmes données et avec les mêmes moyens.</li>
+    <li>Les cas critiques sont rares (73 sur la période de test) : le chiffre de sécurité a une marge d’incertitude, que nous indiquons.</li>
+    <li>Pour la Tunisie, la méthode est prête. Il faudra la réentraîner en interne sur les déclarations tunisiennes (voir section 5).</li>
+  </ul>
+  <div class="src">
+    Sources : Customs Import Declaration Datasets (Institute for Basic Science &amp; Korea Customs Service, licence MIT) ;
+    datasets/harmonized-system (ODC-PDDL). Chiffres extraits de <em>docs/RESULTS.md</em>, généré automatiquement à partir des mesures
+    (période de test du 1<sup>er</sup> avril au 30 juin 2021, 8 481 déclarations). Données publiques synthétiques ; aucune donnée tunisienne utilisée ;
+    outil consultatif : l’agent décide.
+  </div>
+</section>
+
+<!-- PAGE 4 : L'APPROCHE -->
+<section class="page">
+  <h2><span class="n">3</span>Notre approche, et pourquoi chaque choix</h2>
+  <p class="lead">Cinq étapes simples, chacune motivée par une contrainte réelle du métier douanier.</p>
+
+  <div class="step"><div class="dot">1</div><div>
+    <h4>Apprendre des contrôles passés</h4>
+    <p>Deux modèles d’intelligence artificielle apprennent, à partir des résultats des contrôles déjà réalisés,
+    à estimer pour chaque nouvelle déclaration la probabilité de <strong>fraude aux droits</strong> et celle de
+    <strong>fraude critique</strong>. Ils croisent des dizaines de signaux à la fois : historique du produit, de l’importateur,
+    du déclarant, du fournisseur, de l’origine, du bureau, valeur, poids, prix unitaire.</p>
+    <p class="why"><b>Pourquoi :</b> une règle regarde un critère ; un fraudeur en change un. Croiser les signaux rend le ciblage
+    beaucoup plus difficile à contourner.</p>
+  </div></div>
+
+  <div class="step"><div class="dot">2</div><div>
+    <h4>Des probabilités lisibles, pas des scores opaques</h4>
+    <p>Les résultats sont calibrés : quand RAQIB annonce « 60 % de risque », environ 60 % de ces déclarations sont effectivement
+    frauduleuses. Sur les 10 % les plus risquées, le modèle prévoyait 61,7 % de fraude, on en a observé 61,4 %.</p>
+    <p class="why"><b>Pourquoi :</b> un agent doit pouvoir faire confiance au chiffre qu’il lit, et un chef de bureau doit pouvoir fixer des seuils.</p>
+  </div></div>
+
+  <div class="step"><div class="dot">3</div><div>
+    <h4>Remplir la capacité du jour, dans le bon ordre</h4>
+    <p>Chaque jour, les places de contrôle disponibles sont attribuées : <strong>d’abord les alertes de sécurité publique</strong>,
+    puis les probabilités de fraude les plus élevées. Une petite part optionnelle est tirée au hasard (l’« exploration »).</p>
+    <p class="why"><b>Pourquoi :</b> la sécurité passe avant les recettes. L’exploration empêche le système de devenir aveugle
+    aux nouvelles fraudes et lui permet de continuer à apprendre sans biais.</p>
+  </div></div>
+
+  <div class="step"><div class="dot">4</div><div>
+    <h4>Expliquer chaque proposition</h4>
+    <p>Pour chaque déclaration, RAQIB donne les quatre raisons principales avec les vrais chiffres, par exemple :
+    <em>« Le produit 731815 (vis et boulons en fer ou acier) a été frauduleux dans 36 % de ses 127 déclarations passées (moyenne 22 %). »</em>
+    Pour la fraude aux droits, nous utilisons un modèle « boîte de verre » entièrement lisible, aussi précis que le modèle « boîte noire ».</p>
+    <p class="why"><b>Pourquoi :</b> un agent ne contrôle pas sur la foi d’un chiffre, et une administration doit pouvoir justifier ses contrôles.</p>
+  </div></div>
+
+  <div class="step"><div class="dot">5</div><div>
+    <h4>L’humain décide, tout est tracé</h4>
+    <p>RAQIB propose, l’agent dispose. Chaque décision est inscrite dans un journal chaîné : toute modification a posteriori est détectable.
+    Quand les deux modèles internes ne sont pas d’accord, la déclaration n’est jamais libérée automatiquement : elle part au minimum en contrôle documentaire.</p>
+    <p class="why"><b>Pourquoi :</b> responsabilité, transparence et confiance. L’outil reste un conseiller.</p>
+  </div></div>
+
+  <div class="callout warn small">
+    <strong>Ce que nous avons testé et écarté :</strong> nous avons aussi essayé la détection d’anomalies et l’analyse de réseaux
+    d’opérateurs. Mesurées, elles n’apportaient rien sur ces données : nous les avons retirées plutôt que de les afficher comme des arguments.
+  </div>
+</section>
+
+<!-- PAGE 5 : RÉSULTATS -->
+<section class="page">
+  <h2><span class="n">4</span>Les résultats : même effort, bien plus de fraudes trouvées</h2>
+  <p>Nous avons rejoué les <strong>91 jours</strong> de la période de test. Chaque méthode disposait exactement de la même capacité :
+  5 % des déclarations du jour, soit <strong>470 contrôles</strong> au total.</p>
+
+  <h3>Fraudes détectées avec 470 contrôles</h3>
+  <div class="bars">
+    <div class="bar-row"><span><span class="sw" style="background:var(--ai)"></span>RAQIB</span><div class="bar" style="width:100%;background:var(--ai)"></div><span class="bar-val">317</span></div>
+    <div class="bar-row"><span><span class="sw" style="background:var(--rule)"></span>Meilleure règle actuelle</span><div class="bar" style="width:81.7%;background:var(--rule)"></div><span class="bar-val">259</span></div>
+    <div class="bar-row"><span><span class="sw" style="background:var(--rand)"></span>Au hasard</span><div class="bar" style="width:32.5%;background:var(--rand)"></div><span class="bar-val">103</span></div>
+  </div>
+  <h3>Menaces pour la sécurité publique interceptées (sur 73 présentes)</h3>
+  <div class="bars">
+    <div class="bar-row"><span><span class="sw" style="background:var(--ai)"></span>RAQIB</span><div class="bar" style="width:100%;background:var(--ai)"></div><span class="bar-val">41</span></div>
+    <div class="bar-row"><span><span class="sw" style="background:var(--rule)"></span>Meilleure règle actuelle</span><div class="bar" style="width:17.1%;background:var(--rule)"></div><span class="bar-val">7</span></div>
+    <div class="bar-row"><span><span class="sw" style="background:var(--rand)"></span>Au hasard</span><div class="bar" style="width:7.3%;background:var(--rand)"></div><span class="bar-val">3</span></div>
+  </div>
+
+  <table>
+    <tr><th>Même capacité (470 contrôles)</th><th class="r">Fraudes</th><th class="r">Menaces</th><th class="r">Contrôles fructueux</th></tr>
+    <tr><td><span class="sw" style="background:var(--ai)"></span>RAQIB</td><td class="r"><strong>317</strong></td><td class="r"><strong>41</strong></td><td class="r"><strong>67 %</strong></td></tr>
+    <tr><td><span class="sw" style="background:var(--rule)"></span>Règle actuelle (historique du produit)</td><td class="r">259</td><td class="r">7</td><td class="r">55 %</td></tr>
+    <tr><td><span class="sw" style="background:var(--rand)"></span>Au hasard</td><td class="r">103</td><td class="r">3</td><td class="r">22 %</td></tr>
+  </table>
+
+  <div class="grid3">
+    <div class="card"><div class="num">19 %</div><p>de contrôles en moins pour trouver autant de fraudes que la règle (379 contrôles au lieu de 470).</p></div>
+    <div class="card"><div class="num">12 / 13</div><p>semaines où RAQIB bat la règle : le gain est régulier, pas un coup de chance.</p></div>
+    <div class="card"><div class="num">44 %</div><p>de fraude parmi les 371 cas « incertains » renvoyés à l’agent (moyenne : 22 %). Le doute est signalé au bon endroit.</p></div>
+  </div>
+
+  <figure>
+    <img src="control_room_crop.png" alt="Salle de contrôle RAQIB">
+    <figcaption>La salle de contrôle de RAQIB : rejeu des 91 jours de test, même capacité pour les trois méthodes. Tous les chiffres affichés sont calculés en direct par l’application.</figcaption>
+  </figure>
+</section>
+
+<!-- PAGE 6 : POURQUOI VOUS EN AVEZ BESOIN -->
+<section class="page" style="font-size:10pt">
+  <h2 style="margin-bottom:3mm"><span class="n">5</span>Pourquoi la douane en a besoin, et comment le déployer</h2>
+
+  <div class="grid2">
+    <div class="card"><h4>Plus de recettes, sans recruter</h4><p>+22 % de fraudes trouvées avec le même nombre d’agents et de contrôles.
+      Chaque contrôle devient plus rentable pour le budget de l’État.</p></div>
+    <div class="card"><h4>Plus de sécurité pour les citoyens</h4><p>Les menaces critiques passent en priorité absolue :
+      près de six fois plus de menaces interceptées que la règle actuelle sur la même période.</p></div>
+    <div class="card"><h4>Un meilleur climat des affaires</h4><p>82 % des déclarations en circuit vert : les opérateurs honnêtes
+      sont dédouanés plus vite, ce qui soutient la compétitivité des ports et des entreprises.</p></div>
+    <div class="card"><h4>Des décisions justifiables</h4><p>Chaque proposition est expliquée, chaque décision est tracée dans un journal
+      infalsifiable. L’agent reste responsable et l’administration peut rendre des comptes.</p></div>
+  </div>
+
+  <h3>Un déploiement prudent, par étapes</h3>
+  <div class="step"><div class="dot">1</div><div><h4>Réentraînement en interne</h4>
+    <p>Le même pipeline est réentraîné par la douane sur ses propres déclarations et résultats de contrôle.
+    <strong>Aucune donnée ne quitte l’administration</strong>. L’apprentissage complet prend quelques minutes sur un ordinateur ordinaire, sans serveur coûteux.</p></div></div>
+  <div class="step"><div class="dot">2</div><div><h4>Mode observation (4 à 8 semaines)</h4>
+    <p>RAQIB note les déclarations en parallèle des règles actuelles, sans influencer aucune décision. On compare ensuite les résultats.</p></div></div>
+  <div class="step"><div class="dot">3</div><div><h4>Pilote contrôlé</h4>
+    <p>Quelques bureaux ou certains jours utilisent RAQIB, les autres gardent les règles. On mesure les recettes récupérées,
+    les menaces trouvées et les délais de dédouanement.</p></div></div>
+  <div class="step"><div class="dot">4</div><div><h4>Suivi et gouvernance</h4>
+    <p>Suivi hebdomadaire de la dérive et de l’équité entre bureaux, une part de contrôles aléatoires maintenue en permanence,
+    conformité à la loi organique 2004-63 sur la protection des données personnelles et avis de l’INPDP.</p></div></div>
+
+  <h3>Pourquoi nous faire confiance</h3>
+  <ul>
+    <li><strong>Rigueur :</strong> évaluation sur une période future jamais vue par le modèle, comparaison à la meilleure règle et non à un simple tirage au hasard, marges d’incertitude publiées.</li>
+    <li><strong>Honnêteté :</strong> aucun chiffre n’est saisi à la main. Tout est recalculé par le code à partir des données, et les idées qui ne marchaient pas ont été écartées.</li>
+    <li><strong>Produit complet :</strong> une application opérationnelle (salle de contrôle, liste de travail, fiche de déclaration expliquée, simulateur d’impact, journal des décisions), qui fonctionne hors ligne.</li>
+    <li><strong>Souveraineté :</strong> composants libres sous licence permissive, exécution locale, aucune dépendance à un service extérieur pour noter ou décider.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>En une phrase :</strong> RAQIB permet à la douane de trouver plus de fraudes et plus de menaces
+    <strong>avec les mêmes moyens</strong>, en expliquant chaque choix et en laissant toujours la décision à l’agent.
+  </div>
+
+</section>
+
+</body>
+</html>
