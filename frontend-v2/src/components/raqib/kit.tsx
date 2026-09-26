@@ -15,6 +15,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { LlmDot } from './llm-dot'
 
 /* ------------------------------------------------------------------ Page shell */
 export function PageShell({
@@ -36,6 +37,7 @@ export function PageShell({
           <Badge variant='outline' className='hidden border-primary/40 text-primary lg:inline-flex'>
             Public synthetic data · no Tunisian data
           </Badge>
+          <LlmDot />
           <ThemeSwitch />
           <ConfigDrawer />
           <span className='hidden items-center gap-2 rounded-full border px-2 py-1 text-xs text-muted-foreground xl:flex'>

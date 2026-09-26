@@ -38,6 +38,14 @@ if not exist frontend-v2\dist\index.html (
   popd
 )
 
+where ollama >nul 2>nul
+if %errorlevel%==0 (
+  curl -s -m 2 http://127.0.0.1:11434/api/tags >nul 2>nul || (echo [LLM] starting Ollama... & start "" /B ollama serve >nul 2>nul & timeout /t 3 >nul)
+  echo [LLM] local Qwen3 enabled if the model is installed - warm-up runs in the background
+) else (
+  echo [LLM] Ollama not installed: LLM off - template mode
+)
+
 echo [4/4] Starting RAQIB at http://127.0.0.1:8000  - press Ctrl+C to stop
 .venv\Scripts\python -m raqib.serve --port 8000 --open
 goto :eof

@@ -34,6 +34,13 @@ async def lifespan(_app):
         train_index()
         _presets()
         print(f"[raqib] artifacts loaded in {time.time() - t0:.1f}s", flush=True)
+        try:
+            _pregenerate_briefs()
+            from .llm import client as _llm
+            st = _llm.status()
+            print(f"[raqib] local LLM: {st['mode']} ({st['model'] or 'template mode'})", flush=True)
+        except Exception as exc:  # noqa: BLE001 - the LLM is optional
+            print(f"[raqib] local LLM off ({exc})", flush=True)
     except Exception as exc:  # noqa: BLE001 - the API still answers /api/health
         print(f"[raqib] WARNING: artifacts not loaded ({exc}). Run: python -m raqib.build", flush=True)
     yield
@@ -448,7 +455,9 @@ def _csv(v: str | None) -> list[str]:
 def worklist(day: int | None = None, lane: str | None = None, origin: str | None = None, hs2: str | None = None,
              office: str | None = None, uncertain: bool | None = None, min_p: float | None = None,
              q: str | None = None, sort: str = "p_fraud", order: str = "desc", page: int = 1,
-             page_size: int = Query(50, ge=1, le=500), rate: float = C.DEFAULT_RATE, explore: float = 0.0) -> dict:
+             page_size: int = Query(50, ge=1, le=500), rate: float = C.DEFAULT_RATE, explore: float = 0.0,
+             hs_prefix: str | None = None, importer: str | None = None, date_from: str | None = None,
+             date_to: str | None = None, alert: bool | None = None) -> dict:
     _check_rate(rate, explore)
     e = engine()
     t = e.test
@@ -473,6 +482,19 @@ def worklist(day: int | None = None, lane: str | None = None, origin: str | None
         mask &= t["uncertain"].to_numpy(bool) == uncertain
     if min_p is not None:
         mask &= t["p_fraud"].to_numpy(float) >= min_p
+    if hs_prefix:
+        hs6s = t["hs6"].astype(int).astype(str).str.zfill(6)
+        pref = tuple(x for x in _csv(hs_prefix) if x.isdigit())
+        if pref:
+            mask &= hs6s.str.startswith(pref).to_numpy()
+    if importer:
+        mask &= (t["importer"].fillna("").str.upper() == importer.strip().upper()).to_numpy()
+    if date_from:
+        mask &= (t["date"] >= date_from[:10]).to_numpy()
+    if date_to:
+        mask &= (t["date"] <= date_to[:10]).to_numpy()
+    if alert is not None:
+        mask &= df["alert"].to_numpy(bool) == alert
     if q and q.strip():
         qq = q.strip().lower()
         hay = (t["declaration_id"] + " " + t["hs6"].astype(str).str.zfill(6) + " " + t["hs_desc"].str.lower() + " "
@@ -614,6 +636,115 @@ def brief(decl_id: str, lang: Literal["fr", "en", "ar"] = "fr") -> dict:
     facts = brief_facts(e, decl_id)
     return py({"id": decl_id, "lang": lang, "text": template_brief(facts, lang), "source": "template",
                "model": None, "cached": False, "facts": facts})
+
+
+# ---------------------------------------------------------------------------- local LLM (optional)
+class BriefRequest(BaseModel):
+    id: str
+    lang: Literal["fr", "ar", "en"] = "fr"
+    refresh: bool = False
+
+
+class NLQRequest(BaseModel):
+    q: str = Field(..., max_length=300)
+
+
+class WorklistQuery(BaseModel):
+    filter: dict[str, Any] = Field(default_factory=dict)
+    page: int = 1
+    page_size: int | None = None
+
+
+def _llm_brief_inputs(decl_id: str) -> tuple[dict, str]:
+    from .brief import template_brief
+    from .llm.brief import facts_from_detail
+    e = engine()
+    detail = declaration(decl_id)
+    lang_facts = brief_facts(e, decl_id)
+    return facts_from_detail(detail), lang_facts
+
+
+@lru_cache(maxsize=1)
+def _nlq_vocab():
+    from .llm.nlq import Vocab
+    e = engine()
+    t = e.test
+    offices = {str(int(o)): C.office_label(o) for o in sorted(t["office"].unique())}
+    return Vocab(origins=set(t["origin"].dropna().astype(str)), offices=offices,
+                 hs6=set(t["hs6"].astype(int).astype(str).str.zfill(6)),
+                 importers=set(t["importer"].dropna().astype(str).str.upper()),
+                 date_min=e.rd.dates[0], date_max=e.rd.dates[-1])
+
+
+@app.post("/api/brief")
+def brief_llm(req: BriefRequest) -> dict:
+    from .brief import template_brief
+    from .llm import brief as LB
+    e = engine()
+    if req.id not in e.pos:
+        raise HTTPException(404, "Declaration not found in the test period")
+    facts, tfacts = _llm_brief_inputs(req.id)
+    return py(LB.brief(req.id, req.lang, facts, template_brief(tfacts, req.lang), refresh=req.refresh))
+
+
+@app.post("/api/nlq")
+def nlq(req: NLQRequest) -> dict:
+    from .llm.nlq import parse
+    return py(parse(req.q, _nlq_vocab()))
+
+
+def filter_to_params(f: dict) -> dict:
+    sort = {"fraud_desc": ("p_fraud", "desc"), "critical_desc": ("p_critical", "desc"),
+            "date_desc": ("date", "desc")}.get(f.get("sort") or "fraud_desc", ("p_fraud", "desc"))
+    return {
+        "lane": ",".join(f.get("lane") or []) or None, "origin": ",".join(f.get("origin") or []) or None,
+        "office": ",".join(f.get("office") or []) or None, "hs_prefix": ",".join(f.get("hs_prefix") or []) or None,
+        "uncertain": True if f.get("uncertain_only") else None, "alert": True if f.get("safety_only") else None,
+        "min_p": f.get("min_fraud"), "importer": f.get("importer"), "date_from": f.get("date_from"),
+        "date_to": f.get("date_to"), "sort": sort[0], "order": sort[1],
+    }
+
+
+@app.post("/api/worklist/query")
+def worklist_query(req: WorklistQuery) -> dict:
+    """Apply a validated "Ask RAQIB" filter to the worklist (same response shape as GET /api/worklist)."""
+    from .llm.nlq import validate
+    f, _ = validate(req.filter or {}, _nlq_vocab())
+    fd = f.model_dump()
+    return worklist(**filter_to_params(fd), page=max(req.page, 1), page_size=req.page_size or fd["limit"])
+
+
+@app.get("/api/llm/status")
+def llm_status() -> dict:
+    from .llm import client
+    return client.refresh_status() | {"warm": client.status()["warm"]}
+
+
+@app.get("/api/llm/eval")
+def llm_eval() -> dict:
+    path = C.ARTIFACTS / "llm_eval.json"
+    if not path.exists():
+        return {"skipped": True, "reason": "run python scripts/eval_llm.py"}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _pregenerate_briefs() -> None:
+    from .llm import brief as LB
+    from .llm import client
+    client.refresh_status()
+    if not client.available():
+        return
+    e = engine()
+    top = worklist(lane="RED", uncertain=False, page_size=20)["items"]
+    ids = [i for i in ("54794554", "80928101") if i in e.pos] + [it["id"] for it in top]
+    jobs = [(i, "fr") for i in dict.fromkeys(ids)] + [(i, lang) for i in ids[:2] for lang in ("ar", "en")]
+
+    def build(decl_id: str):
+        from .brief import template_brief
+        facts, tfacts = _llm_brief_inputs(decl_id)
+        return facts, template_brief(tfacts, "fr")
+
+    LB.pregenerate(jobs, build)
 
 
 # ---------------------------------------------------------------------------- SPA

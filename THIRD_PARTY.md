@@ -96,4 +96,5 @@ the layout (sidebar, header), the command menu, theme / appearance settings and 
 | Tool | Licence / terms | Use |
 |---|---|---|
 | Claude Code (Anthropic) | Commercial AI coding assistant | Used by the team to write and test the code. Not part of the product; no LLM is used for scoring or decisions. |
-| OpenAI API (optional, not enabled in this build) | Third-party API terms | Reserved for an optional "officer brief" text feature; off unless an API key is configured. |
+| Qwen3-4B (Alibaba Qwen team), `qwen3:4b-instruct` | Apache-2.0 | Optional local LLM: officer brief rephrasing and natural-language worklist filters. Never scores or decides. |
+| Ollama (https://ollama.com) | MIT | Runs the local model on the laptop (HTTP on 127.0.0.1:11434). |

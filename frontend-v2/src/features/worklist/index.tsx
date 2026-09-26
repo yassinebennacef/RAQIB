@@ -10,9 +10,11 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { UserCheck } from 'lucide-react'
+import { useSearch } from '@tanstack/react-router'
+import { Sparkles, UserCheck, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { apiV2, type WorklistItem } from '@/lib/api'
+import { apiLLM, apiV2, type NlqFilter, type WorklistItem } from '@/lib/api'
+import { AskRaqib, FilterChips } from '@/components/raqib/llm'
 import { COLORS } from '@/lib/colors'
 import { compact, num, pct, truncate } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
@@ -50,7 +52,13 @@ export function Worklist() {
     page: pagination.pageIndex + 1,
     page_size: pagination.pageSize,
   }
-  const wl = useQuery({ queryKey: ['worklist', query], queryFn: () => apiV2.worklist(query), placeholderData: keepPreviousData })
+  const search = useSearch({ from: '/_authenticated/worklist' })
+  const [nlq, setNlq] = useState<{ filter: NlqFilter; label: string } | null>(null)
+  const wl = useQuery({
+    queryKey: ['worklist', query, nlq, pagination.pageIndex, pagination.pageSize],
+    queryFn: () => (nlq ? apiLLM.worklistQuery(nlq.filter, pagination.pageIndex + 1, pagination.pageSize) : apiV2.worklist(query)),
+    placeholderData: keepPreviousData,
+  })
   const all = useQuery({ queryKey: ['worklist-facets'], queryFn: () => apiV2.worklist({ page_size: 1 }) })
   const F = all.data?.facets
 
@@ -187,6 +195,24 @@ export function Worklist() {
           sub='flagged for human review'
         />
       </div>
+      <AskRaqib
+        key={search.ask ?? 'ask'}
+        initial={search.ask}
+        onApply={(filter, label) => {
+          setNlq({ filter, label })
+          setPagination((p) => ({ ...p, pageIndex: 0 }))
+        }}
+      />
+      {nlq && (
+        <div className='flex flex-wrap items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 text-xs'>
+          <Sparkles className='size-3.5 text-primary' />
+          <span className='font-medium'>Ask RAQIB filter applied:</span>
+          <FilterChips f={nlq.filter} />
+          <Button size='sm' variant='ghost' className='ms-auto h-7' onClick={() => setNlq(null)}>
+            <X /> Clear
+          </Button>
+        </div>
+      )}
       {wl.error && !wl.data ? (
         <ErrorState message={String(wl.error)} onRetry={() => wl.refetch()} />
       ) : (

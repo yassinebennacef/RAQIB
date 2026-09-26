@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { Eye, FileSearch, Gavel, Hash, Languages, ShieldAlert, ShieldCheck, UserRound } from 'lucide-react'
+import { Eye, FileSearch, Gavel, Hash, ShieldAlert, ShieldCheck, UserRound } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, apiV2, type DeclarationDetailV2, type DecisionEntry, type OperatorHistory } from '@/lib/api'
 import { COLORS } from '@/lib/colors'
@@ -14,9 +14,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ErrorState, Gauge, InfoTip, LaneBadge, ReasonList, UncertainBadge, WaterfallChart } from '@/components/raqib/kit'
 import { NetworkGraph } from '@/components/raqib/network-graph'
+import { OfficerBrief } from '@/components/raqib/llm'
 
 export function useDeclaration(id: string, rate = 0.05, explore = 0) {
   return useQuery({ queryKey: ['declaration', id, rate, explore], queryFn: () => apiV2.declaration(id, rate, explore), enabled: id !== '' })
@@ -122,43 +122,6 @@ export function DecisionPanel({ d }: { d: DeclarationDetailV2 }) {
         </motion.div>
       )}
     </div>
-  )
-}
-
-export function BriefTabs({ id }: { id: string }) {
-  const [lang, setLang] = useState<'fr' | 'en' | 'ar'>('fr')
-  const q = useQuery({ queryKey: ['brief', id, lang], queryFn: () => apiV2.brief(id, lang), retry: 0 })
-  if (q.isError) return null
-  return (
-    <Card className='gap-3'>
-      <CardHeader>
-        <CardTitle className='flex items-center gap-2'>
-          <Languages className='size-4' /> Officer brief
-        </CardTitle>
-        <CardDescription>Four sentences built only from the computed facts (no invented numbers)</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={lang} onValueChange={(v) => setLang(v as 'fr' | 'en' | 'ar')}>
-          <TabsList>
-            <TabsTrigger value='fr'>Français</TabsTrigger>
-            <TabsTrigger value='en'>English</TabsTrigger>
-            <TabsTrigger value='ar'>العربية</TabsTrigger>
-          </TabsList>
-          <TabsContent value={lang} className='mt-3'>
-            {q.data ? (
-              <p dir={lang === 'ar' ? 'rtl' : 'ltr'} className={cn('text-sm leading-relaxed', lang === 'ar' && 'font-arabic text-base')}>
-                {q.data.text}
-              </p>
-            ) : (
-              <Skeleton className='h-16' />
-            )}
-            <p className='mt-2 text-[11px] text-muted-foreground'>
-              Source: {q.data?.source === 'llm' ? `LLM (${q.data.model}) with number guard` : 'deterministic template'}.
-            </p>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
   )
 }
 
@@ -322,7 +285,7 @@ export function FullInspector({ d }: { d: DeclarationDetailV2 }) {
               <DecisionPanel d={d} />
             </CardContent>
           </Card>
-          <BriefTabs id={dc.id} />
+          <OfficerBrief id={dc.id} />
         </div>
         <div className='flex flex-col gap-4 xl:col-span-7'>
           <Card className='gap-4'>
