@@ -3,6 +3,7 @@ import { Bot, Cpu, FileText, Loader2, MessageCircle, RefreshCw, Sparkles } from 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AssistantPanel } from '@/components/raqib/assistant'
 import { PageShell } from '@/components/raqib/kit'
 import { ASK_EXAMPLES } from '@/components/raqib/llm'
 import { useLlmStatus } from '@/components/raqib/llm-dot'
@@ -17,7 +18,7 @@ export function Assistant() {
   return (
     <PageShell
       title='Assistant local Qwen3'
-      why="Trois usages, jamais de décision : la discussion libre « Demander à Qwen » (bouton en bas à droite, sur toutes les pages), la note à l'agent (FR / AR / EN) et « Ask RAQIB » (question → filtre de la liste de travail)."
+      why="Quatre usages, jamais de décision : la discussion libre « Demander à Qwen » (bouton en bas à droite, sur toutes les pages), l'Assistant RAQIB ancré dans la base de connaissances, la note à l'agent (FR / AR / EN) et « Ask RAQIB » (question → filtre de la liste de travail)."
       actions={
         <Button onClick={() => openChat()} data-testid='assistant-open-chat'>
           <MessageCircle /> Ouvrir la discussion avec Qwen
@@ -53,7 +54,7 @@ export function Assistant() {
             </CardTitle>
             <CardDescription>
               Posez une question en français, anglais ou arabe : RAQIB la traduit en filtre vérifié, l'agent relit les critères puis
-              clique « Apply ». Cliquez un exemple :
+              clique « Appliquer ». Cliquez un exemple :
             </CardDescription>
           </CardHeader>
           <CardContent className='flex flex-col gap-2'>
@@ -90,9 +91,24 @@ export function Assistant() {
           </CardContent>
         </Card>
       </div>
+      <Card className='gap-3'>
+        <CardHeader>
+          <CardTitle className='flex items-center gap-2'>
+            <Bot className='size-4 text-primary' /> Assistant RAQIB (réponses ancrées)
+          </CardTitle>
+          <CardDescription>
+            Questions sur RAQIB (voies, modèles, résultats, données) : réponses tirées uniquement de la base de connaissances
+            (docs/assistant_kb.md, calculée depuis les résultats mesurés), avec citations ; sinon, il le dit. Pour toute autre
+            question, utilisez « Demander à Qwen ».
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='h-[60vh]'>
+          <AssistantPanel />
+        </CardContent>
+      </Card>
       <p className='text-xs text-muted-foreground'>
-        Il n'y a pas de chatbot libre : le LLM ne note pas, ne classe pas et ne décide pas. Il reformule des faits vérifiés et traduit une
-        question en filtre, toujours validé par l'agent.
+        Le LLM ne note pas, ne classe pas et ne décide pas : il explique, reformule des faits vérifiés et traduit une question en
+        filtre, toujours validé par l'agent.
       </p>
     </PageShell>
   )

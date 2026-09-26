@@ -6,7 +6,7 @@ import os
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 # Preferred models, in order: the non-thinking instruct build answers directly (the plain qwen3:4b tag is a
 # thinking build whose reasoning leaks into the answer when thinking is disabled).
-PREFERRED_MODELS = ["qwen3:4b-instruct-2507-q4_K_M", "qwen3:4b-instruct", "qwen3:4b"]
+PREFERRED_MODELS = ["qwen3:4b-instruct", "qwen3:4b-instruct-2507-q4_K_M", "qwen3:4b"]
 LLM_MODEL_ENV = os.environ.get("LLM_MODEL", "").strip()
 TIMEOUT = float(os.environ.get("LLM_TIMEOUT", "25"))
 # First call loads the model into memory (slow on a CPU-only laptop).
