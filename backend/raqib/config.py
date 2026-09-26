@@ -11,7 +11,23 @@ HS_REPO = DATA_RAW / "hs"
 HS_CSV = HS_REPO / "data" / "harmonized-system.csv"
 ARTIFACTS = ROOT / "artifacts"
 MODELS_DIR = ARTIFACTS / "models"
-FRONTEND_DIST = ROOT / "frontend" / "dist"
+FRONTEND_V1_DIST = ROOT / "frontend" / "dist"
+FRONTEND_V2_DIST = ROOT / "frontend-v2" / "dist"
+
+
+def frontend_dist() -> Path:
+    """RAQIB_UI=v1|v2 picks the web app; default v2 when it is built, else v1."""
+    import os
+
+    ui = os.environ.get("RAQIB_UI", "").lower()
+    if ui == "v1":
+        return FRONTEND_V1_DIST
+    if ui == "v2":
+        return FRONTEND_V2_DIST
+    return FRONTEND_V2_DIST if (FRONTEND_V2_DIST / "index.html").exists() else FRONTEND_V1_DIST
+
+
+FRONTEND_DIST = frontend_dist()
 DECISIONS_LOG = ARTIFACTS / "decisions.jsonl"
 
 CUSTOMS_URL = "https://github.com/Seondong/Customs-Declaration-Datasets"

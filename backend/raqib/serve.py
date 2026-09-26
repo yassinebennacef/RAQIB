@@ -48,9 +48,15 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--lan", action="store_true", help="listen on all interfaces (open the demo from a phone)")
     ap.add_argument("--open", action="store_true", help="open the browser when the server is ready")
+    ap.add_argument("--ui", choices=["v1", "v2"], default=None,
+                    help="web app to serve (default: v2 when frontend-v2/dist exists, else v1)")
     args = ap.parse_args()
+    if args.ui:
+        os.environ["RAQIB_UI"] = args.ui
+    C.FRONTEND_DIST = C.frontend_dist()
     host = "0.0.0.0" if args.lan else "127.0.0.1"
-    ui = "web app + API" if (C.FRONTEND_DIST / "index.html").exists() else "API only (frontend/dist not built)"
+    ui = (f"web app ({C.FRONTEND_DIST.parent.name}) + API" if (C.FRONTEND_DIST / "index.html").exists()
+          else "API only (no built web app)")
     print(f"RAQIB - {ui}")
     print(f"  Local:   http://127.0.0.1:{args.port}")
     if args.lan:
