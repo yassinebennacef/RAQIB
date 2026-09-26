@@ -4,8 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, Check, FastForward, Pause, Play, RotateCcw, Shuffle } from 'lucide-react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api, apiV2, type PolicyKey, type StreamItemV2 } from '@/lib/api'
+import { useMoney } from '@/lib/currency'
 import { COLORS } from '@/lib/colors'
-import { compact, num, pct, truncate } from '@/lib/format'
+import { num, pct, truncate } from '@/lib/format'
 import { LANE_META } from '@/lib/lanes'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -128,7 +129,7 @@ export function ControlRoom() {
 
   return (
     <PageShell
-      title='Control room'
+      title='Salle de contrôle'
       why='Replay of 91 real test days: with the SAME daily inspection capacity, who catches more fraud and more public-safety threats?'
       actions={<Badge variant='outline' className='border-primary/40 text-primary'>Test period Apr–Jun 2021 · never seen in training</Badge>}
     >
@@ -360,6 +361,7 @@ function RaceCounter({ label, hint, color, value, rate }: { label: string; hint?
 }
 
 function FeedItem({ it, onOpen }: { it: StreamItemV2; onOpen: () => void }) {
+  const money = useMoney()
   const color = LANE_META[it.lane].color
   return (
     <motion.li layout='position' initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
@@ -373,7 +375,7 @@ function FeedItem({ it, onOpen }: { it: StreamItemV2; onOpen: () => void }) {
             {truncate(it.hs_desc, 70)}
           </div>
           <div className='mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground'>
-            <span className='font-mono'>{it.hs6}</span>·<span>{it.origin}</span>·<span className='tabular-nums'>{compact(it.item_price)} KRW</span>
+            <span className='font-mono'>{it.hs6}</span>·<span>{it.origin}</span>·<span className='tabular-nums'>{it.value ? money.m(it.value, true) : money.krw(it.item_price, true)}</span>
             {it.rule_selected && (
               <span className='rounded px-1 text-[9px] font-semibold' style={{ color: COLORS.rule, background: `${COLORS.rule}1f` }} title='The current rule would inspect this one'>
                 RULE

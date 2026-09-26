@@ -83,7 +83,7 @@ def refresh_status() -> dict:
 
 def available() -> bool:
     # Re-probe when unknown, or when it was down more than RECHECK seconds ago (Ollama started after RAQIB).
-    if not _state["checked"] or (not _state["reachable"] and time.time() - _state["checked_at"] > K.RECHECK):
+    if not _state["checked"] or (not _state["reachable"] and time.time() - _state["checked_at"] >= K.RECHECK):
         refresh_status()
     return enabled() and _state["reachable"] and _state["model"] is not None
 

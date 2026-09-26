@@ -2,6 +2,7 @@ import { animate, motion } from 'framer-motion'
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, Info, Scale } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import type { Lane, Reason, Waterfall } from '@/lib/api'
+import { useMoney } from '@/lib/currency'
 import { COLORS } from '@/lib/colors'
 import { num, pct } from '@/lib/format'
 import { LANE_META } from '@/lib/lanes'
@@ -15,6 +16,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { CurrencySwitch } from './currency-switch'
 import { LlmDot } from './llm-dot'
 
 /* ------------------------------------------------------------------ Page shell */
@@ -32,11 +34,12 @@ export function PageShell({
   return (
     <>
       <Header fixed>
-        <Search placeholder='Declaration, product or page…' />
+        <Search placeholder='Déclaration, produit ou page…' />
         <div className='ms-auto flex items-center gap-2'>
           <Badge variant='outline' className='hidden border-primary/40 text-primary lg:inline-flex'>
-            Public synthetic data · no Tunisian data
+            Données publiques · aucune donnée confidentielle
           </Badge>
+          <CurrencySwitch />
           <LlmDot />
           <ThemeSwitch />
           <ConfigDrawer />
@@ -58,8 +61,9 @@ export function PageShell({
         </div>
         {children}
         <footer className='mt-6 border-t pt-3 text-center text-[11px] text-muted-foreground'>
-          Advisory tool — the officer decides · Real customs declarations (public MIT dataset, Korea
-          Customs Service / IBS) · no Tunisian data used
+          RAQIB · Ciblage des contrôles — prototype conçu pour la Douane tunisienne (outil d'aide : l'agent
+          décide) · Déclarations : jeu public MIT (Korea Customs Service / IBS), montants convertis depuis le KRW ·
+          Données réelles publiques : UN Comtrade (Tunisie) · aucune donnée confidentielle
         </footer>
       </Main>
     </>
@@ -291,6 +295,7 @@ export function Gauge({ value, label, sub, color }: { value: number; label: stri
 
 /* ------------------------------------------------------------------ Reasons */
 export function ReasonList({ reasons, compact = false }: { reasons: Reason[]; compact?: boolean }) {
+  const money = useMoney()
   const max = Math.max(...reasons.map((r) => Math.abs(r.contribution)), 0.01)
   return (
     <ol className={cn('flex flex-col', compact ? 'gap-2' : 'gap-3')}>
@@ -315,7 +320,7 @@ export function ReasonList({ reasons, compact = false }: { reasons: Reason[]; co
                 <div className='h-full rounded-full' style={{ background: color, width: `${(Math.abs(r.contribution) / max) * 100}%` }} />
               </div>
             </div>
-            <p className={cn('mt-1.5 leading-snug', compact ? 'text-xs' : 'text-sm')}>{r.text}</p>
+            <p className={cn('mt-1.5 leading-snug', compact ? 'text-xs' : 'text-sm')}>{money.text(r.text)}</p>
           </motion.li>
         )
       })}

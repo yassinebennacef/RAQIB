@@ -6,6 +6,7 @@ import {
   FileCheck2,
   FlaskConical,
   Gauge,
+  Globe2,
   Radar,
   ScanSearch,
   ScrollText,
@@ -15,32 +16,33 @@ import { type SidebarData } from '../types'
 export const sidebarData: SidebarData = {
   navGroups: [
     {
-      title: 'Operations',
+      title: 'Opérations',
       items: [
-        { title: 'Control room', url: '/', icon: Radar },
-        { title: 'Worklist', url: '/worklist', icon: ClipboardList },
-        { title: 'Try a declaration', url: '/score', icon: ScanSearch },
+        { title: 'Salle de contrôle', url: '/', icon: Radar },
+        { title: 'Liste de travail', url: '/worklist', icon: ClipboardList },
+        { title: 'Tester une déclaration', url: '/score', icon: ScanSearch },
       ],
     },
     {
       title: 'Intelligence',
       items: [
         { title: 'Assistant (Qwen3 local)', url: '/assistant', icon: Bot },
-        { title: 'Impact simulator', url: '/impact', icon: Gauge },
-        { title: 'Explainability', url: '/explainability', icon: BrainCircuit },
+        { title: 'Contexte tunisien', url: '/tunisie', icon: Globe2 },
+        { title: "Simulateur d'impact", url: '/impact', icon: Gauge },
+        { title: 'Explicabilité', url: '/explainability', icon: BrainCircuit },
       ],
     },
     {
-      title: 'Governance',
+      title: 'Gouvernance',
       items: [
-        { title: 'Model lab', url: '/lab', icon: FlaskConical },
-        { title: 'Model card', url: '/model-card', icon: FileCheck2 },
-        { title: 'Decision journal', url: '/journal', icon: ScrollText },
+        { title: 'Laboratoire du modèle', url: '/lab', icon: FlaskConical },
+        { title: 'Fiche du modèle', url: '/model-card', icon: FileCheck2 },
+        { title: 'Journal des décisions', url: '/journal', icon: ScrollText },
       ],
     },
     {
-      title: 'About',
-      items: [{ title: 'About RAQIB', url: '/about', icon: BookOpen }],
+      title: 'À propos',
+      items: [{ title: 'À propos de RAQIB', url: '/about', icon: BookOpen }],
     },
   ],
 }

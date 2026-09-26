@@ -33,7 +33,7 @@ export function AppSidebar() {
                     </span>
                   </span>
                   <span className='truncate text-[10px] tracking-[0.18em] text-muted-foreground uppercase'>
-                    Customs targeting · T2
+                    Ciblage des contrôles · T2
                   </span>
                 </div>
               </Link>

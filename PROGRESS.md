@@ -15,3 +15,16 @@
 | C — Integration | GO | 01:45 | build 23 s, 22 tests, lint+build v1 & v2, smoke v2 via run_demo.bat, smoke v2 without data/raw, smoke v1 fallback: all pass. v2 merged into main, tag v1.0-rc. |
 | D — Local LLM (Qwen3-4B, Ollama) | GO | 02:49 | Officer brief FR/AR/EN (guarded, cached, template fallback) + Ask RAQIB (rules first, Qwen for free phrasing, validated filter, Apply). Model: qwen3:4b-instruct (the qwen3:4b tag is thinking-only: reasoning leaked, FR/AR unusable). Eval: brief guard 100%, fallback 0%, p50 6.9s, p95 9.9s; Ask RAQIB hybrid 100% exact, Qwen alone 73% exact / 98% fields. Go/no-go 7/7 (offline simulated: 0 external requests). |
 | fix/qwen — Local LLM robustness | GO | — | Root causes (reproduced in tests): urllib sent 127.0.0.1:11434 through the system/env HTTP proxy (Ollama "unreachable"); model tag matched only if spelled exactly (`:latest`, `-2507-q8_0` ignored); Ollama probed once at start-up (started after RAQIB = template forever, no warm-up); background pre-generation of ~26 briefs held Ollama's slot so clicks timed out at 25 s; every fallback was silent. Fix: proxy-free local opener, tolerant model pick + `ollama pull` hint, re-probe every 10 s while down + auto warm-up, 120 s cold timeout, clicks before background jobs, `llm_fallback`/`llm_error` in /api/brief and /api/nlq, `last_error` in /api/llm/status, toast « LLM local indisponible → mode modèle », new sidebar page « Assistant (Qwen3 local) » (status, 3 example questions, example brief), run_demo.sh starts Ollama. 12 new tests (fake Ollama server); 44 tests pass; lint (4 pre-existing warnings) + build; smoke v2 offline with Ollama ON (stand-in server), OFF mid-demo (toast), RAQIB_LLM=off, never started, started after RAQIB. Models, metrics and replay untouched. |
+
+## Tunisian edition (feat/tunisie, 2026-09-26)
+- Currencies: dataset KRW -> USD at the data-period mean (FRED EXKOUS Jan 2020 - Jun 2021 = 1,158.87), -> TND / EUR at
+  the 23/09/2026 reference rates (countryeconomy.com: 3.3701 TND/EUR, 2.9508 TND/USD; config/rates.json). API returns
+  `{tnd, eur, usd}` for every amount + value_per_kg; TND | EUR | USD switch in the top bar (default TND), French format.
+- Real public Tunisian data: UN Comtrade 2024 (reporter 788) saved in data/public_tn (SOURCES.md), built offline into
+  artifacts/tunisia_ref.json (python -m raqib.tunisia): 1,170 HS6 reference unit values, top 15 chapters / origins,
+  mirror gaps for the top 10 partners. Information only - never a model input. Page /tunisie, inspector card, worklist column.
+- Measured check (honest): below 50% of the Tunisian reference = RED 99.3% vs GREEN 99.4% -> no separation; the synthetic
+  dataset's values are ~0.6% of real prices at the median. Shown as such in the app.
+- Impact: "Droits et taxes en jeu (estimation)", illustrative, TVA 19% as an assumption.
+- Models, metrics, lanes and replay unchanged (317/259/103 frauds, 41/7/3 threats at 470 inspections).
+- Also fixed a Windows timing flake in the LLM re-probe (RECHECK=0 compared with `>` on a 15 ms clock).

@@ -3,6 +3,8 @@ import { Loader2, Search, ShieldAlert, Sparkles, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 import { WhatIfPanel } from "@/features/explainability/whatif";
+import { TunisiaRefCard } from "@/components/raqib/tn-ref";
+import { useMoney } from "@/lib/currency";
 import { toast } from "sonner";
 import { PageShell, UncertainBadge, WaterfallChart } from "@/components/raqib/kit";
 import {
@@ -68,6 +70,8 @@ export function TryDeclaration() {
   const [result, setResult] = useState<ScoreResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(null);
+  const money = useMoney();
+  const shownValue = money.fromKrw(form.item_price);
 
   const q = useDebounced(hsText, 250);
   const hs = useApi<HsHit[]>(() => (q.trim().length >= 2 ? api.hsSearch(q.trim()) : Promise.resolve([])), `hs-${q}`);
@@ -260,8 +264,15 @@ export function TryDeclaration() {
                   <input type="number" step="0.1" min={0} className={inputCls} value={form.net_mass} onChange={(e) => set("net_mass", Number(e.target.value))} />
                 </label>
                 <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-                  Value KRW
-                  <input type="number" step="1" min={0} className={inputCls} value={form.item_price} onChange={(e) => set("item_price", Number(e.target.value))} />
+                  Valeur {money.label}
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    className={inputCls}
+                    value={Number.isFinite(shownValue) ? Math.round(shownValue * 100) / 100 : ""}
+                    onChange={(e) => set("item_price", Math.max(0, money.toKrw(Number(e.target.value))) || 0)}
+                  />
                 </label>
                 <label className="flex flex-col gap-1 text-xs text-muted-foreground">
                   Transport
@@ -280,7 +291,7 @@ export function TryDeclaration() {
                 Score this declaration
               </Button>
               <p className="text-[11px] text-muted-foreground">
-                Transport mode is recorded but not used by the model (not part of the recipe). Values are in KRW as in the dataset.
+                Transport mode is recorded but not used by the model (not part of the recipe). Valeur saisie en {money.label}, convertie en KRW (unité du jeu de données) avant le calcul.
               </p>
             </form>
           </CardContent>
@@ -358,6 +369,7 @@ export function TryDeclaration() {
                       <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Public-safety signals</div>
                       <ReasonList reasons={result.reasons_critical} compact />
                     </div>
+                    <TunisiaRefCard r={result.tunisia_ref} compact />
                     {(result as ScoreV2).uncertain && <UncertainBadge disagreement={(result as ScoreV2).disagreement} />}
                     {(result as ScoreV2).waterfall && (
                       <div>

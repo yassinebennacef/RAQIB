@@ -15,11 +15,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } f
 import { TEAM } from "@/content/team";
 import { api } from "@/lib/api";
 import { num, pct } from "@/lib/format";
+import { useRates } from "@/lib/currency";
 import { useApi } from "@/lib/hooks";
 
 export function About() {
   const m = useApi(() => api.metrics(), "metrics");
   const c = useApi(() => api.dataCard(), "datacard");
+  const { data: rates } = useRates();
   const M = m.data;
   const C = c.data;
   const rs = M?.replay_summary;
@@ -60,7 +62,7 @@ export function About() {
   ];
 
   return (
-    <PageShell title="About RAQIB" why="Challenge T2 « Ciblage et orientation automatisés des contrôles » — hackathon IA & Finances Publiques.">
+    <PageShell title="À propos de RAQIB" why="Challenge T2 « Ciblage et orientation automatisés des contrôles » — hackathon IA & Finances Publiques.">
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">
@@ -106,8 +108,9 @@ export function About() {
               2020) and piloted machine-learning targeting with <b>Nigeria Customs</b> in 2020.
             </p>
             <p>
-              RAQIB uses the public customs declarations dataset from that same ecosystem (MIT licence) — no Tunisian data, no access to any administration
-              system.
+              RAQIB uses the public customs declarations dataset from that same ecosystem (MIT licence) — no confidential data, no access to any
+              administration system. The Tunisian context (page « Contexte tunisien ») comes only from public UN Comtrade statistics (reporter 788 =
+              Tunisia). Prototype conçu pour la Douane tunisienne — not an official tool.
             </p>
           </CardContent>
         </Card>
@@ -193,6 +196,17 @@ export function About() {
           </CardContent>
         </Card>
       </div>
+      <p className="text-center text-[11px] text-muted-foreground" data-testid="rates-note">
+        Montants convertis depuis le KRW du jeu public — taux de référence du{" "}
+        {rates ? rates.reference_date.split("-").reverse().join("/") : "23/09/2026"}
+        {rates && (
+          <>
+            {" "}
+            (1 EUR = {rates.tnd_per_eur.toLocaleString("fr-FR")} TND, 1 USD = {rates.tnd_per_usd.toLocaleString("fr-FR")} TND, source :{" "}
+            {rates.reference_source} ; 1 USD = {rates.krw_per_usd.toLocaleString("fr-FR")} KRW, {rates.krw_source}).
+          </>
+        )}
+      </p>
     </PageShell>
   );
 }

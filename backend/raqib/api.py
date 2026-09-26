@@ -20,6 +20,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import config as C
+from . import currency as CUR
+from . import tunisia as TN
 from . import decisions as D
 from .data import hs_description, hs_table
 from .engine import Engine, artifacts_status, get_engine, load_train_index
@@ -260,6 +262,8 @@ def stream(day: int = 0, rate: float = C.DEFAULT_RATE, explore: float = 0.0) -> 
         "transport_label": cols["transport_label"][j],
         "item_price": float(cols["item_price"][j]),
         "net_mass": float(cols["net_mass"][j]),
+        "value": CUR.money(cols["item_price"][j]),
+        "value_per_kg": CUR.per_kg(cols["item_price"][j], cols["net_mass"][j]),
         "lane": str(lane_l[j]),
         "alert": bool(alert_l[j]),
         "explored": bool(expl_l[j]),
@@ -316,7 +320,9 @@ def declaration(decl_id: str, rate: float = C.DEFAULT_RATE, explore: float = 0.0
             "tax_type": r["tax_type"], "origin_indicator": r["origin_indicator"],
             "tax_rate": float(r["tax_rate"]), "net_mass": float(r["net_mass"]),
             "item_price": float(r["item_price"]), "unit_value": unit_value,
+            "value": CUR.money(r["item_price"]), "value_per_kg": CUR.per_kg(r["item_price"], r["net_mass"]),
         },
+        "tunisia_ref": _tn_ref(str(int(r["hs6"])).zfill(6), float(r["item_price"]), float(r["net_mass"])),
         "ai": {
             "p_fraud": float(r["p_fraud"]), "p_critical": float(r["p_critical"]),
             "fraud_percentile": e.percentile("fraud", float(r["score_fraud"])),
@@ -364,7 +370,13 @@ def score(req: ScoreRequest) -> dict:
         raise HTTPException(422, "hs6 must be a 6-digit HS code")
     if req.net_mass < 0 or req.item_price < 0:
         raise HTTPException(422, "mass and price must be positive")
-    return py(score_new(req.model_dump(), engine()))
+    out = score_new(req.model_dump(), engine())
+    d = out.get("input") or {}
+    if "item_price" in d:
+        d["value"] = CUR.money(d["item_price"])
+        d["value_per_kg"] = CUR.per_kg(d["item_price"], d.get("net_mass", 0.0))
+        out["tunisia_ref"] = _tn_ref(str(d.get("hs6", req.hs6)).zfill(6), d["item_price"], d.get("net_mass", 0.0))
+    return py(out)
 
 
 @lru_cache(maxsize=1)
@@ -520,6 +532,9 @@ def worklist(day: int | None = None, lane: str | None = None, origin: str | None
             "hs6": str(int(r["hs6"])).zfill(6), "hs_desc": r["hs_desc"], "hs2": df["hs2"].iat[i],
             "origin": r["origin"], "office": int(r["office"]), "office_label": r["office_label"],
             "transport_label": r["transport_label"], "item_price": float(r["item_price"]),
+            "net_mass": float(r["net_mass"]), "value": CUR.money(r["item_price"]),
+            "value_per_kg": CUR.per_kg(r["item_price"], r["net_mass"]),
+            "tn_ref_gap": _tn_gap_only(str(int(r["hs6"])).zfill(6), float(r["item_price"]), float(r["net_mass"])),
             "lane": df["lane"].iat[i], "alert": bool(df["alert"].iat[i]), "uncertain": bool(r["uncertain"]),
             "disagreement": float(r["disagreement"]), "p_fraud": float(r["p_fraud"]),
             "p_critical": float(r["p_critical"]), "top_reason": r["top_reason"],
@@ -558,6 +573,73 @@ def whatif(req: WhatIfRequest) -> dict:
         return py(run_whatif(e, df, req.changes or {}))
     except (ValueError, TypeError) as exc:
         raise HTTPException(422, f"invalid change: {exc}") from exc
+
+
+def _tn_ref(hs6: str, item_price: float, net_mass: float) -> dict:
+    """Declared value/kg vs the real Tunisian reference (UN Comtrade). Information only, never a model input."""
+    ref = TN.load()
+    if ref is None:
+        return {"available": False, "reason": "tunisia_ref.json missing (python -m raqib.tunisia)"}
+    g = TN.ref_gap(ref, hs6, item_price, net_mass)
+    if g is None:
+        return {"available": False, "reason": "pas de référence", "source": ref["source"], "year": ref["year"]}
+    chk = ref.get("check") or {}
+    return {"available": True, **g, "declared_per_kg": CUR.usd_to(g["declared_usd_per_kg"]),
+            "ref_per_kg": CUR.usd_to(g["ref_usd_per_kg"]),
+            "dataset_share_under": chk.get("share_under_all"), "dataset_median_ratio": chk.get("median_ratio")}
+
+
+def _tn_gap_only(hs6: str, item_price: float, net_mass: float) -> float | None:
+    ref = TN.load()
+    g = TN.ref_gap(ref, hs6, item_price, net_mass) if ref else None
+    return None if g is None else round(g["gap"], 4)
+
+
+@app.get("/api/currency")
+def currency_rates() -> dict:
+    return CUR.public()
+
+
+@app.get("/api/tunisia")
+def tunisia() -> dict:
+    ref = TN.load()
+    if ref is None:
+        raise HTTPException(503, "tunisia_ref.json missing - run python -m raqib.tunisia")
+    conv = lambda rows: [{**r, "value": CUR.usd_to(r["usd"])} for r in rows]  # noqa: E731
+    mirror = [{**m, "tn_imports": CUR.usd_to(m["tn_imports_usd"]),
+               "partner_exports": None if m["partner_exports_usd"] is None else CUR.usd_to(m["partner_exports_usd"])}
+              for m in ref["mirror"]]
+    return py({k: ref[k] for k in ("source", "year", "fetched", "url", "api", "reporter", "caveat_mirror",
+                                   "threshold", "check")}
+              | {"total_imports": CUR.usd_to(ref["total_imports_usd"]) if ref.get("total_imports_usd") else None,
+                 "top_chapters": conv(ref["top_chapters"]), "top_origins": conv(ref["top_origins"]),
+                 "mirror": mirror, "n_hs6_ref": len(ref["hs6_ref"]), "rates": CUR.public()})
+
+
+VAT_TN = 0.19  # Tunisian standard VAT rate - an assumption for the illustration, not the dataset's tax
+
+
+@app.get("/api/tunisia/duties")
+def tunisia_duties(rate: float = C.DEFAULT_RATE) -> dict:
+    """Illustrative duties and taxes at stake: sum over the frauds caught of declared value x tax rate."""
+    from . import replay as R
+    _check_rate(rate, 0.0)
+    e = engine()
+    price = e.test["item_price"].to_numpy(float)
+    tax = e.test["tax_rate"].to_numpy(float) / 100.0
+    fraud = e.test["fraud"].to_numpy(int) == 1
+    out = {}
+    for policy in ("ai", "rule", "random"):
+        selected, _, _ = R.run_policy(e.rd, policy, rate, 0.0)
+        m = selected & fraud
+        duty_krw = float((price[m] * tax[m]).sum())
+        vat_krw = float((price[m] * (1 + tax[m]) * VAT_TN).sum())
+        out[policy] = {"frauds_caught": int(m.sum()), "declared_value": CUR.krw_to(float(price[m].sum())),
+                       "duties": CUR.krw_to(duty_krw), "vat": CUR.krw_to(vat_krw),
+                       "total": CUR.krw_to(duty_krw + vat_krw)}
+    return py({"rate": rate, "policies": out, "vat_rate": VAT_TN,
+               "note": ("Illustratif : droits = valeur déclarée × taux du jeu de données ; TVA 19 % (taux normal "
+                        "tunisien, hypothèse) sur valeur + droits ; montants convertis depuis le KRW.")})
 
 
 @app.get("/api/efficiency")
