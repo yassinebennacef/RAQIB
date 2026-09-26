@@ -11,7 +11,6 @@ import pandas as pd
 
 from . import config as C
 from . import replay as R
-from .model import TargetModel
 
 TRAIN_INDEX = C.ARTIFACTS / "train_index.joblib"
 
@@ -44,6 +43,8 @@ REQUIRED = [
     "models/fraud_model.joblib", "models/critical_model.joblib",
     "models/thresholds.json", "models/context.joblib",
     "test_scored.parquet", "metrics.json", "data_card.json", "train_index.joblib", "hs_names.json",
+    "models/fraud_ebm.joblib", "models/critical_ebm.joblib", "models/primary.json",
+    "efficiency.json", "experiments.json", "xai_global.json",
 ]
 
 
@@ -51,9 +52,16 @@ def artifacts_status() -> dict[str, bool]:
     return {name: (C.ARTIFACTS / name).exists() for name in REQUIRED + ["replay_default.json"]}
 
 
+def _optional_json(name: str):
+    path = C.ARTIFACTS / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
 class Engine:
     def __init__(self) -> None:
-        self.models = {t: TargetModel.load(t) for t in C.TARGETS}
+        from .twin import load_twins
+        self.twins = load_twins()
+        self.models = {t: tw.lgbm for t, tw in self.twins.items()}
         self.thresholds = json.loads((C.MODELS_DIR / "thresholds.json").read_text(encoding="utf-8"))
         self.context = joblib.load(C.MODELS_DIR / "context.joblib")
         self.test = pd.read_parquet(C.ARTIFACTS / "test_scored.parquet")
@@ -62,6 +70,10 @@ class Engine:
         self.rd = R.prepare(self.test, alert_thr=self.thresholds["alert_threshold"])
         self.metrics = json.loads((C.ARTIFACTS / "metrics.json").read_text(encoding="utf-8"))
         self.data_card = json.loads((C.ARTIFACTS / "data_card.json").read_text(encoding="utf-8"))
+        self.efficiency = _optional_json("efficiency.json")
+        self.experiments = _optional_json("experiments.json")
+        self.xai_global = _optional_json("xai_global.json")
+        self.model_card = _optional_json("model_card.json")
         self._lock = threading.Lock()
         self._replay_cache: dict[tuple[float, float], dict] = {}
         self._lanes_cache: dict[tuple[float, float], dict] = {}

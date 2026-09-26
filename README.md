@@ -11,7 +11,13 @@ reasons, shows what today's best rule would have done, and leaves the decision t
 a tamper-evident journal.
 
 <!-- BEGIN:pitch -->
-With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **315 frauds and 40 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+56 frauds (+22%) and 5.7x the threats**, same workload.
+With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **317 frauds and 41 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+58 frauds (+22%) and 5.9x the threats**, same workload.
+
+**Same frauds with fewer inspections:** the rule needs 470 inspections (5% a day) to catch 259 frauds; RAQIB catches 263 with 379 (3.9% a day): **19% fewer inspections** (pooled ranking: 302 vs 425, 29% fewer).
+
+**Glass box, no accuracy lost:** the transparent EBM reaches duty-fraud AUC 0.771 and precision @5% 71.8% vs 0.770 / 71.1% for the black-box LightGBM; primary model: fraud = EBM, critical = LIGHTGBM.
+
+**When the two models disagree, RAQIB asks a human:** 371 test declarations (4.4%) are flagged, with a fraud rate of 44% (average 22%); 136 of them move from GREEN to a document check.
 <!-- END:pitch -->
 
 ![Control room after the 91-day replay](docs/screenshots/03_control_room_end.png)
@@ -51,15 +57,15 @@ Front-end development: `python -m raqib.serve` + `cd frontend && corepack pnpm d
 <!-- BEGIN:results -->
 | Method | Fraud AUC | Fraud precision @1% | @5% | @10% | Critical AUC | Critical recall @1% | @5% | @10% |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| RAQIB AI | 0.770 | 91.8% | 71.1% | 57.6% | 0.952 | 52.1% | 78.1% | 84.9% |
+| RAQIB AI | 0.771 | 84.7% | 71.8% | 61.4% | 0.952 | 52.1% | 78.1% | 84.9% |
 | Rule: product (HS6) history | 0.728 | 57.6% | 53.4% | 48.6% | 0.924 | 26.0% | 54.8% | 75.3% |
 | Rule: importer history | 0.513 | 20.0% | 18.8% | 19.7% | 0.516 | 0.0% | 1.4% | 6.8% |
 | Random | 0.497 | 24.7% | 21.4% | 20.4% | 0.548 | 0.0% | 6.8% | 13.7% |
 
-- Duty fraud precision @5%: 71.1% vs 53.4% for the rule: +16.5 pts (95% bootstrap CI +11.6 pts to +21.1 pts).
+- Duty fraud precision @5%: 71.8% vs 53.4% for the rule: +17.8 pts (95% bootstrap CI +12.5 pts to +22.5 pts).
 - Public-safety recall @5%: 78.1% vs 54.8%: +22.5 pts (95% CI +13.3 pts to +32.3 pts); 73 critical cases only, so ±5 pts (1 s.e.).
 - Stable: the AI beats the rule in 12 of 13 weeks (precision @5% within each week).
-- Calibrated: in the riskiest tenth of declarations the model predicts 58.0% fraud and 57.7% is observed.
+- Calibrated: in the riskiest tenth of declarations the model predicts 61.7% fraud and 61.4% is observed.
 <!-- END:results -->
 
 ### Daily replay — same capacity for every policy (5% of each day's declarations)
@@ -67,8 +73,8 @@ Front-end development: `python -m raqib.serve` + `cd frontend && corepack pnpm d
 <!-- BEGIN:replay -->
 | Policy (same inspections every day) | Inspections | Frauds caught | Threats caught | Hit rate | Distinct products inspected |
 |---|---:|---:|---:|---:|---:|
-| RAQIB AI | 470 | 315 | 40 | 67.0% | 253 |
-| RAQIB AI + exploration | 470 | 298 | 40 | 63.4% | 274 |
+| RAQIB AI | 470 | 317 | 41 | 67.4% | 261 |
+| RAQIB AI + exploration | 470 | 294 | 41 | 62.6% | 280 |
 | Current rule (product history) | 470 | 259 | 7 | 55.1% | 163 |
 | Random | 470 | 103 | 3 | 21.9% | 309 |
 <!-- END:replay -->

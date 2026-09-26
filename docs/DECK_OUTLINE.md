@@ -4,7 +4,7 @@
 
 ## 1. Title
 **RAQIB — رقيب — AI targeting of customs controls** (challenge T2).
-Subtitle: With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **315 frauds and 40 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+56 frauds (+22%) and 5.7x the threats**, same workload.
+Subtitle: With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **317 frauds and 41 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+58 frauds (+22%) and 5.9x the threats**, same workload.
 *Speaker notes*: introduce the team and the one-line promise: same inspection capacity, more fraud and more
 threats found, every decision explained, the officer stays in charge.
 
@@ -17,7 +17,7 @@ threats found, every decision explained, the officer stays in charge.
 ## 3. What RAQIB does every day
 - Scores every declaration for **duty fraud** and **public-safety** risk.
 - Fills the fixed capacity: safety alerts first, then highest fraud risk, plus 10% exploration.
-- Lanes: RED inspect / YELLOW document check / GREEN release (84% released green).
+- Lanes: RED inspect / YELLOW document check / GREEN release (82% released green).
 - 4 plain-language reasons + what the current rule would do; the officer decides and the decision is journaled.
 *Speaker notes*: show the lane colours; stress "advisory".
 
@@ -30,36 +30,36 @@ threats found, every decision explained, the officer stays in charge.
 ## 5. How the AI works (6 steps)
 History of each product / importer / declarant / seller / origin / office (out-of-fold) → two LightGBM models →
 calibrated probabilities → daily capacity allocation → TreeSHAP reasons → officer decision + hash-chained journal.
-Model relies most on: Product (HS6) history (60% of the gain).
+Model relies most on: Value and mass (31% of the gain).
 *Speaker notes*: trains in about 15 s on a laptop; scores a declaration in about 0.1 s.
 
 ## 6. Result 1 — better targeting at the same capacity
-- Duty fraud precision @5%: **71%** vs 53% (rule) vs 21% (random).
+- Duty fraud precision @5%: **72%** vs 53% (rule) vs 21% (random).
 - Public-safety recall @5%: **78%** vs 55% (rule).
-- AUC: fraud 0.770 vs 0.728; critical 0.952 vs 0.924.
+- AUC: fraud 0.771 vs 0.728; critical 0.952 vs 0.924.
 *Speaker notes*: precision @5% = share of the 5% riskiest declarations that were really fraudulent.
 
 ## 7. Result 2 — the replay race (the demo)
 | Policy (same inspections every day) | Inspections | Frauds caught | Threats caught | Hit rate | Distinct products inspected |
 |---|---:|---:|---:|---:|---:|
-| RAQIB AI | 470 | 315 | 40 | 67.0% | 253 |
-| RAQIB AI + exploration | 470 | 298 | 40 | 63.4% | 274 |
+| RAQIB AI | 470 | 317 | 41 | 67.4% | 261 |
+| RAQIB AI + exploration | 470 | 294 | 41 | 62.6% | 280 |
 | Current rule (product history) | 470 | 259 | 7 | 55.1% | 163 |
 | Random | 470 | 103 | 3 | 21.9% | 309 |
 
-*Speaker notes*: 91 real days, identical daily capacity; +56 frauds (+22%) and
-5.7x the threats for the same 470 inspections.
+*Speaker notes*: 91 real days, identical daily capacity; +58 frauds (+22%) and
+5.9x the threats for the same 470 inspections.
 
 ## 8. Result 3 — robust, not lucky
-- Duty fraud precision @5%: 71.1% vs 53.4% for the rule: +16.5 pts (95% bootstrap CI +11.6 pts to +21.1 pts).
+- Duty fraud precision @5%: 71.8% vs 53.4% for the rule: +17.8 pts (95% bootstrap CI +12.5 pts to +22.5 pts).
 - Public-safety recall @5%: 78.1% vs 54.8%: +22.5 pts (95% CI +13.3 pts to +32.3 pts); 73 critical cases only, so ±5 pts (1 s.e.).
 - Stable: the AI beats the rule in 12 of 13 weeks (precision @5% within each week).
-- Calibrated: in the riskiest tenth of declarations the model predicts 58.0% fraud and 57.7% is observed.
+- Calibrated: in the riskiest tenth of declarations the model predicts 61.7% fraud and 61.4% is observed.
 *Speaker notes*: the bootstrap interval never crosses zero.
 
 ## 9. Explainable and human-in-the-loop
-- Example declaration 83368645 (product 853590): AI inspects, the rule releases it; fraud confirmed.
-  Top reason: "Product 853590 (Electrical apparatus; n.e.c. in heading no. 8535, for swi…) was fraudulent in 44% of its 25 past declarations (average 22%)."
+- Example declaration 54794554 (product 731815): AI inspects, the rule releases it; fraud confirmed.
+  Top reason: "Product 731815 (Iron or steel; threaded screws and bolts n.e.c. in item n…) was fraudulent in 36% of its 127 past declarations (average 22%)."
 - Every decision (inspect / document check / release) is written to a tamper-evident journal (SHA-256 chain).
 *Speaker notes*: the AI never decides; it prioritises and explains.
 

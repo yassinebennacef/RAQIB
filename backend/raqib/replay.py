@@ -40,6 +40,7 @@ class ReplayData:
     hs6: np.ndarray
     tiebreak: np.ndarray
     alert_thr: float
+    uncertain: np.ndarray | None = None
 
 
 def prepare(df: pd.DataFrame, alert_thr: float | None = None) -> ReplayData:
@@ -61,6 +62,7 @@ def prepare(df: pd.DataFrame, alert_thr: float | None = None) -> ReplayData:
         hs6=df["hs6"].to_numpy(int),
         tiebreak=np.random.default_rng(0).permutation(len(df)).astype(float),
         alert_thr=thr,
+        uncertain=df["uncertain"].to_numpy(bool) if "uncertain" in df.columns else None,
     )
 
 
@@ -125,6 +127,9 @@ def ai_lanes(d: ReplayData, selected: np.ndarray, rate: float) -> np.ndarray:
         n_yellow = int(np.ceil(C.YELLOW_SHARE * len(idx)))
         yellow = _ranked(rest, d.s_fraud, d.tiebreak)[:n_yellow]
         lanes[yellow] = "YELLOW"
+    if d.uncertain is not None:
+        # the two models disagree strongly: never release GREEN, ask a human (document check)
+        lanes[(lanes == "GREEN") & d.uncertain] = "YELLOW"
     return lanes
 
 

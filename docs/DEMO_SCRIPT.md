@@ -6,12 +6,12 @@ browser full screen at http://127.0.0.1:8000. Backup: screenshots in docs/screen
 | Time | Screen | What to do | What to say |
 |---|---|---|---|
 | 0:00-1:00 | Control room (day 0) | Nothing yet. Point at the capacity slider (5%). | "Customs can inspect about 5% of declarations. Which 5%? Today a rule decides. RAQIB replays 91 real days the model never saw, with exactly the same capacity for AI, rule and random." |
-| 1:00-3:00 | Control room | Speed 4-8 days/s, press **Play** (or space). Let the counters run. | "Blue is RAQIB, orange the best current rule, grey random. Same 470 inspections. At the end: **315 vs 259 vs 103 frauds**, and **40 vs 7** public-safety threats." |
-| 3:00-3:30 | Control room | Toggle **Exploration 10%**. | "A small random share keeps the system learning: it costs 17 frauds and widens coverage to 274 products. It never goes blind." |
-| 3:30-5:30 | Inspector | Open declaration **83368645** (http://127.0.0.1:8000/declaration/83368645). | "RAQIB says inspect; the rule says release. Why? 'Product 853590 (Electrical apparatus; n.e.c. in heading no. 8535, for swi…) was fraudulent in 44% of its 25 past declarations (average 22%).' Here is the importer, declarant and seller history, and the network." Click **Inspect**, show the toast with the journal hash. "The officer decides; the decision is chained and tamper-evident." Click **Reveal outcome**: fraud found. |
+| 1:00-3:00 | Control room | Speed 4-8 days/s, press **Play** (or space). Let the counters run. | "Blue is RAQIB, orange the best current rule, grey random. Same 470 inspections. At the end: **317 vs 259 vs 103 frauds**, and **41 vs 7** public-safety threats." |
+| 3:00-3:30 | Control room | Toggle **Exploration 10%**. | "A small random share keeps the system learning: it costs 23 frauds and widens coverage to 280 products. It never goes blind." |
+| 3:30-5:30 | Inspector | Open declaration **54794554** (http://127.0.0.1:8000/declaration/54794554). | "RAQIB says inspect; the rule says release. Why? 'Product 731815 (Iron or steel; threaded screws and bolts n.e.c. in item n…) was fraudulent in 36% of its 127 past declarations (average 22%).' Here is the importer, declarant and seller history, and the network." Click **Inspect**, show the toast with the journal hash. "The officer decides; the decision is chained and tamper-evident." Click **Reveal outcome**: fraud found. |
 | 5:30-6:30 | Inspector | Open **80928101** (http://127.0.0.1:8000/declaration/80928101). | "A public-safety alert takes a slot first: 'Product 950300 (Tricycles, scooters, pedal cars and similar wheeled toys…) had a critical violation in 9.4% of its 780 past declarations (average 1.0%).'" |
 | 6:30-7:30 | Try a declaration | Click the preset **Public-safety alert** (it scores instantly); then tick *new operator* for the importer and click **Score this declaration** again. | "Scoring takes about 0.1 s. A new importer has no history: RAQIB treats it as average risk and says so." |
-| 7:30-9:00 | Model lab | Scroll the page. | "Precision @5%: 71% vs 53%; the 95% interval of the gain never crosses zero; the AI wins 12 weeks out of 13; it is calibrated; and here are our limits, stated openly." |
+| 7:30-9:00 | Model lab | Scroll the page. | "Precision @5%: 72% vs 53%; the 95% interval of the gain never crosses zero; the AI wins 12 weeks out of 13; it is calibrated; and here are our limits, stated openly." |
 | 9:00-10:00 | About | Show the path to production. | "Next step: retrain on Tunisian inspection results inside the administration, shadow mode, then a pilot with a control group. The officer stays in charge." |
 
 ## If something goes wrong
@@ -21,8 +21,8 @@ browser full screen at http://127.0.0.1:8000. Backup: screenshots in docs/screen
 
 ## Likely questions (short answers with our numbers)
 - *"Is the data real?"* Public synthetic declarations generated from real Korean inspected declarations (MIT). No Tunisian data. We claim the gain over the rule, not the absolute precision.
-- *"Why not just use the rule?"* Same capacity: +56 frauds and 40 vs 7 threats.
-- *"Is the gain luck?"* Bootstrap 95% CI of the precision gain: +11.6 pts to +21.1 pts; 12/13 weeks better.
-- *"Does it discriminate?"* Selection rates by transport mode stay within 1.1x; by office 2.8x (Model lab, fairness view) — monitored weekly in production.
+- *"Why not just use the rule?"* Same capacity: +58 frauds and 41 vs 7 threats.
+- *"Is the gain luck?"* Bootstrap 95% CI of the precision gain: +12.5 pts to +22.5 pts; 12/13 weeks better.
+- *"Does it discriminate?"* Selection rates by transport mode stay within 1.1x; by office 1.7x (Model lab, fairness view) — monitored weekly in production.
 - *"What about new companies?"* 10% of test declarations come from unseen importers; average risk, flagged in the reasons.
 - *"Does it replace officers?"* No: advisory score, the officer decides, every decision journaled.

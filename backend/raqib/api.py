@@ -143,15 +143,18 @@ def small_network(declarant: str, seller: str, importer: str, max_nodes: int = 2
                 links_added += 1
         if not any(l["source"] == src and l["target"] == focus for l in links):
             links.append({"source": src, "target": focus, "past_declarations": 0})
-    return {"nodes": list(nodes.values()), "links": links,
-            "note": "Past relations (TRAIN period). Fraud rate = share of an importer's past declarations found fraudulent."}
+    return {"nodes": list(nodes.values()), "links": links, "context_only": True,
+            "note": "Context only: past relations (TRAIN period). Fraud rate = share of an importer's past "
+                    "declarations found fraudulent. Network features were tested and rejected as model inputs."}
 
 
 def reasons_of(row: pd.Series) -> tuple[list, list]:
     return json.loads(row["reasons_fraud"]), json.loads(row["reasons_critical"])
 
 
-def lane_reason(lane: str, alert: bool, explored: bool) -> str:
+def lane_reason(lane: str, alert: bool, explored: bool, uncertain_only: bool = False) -> str:
+    if lane == "YELLOW" and uncertain_only:
+        return "The glass-box and black-box models disagree strongly: human review (never released green)."
     if lane == "RED" and alert:
         return "Public-safety alert: critical-fraud risk in the top 1% - takes an inspection slot first."
     if lane == "RED" and explored:
@@ -237,7 +240,8 @@ def stream(day: int = 0, rate: float = C.DEFAULT_RATE, explore: float = 0.0) -> 
     rank[order] = np.arange(1, len(idx) + 1)
     cols = {c: sub[c].tolist() for c in ("declaration_id", "hs6", "hs_desc", "origin", "office_label",
                                          "transport_label", "item_price", "net_mass", "p_fraud",
-                                         "p_critical", "top_reason", "fraud", "critical")}
+                                         "p_critical", "top_reason", "fraud", "critical",
+                                         "uncertain", "disagreement")}
     lane_l, alert_l = lanes["lane"][idx].tolist(), lanes["alert"][idx].tolist()
     expl_l, rule_l = lanes["explored"][idx].tolist(), lanes["rule_selected"][idx].tolist()
     items = [{
@@ -257,6 +261,8 @@ def stream(day: int = 0, rate: float = C.DEFAULT_RATE, explore: float = 0.0) -> 
         "p_critical": float(cols["p_critical"][j]),
         "rank_in_day": int(rank[j]),
         "top_reason": cols["top_reason"][j],
+        "uncertain": bool(cols["uncertain"][j]),
+        "disagreement": float(cols["disagreement"][j]),
         "truth": {"fraud": int(cols["fraud"][j]), "critical": int(cols["critical"][j])},
     } for j in range(len(idx))]
     n = len(idx)
@@ -287,6 +293,8 @@ def declaration(decl_id: str, rate: float = C.DEFAULT_RATE, explore: float = 0.0
     hs_sum, hs_cnt = tm_f.encoder.stats(pd.DataFrame({"HS6 Code": [int(r["hs6"])]}), "HS6 Code", "hs6")
     hs_rate = float(hs_sum[0] / hs_cnt[0]) if hs_cnt[0] > 0 else None
     past = [x for x in D.read_all() if x.get("declaration_id") == decl_id]
+    uncertain = bool(r["uncertain"])
+    by_risk_yellow = ai_rank <= cap + int(math.ceil(C.YELLOW_SHARE * len(idx)))
     unit_value = float(r["item_price"]) / max(float(r["net_mass"]), 0.1)
     return py({
         "declaration": {
@@ -307,10 +315,16 @@ def declaration(decl_id: str, rate: float = C.DEFAULT_RATE, explore: float = 0.0
             "fraud_percentile": e.percentile("fraud", float(r["score_fraud"])),
             "critical_percentile": e.percentile("critical", float(r["score_critical"])),
             "lane": lane, "alert": alert, "explored": explored,
-            "lane_reason": lane_reason(lane, alert, explored),
+            "lane_reason": lane_reason(lane, alert, explored, uncertain and not by_risk_yellow),
             "rank_in_day": ai_rank,
             "reasons_fraud": rf[:4], "reasons_critical": rc[:2],
+            "uncertain": uncertain, "disagreement": float(r["disagreement"]),
+            "models": {"primary": {t: tw.primary for t, tw in e.twins.items()},
+                       "lightgbm": {"p_fraud": float(r["p_fraud_lgbm"]), "p_critical": float(r["p_critical_lgbm"])},
+                       "ebm": {"p_fraud": float(r["p_fraud_ebm"]), "p_critical": float(r["p_critical_ebm"])}},
         },
+        "waterfall": json.loads(r["waterfall_fraud"]),
+        "waterfall_critical": json.loads(r["waterfall_critical"]),
         "rule": {
             "name": "Product (HS6) history",
             "score": float(r["rule_score"]),
@@ -417,6 +431,189 @@ def decision(req: DecisionRequest) -> dict:
 def decisions(limit: int = 200) -> dict:
     entries = D.read_all()
     return {"entries": list(reversed(entries))[: max(1, min(limit, 1000))], "verify": D.verify()}
+
+
+# ---------------------------------------------------------------------------- v2 endpoints
+class WhatIfRequest(BaseModel):
+    declaration_id: str | None = None
+    declaration: ScoreRequest | None = None
+    changes: dict[str, Any] = Field(default_factory=dict)
+
+
+def _csv(v: str | None) -> list[str]:
+    return [x.strip() for x in (v or "").split(",") if x.strip()]
+
+
+@app.get("/api/worklist")
+def worklist(day: int | None = None, lane: str | None = None, origin: str | None = None, hs2: str | None = None,
+             office: str | None = None, uncertain: bool | None = None, min_p: float | None = None,
+             q: str | None = None, sort: str = "p_fraud", order: str = "desc", page: int = 1,
+             page_size: int = Query(50, ge=1, le=500), rate: float = C.DEFAULT_RATE, explore: float = 0.0) -> dict:
+    _check_rate(rate, explore)
+    e = engine()
+    t = e.test
+    lanes = e.lanes(rate, explore)
+    df = pd.DataFrame({
+        "day": e.rd.day, "lane": lanes["lane"].astype(str), "alert": lanes["alert"],
+        "rule_selected": lanes["rule_selected"], "hs2": (t["hs6"] // 10000).astype(int).astype(str).str.zfill(2),
+    })
+    mask = np.ones(len(t), bool)
+    if day is not None:
+        mask &= df["day"].to_numpy() == day
+    base_mask = mask.copy()  # facets reflect the day filter only
+    if lane:
+        mask &= df["lane"].isin([x.upper() for x in _csv(lane)]).to_numpy()
+    if origin:
+        mask &= t["origin"].isin([x.upper() for x in _csv(origin)]).to_numpy()
+    if hs2:
+        mask &= df["hs2"].isin([x.zfill(2) for x in _csv(hs2)]).to_numpy()
+    if office:
+        mask &= t["office"].astype(str).isin(_csv(office)).to_numpy()
+    if uncertain is not None:
+        mask &= t["uncertain"].to_numpy(bool) == uncertain
+    if min_p is not None:
+        mask &= t["p_fraud"].to_numpy(float) >= min_p
+    if q and q.strip():
+        qq = q.strip().lower()
+        hay = (t["declaration_id"] + " " + t["hs6"].astype(str).str.zfill(6) + " " + t["hs_desc"].str.lower() + " "
+               + t["importer"].fillna("").str.lower() + " " + t["declarant"].fillna("").str.lower() + " "
+               + t["seller"].fillna("").str.lower())
+        mask &= hay.str.contains(qq, regex=False).to_numpy()
+    keys = {"p_fraud": t["p_fraud"], "p_critical": t["p_critical"], "date": t["date"],
+            "disagreement": t["disagreement"], "item_price": t["item_price"]}
+    if sort not in keys:
+        raise HTTPException(422, f"sort must be one of {', '.join(keys)}")
+    sel = np.where(mask)[0]
+    sel = sel[np.argsort(keys[sort].to_numpy()[sel], kind="mergesort")]
+    if order == "desc":
+        sel = sel[::-1]
+    total = int(len(sel))
+    page = max(page, 1)
+    chunk = sel[(page - 1) * page_size: page * page_size]
+    items = []
+    for i in chunk:
+        r = t.iloc[i]
+        items.append({
+            "id": r["declaration_id"], "date": r["date"], "day": int(e.rd.day[i]),
+            "hs6": str(int(r["hs6"])).zfill(6), "hs_desc": r["hs_desc"], "hs2": df["hs2"].iat[i],
+            "origin": r["origin"], "office": int(r["office"]), "office_label": r["office_label"],
+            "transport_label": r["transport_label"], "item_price": float(r["item_price"]),
+            "lane": df["lane"].iat[i], "alert": bool(df["alert"].iat[i]), "uncertain": bool(r["uncertain"]),
+            "disagreement": float(r["disagreement"]), "p_fraud": float(r["p_fraud"]),
+            "p_critical": float(r["p_critical"]), "top_reason": r["top_reason"],
+            "rule_decision": "INSPECT" if bool(df["rule_selected"].iat[i]) else "RELEASE",
+            "truth": {"fraud": int(r["fraud"]), "critical": int(r["critical"])},
+        })
+    b = base_mask
+
+    def top_values(series: pd.Series, n: int = 25, label=None) -> list[dict]:
+        vc = series[b].value_counts().head(n)
+        return [{"value": str(k), "n": int(v), **({"label": label(k)} if label else {})} for k, v in vc.items()]
+
+    facets = {
+        "lane": {k: int(v) for k, v in df.loc[b, "lane"].value_counts().items()},
+        "uncertain": {str(k).lower(): int(v) for k, v in t.loc[b, "uncertain"].value_counts().items()},
+        "origin": top_values(t["origin"]),
+        "office": top_values(t["office"].astype(str), label=lambda k: C.office_label(k)),
+        "hs2": top_values(df["hs2"], label=lambda k: hs_table().get(str(k).zfill(2), f"HS {k}")),
+    }
+    return py({"total": total, "page": page, "page_size": page_size, "facets": facets, "items": items})
+
+
+@app.post("/api/whatif")
+def whatif(req: WhatIfRequest) -> dict:
+    from .score import frame_from_test_row, to_frame, whatif as run_whatif
+    e = engine()
+    if req.declaration_id:
+        if req.declaration_id not in e.pos:
+            raise HTTPException(404, "Declaration not found in the test period")
+        df = frame_from_test_row(e.test.iloc[e.pos[req.declaration_id]])
+    elif req.declaration is not None:
+        df = to_frame(req.declaration.model_dump())
+    else:
+        raise HTTPException(422, "give declaration_id or declaration")
+    try:
+        return py(run_whatif(e, df, req.changes or {}))
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, f"invalid change: {exc}") from exc
+
+
+@app.get("/api/efficiency")
+def efficiency(minutes_per_inspection: float = Query(60.0, gt=0, le=600)) -> dict:
+    from .efficiency import hours
+    e = engine()
+    if e.efficiency is None:
+        raise HTTPException(503, "efficiency.json missing - run python -m raqib.build")
+    out = dict(e.efficiency)
+    out["officer_hours"] = hours(out["matching"].get("fewer_inspections", 0), len(e.rd.dates), minutes_per_inspection)
+    return py(out)
+
+
+@app.get("/api/experiments")
+def experiments() -> dict:
+    e = engine()
+    if e.experiments is None:
+        raise HTTPException(503, "experiments.json missing - run python -m raqib.build")
+    return e.experiments
+
+
+@app.get("/api/xai-global")
+def xai_global() -> dict:
+    e = engine()
+    if e.xai_global is None:
+        raise HTTPException(503, "xai_global.json missing - run python -m raqib.build")
+    return e.xai_global
+
+
+@app.get("/api/model-card")
+def model_card() -> dict:
+    e = engine()
+    if e.model_card is None:
+        raise HTTPException(503, "model_card.json missing - run python -m raqib.report")
+    return e.model_card
+
+
+def brief_facts(e: Engine, decl_id: str) -> dict:
+    from .explain import GROUPS
+    from .score import frame_from_test_row
+    i = e.pos[decl_id]
+    r = e.test.iloc[i]
+    lanes = e.lanes(C.DEFAULT_RATE, 0.0)
+    rf = json.loads(r["reasons_fraud"])
+    top = dict(rf[0]) if rf else None
+    if top:
+        spec = {g: (col, name) for g, _, _, col, name in GROUPS if col}
+        if top["group"] in spec:
+            col, name = spec[top["group"]]
+            frame = frame_from_test_row(r)
+            s_, c_ = e.models["fraud"].encoder.stats(frame, col, name)
+            v = frame[col].iat[0]
+            widths = {"HS6 Code": 6, "hs4": 4, "hs2": 2}
+            if col in widths:
+                code = str(int(v)).zfill(widths[col])
+            elif col == "Office ID":
+                code = C.office_label(v)
+            else:
+                code = "" if _missing(v) else str(v)
+            top.update({"count": int(c_[0]), "rate": float(s_[0] / c_[0]) if c_[0] > 0 else None, "code": code})
+        elif top["group"] == "tax":
+            top["tax"] = float(r["tax_rate"])
+    return {"id": decl_id, "lane": str(lanes["lane"][i]), "p_fraud": float(r["p_fraud"]),
+            "p_critical": float(r["p_critical"]), "fraud_percentile": e.percentile("fraud", float(r["score_fraud"])),
+            "alert": bool(lanes["alert"][i]), "uncertain": bool(r["uncertain"]),
+            "rule_decision": "INSPECT" if bool(lanes["rule_selected"][i]) else "RELEASE",
+            "avg_fraud": float(e.models["fraud"].prior), "top": top}
+
+
+@app.post("/api/brief/{decl_id}")
+def brief(decl_id: str, lang: Literal["fr", "en", "ar"] = "fr") -> dict:
+    from .brief import template_brief
+    e = engine()
+    if decl_id not in e.pos:
+        raise HTTPException(404, "Declaration not found in the test period")
+    facts = brief_facts(e, decl_id)
+    return py({"id": decl_id, "lang": lang, "text": template_brief(facts, lang), "source": "template",
+               "model": None, "cached": False, "facts": facts})
 
 
 # ---------------------------------------------------------------------------- SPA

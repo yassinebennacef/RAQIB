@@ -27,14 +27,87 @@ GROUPS: list[tuple[str, str, list[str], str | None, str | None]] = [
 ]
 GROUP_DEFS = [(g, label, feats) for g, label, feats, _, _ in GROUPS]
 GROUP_LABELS = {g: label for g, label, *_ in GROUPS}
+GROUP_LABELS["interaction"] = "Combined factors (interaction)"
+GROUP_KEYS = [g for g, *_ in GROUPS] + ["interaction"]
+GROUP_INDEX = {g: i for i, g in enumerate(GROUP_KEYS)}
+FEATURE_GROUP = {f: g for g, _, feats, _, _ in GROUPS for f in feats}
+FEATURE_LABELS = {
+    "rate_hs6": "product fraud history", "count_hs6": "product volume",
+    "rate_hs4": "product-family history", "count_hs4": "product-family volume",
+    "rate_hs2": "chapter history", "count_hs2": "chapter volume",
+    "rate_importer": "importer history", "count_importer": "importer volume",
+    "rate_declarant": "declarant history", "count_declarant": "declarant volume",
+    "rate_seller": "seller history", "count_seller": "seller volume",
+    "rate_origin": "origin history", "count_origin": "origin volume",
+    "rate_office": "office history", "count_office": "office volume",
+    "tax_rate": "tax rate", "net_mass": "net mass", "item_price": "declared value", "unit": "unit value",
+}
 NEW_ROLE = {"importer": "importer", "declarant": "declarant", "seller": "seller"}
 
 
-def group_contributions(tm, X: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+def lgbm_group_contributions(tm, X: pd.DataFrame):
+    """Exact TreeSHAP contributions of LightGBM, summed by concept -> (G, base log-odds, None)."""
     contrib = tm.model.booster_.predict(X, pred_contrib=True)
     idx = {f: i for i, f in enumerate(C.FEATURES)}
-    G = np.stack([contrib[:, [idx[f] for f in feats]].sum(axis=1) for _, _, feats, _, _ in GROUPS], axis=1)
-    return G, contrib[:, -1]
+    G = np.zeros((len(X), len(GROUP_KEYS)))
+    for g, _, feats, _, _ in GROUPS:
+        G[:, GROUP_INDEX[g]] = contrib[:, [idx[f] for f in feats]].sum(axis=1)
+    return G, contrib[:, -1], None
+
+
+def ebm_group_contributions(ebm, X: pd.DataFrame):
+    """Exact per-term contributions of the EBM (glass box), summed by concept.
+
+    Returns (G, base log-odds = intercept, name of the strongest interaction term per row)."""
+    T = ebm.eval_terms(X)
+    names = list(ebm.term_names_)
+    G = np.zeros((len(X), len(GROUP_KEYS)))
+    def group_of(n: str) -> str:
+        if " & " not in n:
+            return FEATURE_GROUP[n]
+        a, b = n.split(" & ")
+        # a pair inside one concept (e.g. product rate x product volume) belongs to that concept
+        return FEATURE_GROUP[a] if FEATURE_GROUP.get(a) == FEATURE_GROUP.get(b) else "interaction"
+
+    inter = [i for i, n in enumerate(names) if group_of(n) == "interaction"]
+    for i, n in enumerate(names):
+        G[:, GROUP_INDEX[group_of(n)]] += T[:, i]
+    top_inter = None
+    if inter:
+        arg = np.argmax(np.abs(T[:, inter]), axis=1)
+        top_inter = [names[inter[a]] for a in arg]
+    return G, np.full(len(X), float(np.ravel(ebm.intercept_)[0])), top_inter
+
+
+def group_contributions(tm, X: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """Backward-compatible LightGBM grouping (10 concept groups, no interaction column)."""
+    G, base, _ = lgbm_group_contributions(tm, X)
+    return G[:, : len(GROUPS)], base
+
+
+def _sigmoid(z: float) -> float:
+    return float(1.0 / (1.0 + np.exp(-z)))
+
+
+def waterfall(G_row: np.ndarray, base: float, model: str, target: str, top: int = 6) -> dict:
+    """Base value -> each concept group (largest first) -> final probability, all exact and additive."""
+    order = [j for j in np.argsort(-np.abs(G_row), kind="mergesort") if abs(G_row[j]) > 1e-9]
+    s = float(base)
+    p_prev = _sigmoid(s)
+    steps = []
+    for j in order[:top]:
+        s += float(G_row[j])
+        p = _sigmoid(s)
+        steps.append({"group": GROUP_KEYS[j], "label": GROUP_LABELS[GROUP_KEYS[j]],
+                      "contribution": round(float(G_row[j]), 4), "delta": round(p - p_prev, 4),
+                      "cumulative": round(p, 4)})
+        p_prev = p
+    rest = float(sum(G_row[j] for j in order[top:]))
+    s += rest
+    p_final = _sigmoid(s)
+    return {"model": model, "target": target, "base": round(_sigmoid(float(base)), 4), "final": round(p_final, 4),
+            "steps": steps, "other": {"contribution": round(rest, 4), "delta": round(p_final - p_prev, 4)},
+            "note": "Exact additive decomposition in log-odds; probabilities after each step."}
 
 
 def _short(text: str, n: int = 58) -> str:
@@ -146,19 +219,30 @@ def sentence(g: str, i: int, rc: RowContext) -> tuple[str, bool]:
     return f"Unit value {fmt_num(uv)} KRW/kg ({fmt_num(rc.price[i])} KRW for {fmt_num(rc.mass[i])} kg): {cmp}.", False
 
 
-def explain_frame(tm, df: pd.DataFrame, context: dict, X: pd.DataFrame | None = None, top: int = 4) -> list[list[dict]]:
-    """Top-`top` reasons for every row of df (rows scored with full-TRAIN statistics)."""
-    if X is None:
-        X = tm.features(df)
-    G, _ = group_contributions(tm, X)
+def explain_frame(tm, df: pd.DataFrame, context: dict, X: pd.DataFrame | None = None, top: int = 4,
+                  contrib=None) -> list[list[dict]]:
+    """Top-`top` reasons for every row of df (rows scored with full-TRAIN statistics).
+
+    `contrib` = (G, base, top_interaction) from lgbm_/ebm_group_contributions; LightGBM by default."""
+    if contrib is None:
+        if X is None:
+            X = tm.features(df)
+        contrib = lgbm_group_contributions(tm, X)
+    G, _, top_inter = contrib
     rc = RowContext(tm, df, context)
     out = []
     for i in range(len(df)):
-        order = np.argsort(-np.abs(G[i]), kind="mergesort")[:top]
+        order = [j for j in np.argsort(-np.abs(G[i]), kind="mergesort") if abs(G[i, j]) > 1e-12][:top]
         reasons = []
         for j in order:
-            g = GROUPS[j][0]
-            text, thin = sentence(g, i, rc)
+            g = GROUP_KEYS[j]
+            if g == "interaction":
+                a, b = (top_inter[i].split(" & ") + ["", ""])[:2] if top_inter else ("", "")
+                text = (f"Combined effect of {FEATURE_LABELS.get(a, a)} and {FEATURE_LABELS.get(b, b)} "
+                        f"(glass-box interaction term).")
+                thin = False
+            else:
+                text, thin = sentence(g, i, rc)
             val = float(G[i, j])
             if g == "tax" and val < 0 and rc.tax[i] > 0:
                 text = f"Tax rate {rc.tax[i]:g}%: little duty at stake."

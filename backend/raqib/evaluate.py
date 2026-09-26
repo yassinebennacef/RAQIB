@@ -180,3 +180,23 @@ def metric_rows(metrics: dict) -> list[str]:
                 f"{m['precision_at_10']:6.3f} {m['recall_at_1']:6.3f} {m['recall_at_5']:6.3f} {m['recall_at_10']:6.3f}"
             )
     return lines
+
+
+def ebm_importance(ebm) -> dict:
+    """Mean absolute contribution of each EBM term (glass box), as shares, grouped by concept."""
+    from .explain import FEATURE_GROUP, GROUP_LABELS
+
+    imp = np.asarray(ebm.term_importances(), dtype=float)
+    share = imp / imp.sum() if imp.sum() > 0 else imp
+    names = list(ebm.term_names_)
+    feats = sorted(({"feature": n, "share": float(v)} for n, v in zip(names, share)), key=lambda r: -r["share"])
+    groups: dict[str, float] = {}
+    for n, v in zip(names, share):
+        if " & " in n:
+            a, b = n.split(" & ")
+            g = FEATURE_GROUP[a] if FEATURE_GROUP.get(a) == FEATURE_GROUP.get(b) else "interaction"
+        else:
+            g = FEATURE_GROUP[n]
+        groups[g] = groups.get(g, 0.0) + float(v)
+    grp = sorted(({"group": g, "label": GROUP_LABELS[g], "share": v} for g, v in groups.items()), key=lambda r: -r["share"])
+    return {"features": feats, "groups": grp}

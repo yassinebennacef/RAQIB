@@ -22,6 +22,7 @@ No Tunisian data is used. No administration website or information system is acc
 | scikit-learn | 1.9.1 | BSD-3-Clause | K-fold, isotonic calibration, AUC |
 | SciPy (scikit-learn dependency) | 1.18.1 | BSD-3-Clause | Numerical routines |
 | LightGBM | 4.7.0 | MIT | The two risk models; TreeSHAP contributions (`pred_contrib`) |
+| InterpretML / interpret-core (https://github.com/interpretml/interpret) | 0.7.8 | MIT | Explainable Boosting Machine (glass-box twin model, exact per-term contributions, shape functions) |
 | joblib | 1.6.0 | BSD-3-Clause | Model persistence |
 | FastAPI | 0.141.1 | MIT | HTTP API |
 | Starlette | 1.7.0 | BSD-3-Clause | ASGI toolkit used by FastAPI; static files |
