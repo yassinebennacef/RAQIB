@@ -660,3 +660,55 @@ export const apiV2 = {
   brief: (id: string, lang: "fr" | "en" | "ar") => post<Brief>(`/brief/${encodeURIComponent(id)}?lang=${lang}`, {}),
   metrics: () => request<MetricsV2>("/metrics"),
 };
+
+// ============================================================================ local LLM (optional, see API.md)
+export interface LlmBrief {
+  text: string;
+  lang: "fr" | "ar" | "en";
+  dir: "ltr" | "rtl";
+  source: "qwen3-4b" | "template";
+  model: string | null;
+  guard_passed: boolean;
+  latency_ms: number;
+  cached?: boolean;
+}
+
+export interface NlqFilter {
+  lane: Lane[] | null;
+  min_fraud: number | null;
+  safety_only: boolean;
+  uncertain_only: boolean;
+  origin: string[] | null;
+  hs_prefix: string[] | null;
+  office: string[] | null;
+  importer: string | null;
+  date_from: string | null;
+  date_to: string | null;
+  sort: "fraud_desc" | "critical_desc" | "date_desc";
+  limit: number;
+}
+
+export interface NlqResult {
+  filter: NlqFilter;
+  source: "qwen3-4b" | "rules";
+  warnings: string[];
+  explanation: string;
+}
+
+export interface LlmStatus {
+  enabled: boolean;
+  mode: "ollama" | "off";
+  model: string | null;
+  reachable: boolean;
+  warm: boolean;
+  avg_latency_ms: number | null;
+}
+
+export const apiLLM = {
+  brief: (id: string, lang: "fr" | "ar" | "en", refresh = false) => post<LlmBrief>("/brief", { id, lang, refresh }),
+  nlq: (q: string) => post<NlqResult>("/nlq", { q }),
+  worklistQuery: (filter: NlqFilter, page = 1, page_size?: number) =>
+    post<Worklist>("/worklist/query", { filter, page, page_size }),
+  status: () => request<LlmStatus>("/llm/status"),
+  evaluation: () => request<Record<string, unknown>>("/llm/eval"),
+};

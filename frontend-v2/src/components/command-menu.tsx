@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowRight, FileSearch, Laptop, Moon, Package, Sun } from 'lucide-react'
+import { ArrowRight, FileSearch, Laptop, Moon, Package, Sparkles, Sun } from 'lucide-react'
 import { api, apiV2 } from '@/lib/api'
 import { pct, truncate } from '@/lib/format'
 import { useSearch } from '@/context/search-provider'
@@ -64,6 +64,19 @@ export function CommandMenu() {
       <CommandList>
         <ScrollArea type='hover' className='h-80 pe-1'>
           <CommandEmpty>No results found.</CommandEmpty>
+          {query.trim().length >= 4 && (
+            <CommandGroup heading='Ask RAQIB (natural language)'>
+              <CommandItem
+                value={`ask ${query}`}
+                onSelect={() => runCommand(() => navigate({ to: '/worklist', search: { ask: query.trim() } }))}
+              >
+                <Sparkles className='text-primary' />
+                <span className='truncate' dir='auto'>
+                  Ask RAQIB: “{query.trim()}”
+                </span>
+              </CommandItem>
+            </CommandGroup>
+          )}
           {(decl.data?.items.length ?? 0) > 0 && (
             <CommandGroup heading='Declarations (test period)'>
               {decl.data!.items.map((d) => (
