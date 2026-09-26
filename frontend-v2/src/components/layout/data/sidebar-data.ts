@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  Bot,
   BrainCircuit,
   ClipboardList,
   FileCheck2,
@@ -24,6 +25,7 @@ export const sidebarData: SidebarData = {
     {
       title: 'Intelligence',
       items: [
+        { title: 'Assistant (Qwen3 local)', url: '/assistant', icon: Bot },
         { title: 'Impact simulator', url: '/impact', icon: Gauge },
         { title: 'Explainability', url: '/explainability', icon: BrainCircuit },
       ],

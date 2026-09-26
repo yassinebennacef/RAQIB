@@ -276,8 +276,14 @@ def parse(q: str, vocab: Vocab, use_llm: bool = True, mode: str = "hybrid") -> d
     rules = rules_parse(q, vocab) if mode != "llm" else {}
     if mode == "rules" or (mode == "hybrid" and rules):
         f, w = validate(rules, vocab)
-        return {"filter": f.model_dump(), "source": "rules", "warnings": w, "explanation": explain(f, vocab.offices)}
-    if use_llm and client.available():
+        return {"filter": f.model_dump(), "source": "rules", "warnings": w, "explanation": explain(f, vocab.offices),
+                "llm_fallback": None}
+    llm_fallback = None
+    if use_llm and not client.available() and client.enabled():
+        llm_fallback = "unavailable"
+        warnings.append(f"LLM local indisponible ({client.status()['last_error'] or 'not available'}); "
+                        "used the rule-based parser")
+    elif use_llm and client.available():
         try:
             content, _ = client.chat(_system_prompt(vocab), f"Question: {q}", schema=SCHEMA, temperature=0.0,
                                      num_predict=200)
@@ -287,9 +293,10 @@ def parse(q: str, vocab: Vocab, use_llm: bool = True, mode: str = "hybrid") -> d
                 raw["sort"] = "fraud_desc"  # a safety ordering only makes sense for a safety question
         except (client.LLMError, ValueError) as exc:
             warnings.append(f"LLM unavailable ({exc}); used the rule-based parser")
+            llm_fallback = "unavailable" if isinstance(exc, client.LLMError) else "rejected"
             raw = {}
     if source == "rules":
         raw = rules_parse(q, vocab)
     f, w = validate(raw, vocab)
     return {"filter": f.model_dump(), "source": source, "warnings": warnings + w,
-            "explanation": explain(f, vocab.offices)}
+            "explanation": explain(f, vocab.offices), "llm_fallback": llm_fallback}

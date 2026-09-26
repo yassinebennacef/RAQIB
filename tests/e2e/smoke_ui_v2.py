@@ -134,6 +134,16 @@ def main() -> int:
         page.wait_for_selector("text=The method in 6 steps", timeout=15000)
         page.screenshot(path=str(shots / "12_about.png"), full_page=True)
 
+        # Assistant local Qwen3: one click from the sidebar, an example question lands in the worklist with chips
+        page.goto(args.url + "/")
+        page.get_by_role("link", name="Assistant (Qwen3 local)").click()
+        page.wait_for_selector("text=État du modèle local", timeout=15000)
+        page.screenshot(path=str(shots / "12b_assistant.png"), full_page=True)
+        page.get_by_role("link", name="show uncertain cases from office 20").click()
+        page.wait_for_selector("text=Apply filter", timeout=40000)
+        page.get_by_role("button", name="Apply filter").click()
+        page.wait_for_selector("text=Ask RAQIB filter applied", timeout=15000)
+
         # command palette + light theme
         page.goto(args.url + "/worklist")
         page.wait_for_selector("text=declarations", timeout=15000)

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { BadgeCheck, Cpu, Languages, Loader2, RefreshCw, Sparkles, X } from 'lucide-react'
-import { apiLLM, type NlqFilter, type NlqResult } from '@/lib/api'
+import { apiLLM, type LlmBrief, type NlqFilter, type NlqResult } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Segmented } from './kit'
+
+/* ------------------------------------------------------------------ Fallback notice (never silent) */
+function notifyLlmFallback(kind: LlmBrief['llm_fallback'], detail?: string | null) {
+  if (kind === 'unavailable')
+    toast.warning('LLM local indisponible → mode modèle', { id: 'llm-unavailable', description: detail ?? undefined })
+  else if (kind === 'rejected')
+    toast.info('Texte Qwen3 refusé par le garde-fou → note modèle affichée', { id: 'llm-rejected', description: detail ?? undefined })
+}
 
 /* ------------------------------------------------------------------ Officer brief */
 export function OfficerBrief({ id }: { id: string }) {
@@ -18,7 +27,11 @@ export function OfficerBrief({ id }: { id: string }) {
   const regen = useMutation({
     mutationFn: () => apiLLM.brief(id, lang, true),
     onSuccess: (data) => qc.setQueryData(['llm-brief', id, lang], data),
+    onError: (e) => toast.error(`Note non générée : ${e instanceof Error ? e.message : String(e)}`),
   })
+  useEffect(() => {
+    if (q.data) notifyLlmFallback(q.data.llm_fallback, q.data.llm_error)
+  }, [q.data])
   const b = q.data
   const busy = q.isFetching || regen.isPending
   return (
@@ -29,10 +42,12 @@ export function OfficerBrief({ id }: { id: string }) {
           {b &&
             (b.source === 'qwen3-4b' ? (
               <Badge variant='outline' className='border-primary/40 text-primary'>
-                <Cpu className='size-3' /> Qwen3-4B · local, offline
+                <Cpu className='size-3' /> Assistant local Qwen3 · offline
               </Badge>
             ) : (
-              <Badge variant='outline'>Template</Badge>
+              <Badge variant='outline' title={b.llm_error ?? undefined}>
+                Template{b.llm_fallback === 'unavailable' ? ' · LLM local indisponible' : ''}
+              </Badge>
             ))}
           {b?.guard_passed && (
             <Badge variant='outline' className='border-lane-green/40 text-lane-green'>
@@ -78,7 +93,11 @@ export function OfficerBrief({ id }: { id: string }) {
           <p className='text-[11px] text-muted-foreground'>
             {b.source === 'qwen3-4b'
               ? `${b.model ?? 'Qwen3-4B'} via Ollama · ${b.cached ? 'cached' : `${(b.latency_ms / 1000).toFixed(1)} s`} · no data leaves the laptop`
-              : 'Deterministic template built from the facts (local LLM off or its text was rejected by the guard).'}
+              : b.llm_fallback === 'unavailable'
+                ? `Deterministic template: LLM local indisponible (${b.llm_error ?? 'Ollama not reachable'}).`
+                : b.llm_fallback === 'rejected'
+                  ? `Deterministic template: the Qwen3 text was rejected by the guard (${b.llm_error ?? ''}).`
+                  : 'Deterministic template built from the facts (local LLM switched off).'}
           </p>
         )}
       </CardContent>
@@ -152,7 +171,9 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
     onSuccess: (r) => {
       setRes(r)
       setPending(r.filter)
+      notifyLlmFallback(r.llm_fallback, r.warnings[0])
     },
+    onError: (e) => toast.error(`Question non comprise : ${e instanceof Error ? e.message : String(e)}`),
   })
   useEffect(() => {
     if (initial && initial.trim()) ask.mutate(initial.trim())
@@ -169,6 +190,7 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
       >
         <Sparkles className='size-4 text-primary' />
         <span className='text-sm font-semibold'>Ask RAQIB</span>
+        <Badge variant='outline' className='text-[10px]'>Assistant local Qwen3</Badge>
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -204,7 +226,7 @@ export function AskRaqib({ initial, onApply }: { initial?: string; onApply: (f: 
         <div className='flex flex-col gap-2'>
           <div className='flex flex-wrap items-center gap-2 text-xs text-muted-foreground'>
             Understood as
-            <Badge variant='outline'>{res.source === 'qwen3-4b' ? 'Qwen3-4B · local' : 'rule-based parser'}</Badge>
+            <Badge variant='outline'>{res.source === 'qwen3-4b' ? 'Qwen3-4B · local' : 'rule-based parser (exact match, Qwen not needed)'}</Badge>
             — review, remove what you do not want, then apply (never applied automatically).
           </div>
           <FilterChips f={pending} onRemove={(c) => setPending(removeChip(pending, c))} />

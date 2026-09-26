@@ -90,12 +90,12 @@ def check(text: str, facts: dict, lang: str) -> list[str]:
     return problems
 
 
-def _generate(facts: dict, lang: str, temperature: float) -> tuple[str, int]:
+def _generate(facts: dict, lang: str, temperature: float, background: bool = False) -> tuple[str, int]:
     name = LANG_NAME[lang]
     user = (f"Write the inspection brief in {name} for the declaration below.\n"
             f"FACTS = {json.dumps(facts, ensure_ascii=False)}")
     content, ms = client.chat(SYSTEM.format(lang=name, terms=TERMS[lang], length=LENGTH[lang]), user, schema=SCHEMA, temperature=temperature,
-                              num_predict=320)
+                              num_predict=320, background=background)
     obj = json.loads(content)
     brief = re.sub(r"\s+", " ", str(obj.get("brief", ""))).strip()
     check_line = re.sub(r"\s+", " ", str(obj.get("suggested_check", ""))).strip()
@@ -116,7 +116,8 @@ def cached(decl_id: str, lang: str) -> dict | None:
     return None
 
 
-def brief(decl_id: str, lang: str, facts: dict, template_text: str, refresh: bool = False) -> dict:
+def brief(decl_id: str, lang: str, facts: dict, template_text: str, refresh: bool = False,
+          background: bool = False) -> dict:
     lang = lang if lang in LANG_NAME else "fr"
     base = {"lang": lang, "dir": "rtl" if lang == "ar" else "ltr", "facts_used": facts}
     if not refresh:
@@ -124,12 +125,17 @@ def brief(decl_id: str, lang: str, facts: dict, template_text: str, refresh: boo
         if c:
             return {**c, "facts_used": facts, "cached": True}
     problems: list[str] = []
-    if client.available():
+    llm_down = not client.available()
+    if not llm_down:
         for temperature in (0.2, 0.0):
             try:
-                text, ms = _generate(facts, lang, temperature)
-            except (client.LLMError, ValueError, KeyError) as exc:
+                text, ms = _generate(facts, lang, temperature, background)
+            except client.LLMError as exc:
                 problems.append(str(exc))
+                llm_down = True
+                break
+            except (ValueError, KeyError) as exc:
+                problems.append(f"invalid JSON answer ({exc})")
                 continue
             problems = check(text, facts, lang)
             if not problems:
@@ -140,8 +146,15 @@ def brief(decl_id: str, lang: str, facts: dict, template_text: str, refresh: boo
                 _cache_path(decl_id, lang).write_text(json.dumps({k: v for k, v in out.items() if k != "facts_used"},
                                                                  ensure_ascii=False, indent=2), encoding="utf-8")
                 return out
+    # llm_error tells the UI why it got the template although the local LLM is switched on (never silent).
+    # "unavailable": Ollama down, model missing or timeout; "rejected": Qwen answered but the guard refused the text.
+    llm_error = llm_fallback = None
+    if client.enabled():
+        llm_fallback = "unavailable" if llm_down else "rejected"
+        llm_error = (client.status()["last_error"] if llm_down else None) or "; ".join(problems) or "local LLM not available"
     return {**base, "text": template_text, "source": "template", "model": None, "guard_passed": False,
-            "latency_ms": 0, "cached": False, "rejected": problems}
+            "latency_ms": 0, "cached": False, "rejected": problems, "llm_fallback": llm_fallback,
+            "llm_error": llm_error}
 
 
 def pregenerate(jobs: list[tuple[str, str]], build) -> None:
@@ -153,7 +166,7 @@ def pregenerate(jobs: list[tuple[str, str]], build) -> None:
                 continue
             try:
                 facts, template_text = build(decl_id)
-                brief(decl_id, lang, facts, template_text)
+                brief(decl_id, lang, facts, template_text, background=True)
             except Exception:  # noqa: BLE001 - background best effort
                 continue
     threading.Thread(target=run, daemon=True).start()
