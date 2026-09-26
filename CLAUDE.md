@@ -92,5 +92,7 @@ out-of-fold TRAIN predictions (KFold 5, seed 1). Ranking uses the raw model scor
 
 ## Local LLM (optional)
 - backend/raqib/llm/: Qwen3-4B via Ollama (localhost only). It never scores or decides: officer brief (guarded
-  rephrasing of computed facts) and "Ask RAQIB" (question -> validated worklist filter, rules first).
+  rephrasing of computed facts), "Ask RAQIB" (question -> validated worklist filter, rules first) and the chat panel
+  "Demander à Qwen" on every page (llm/chat.py, POST /api/chat streamed; frontend-v2 src/components/raqib/chat-panel.tsx,
+  src/lib/chat.ts). The chat may answer any question; RAQIB numbers only from the measured facts it is given.
 - `RAQIB_LLM=off` disables it; every path has a deterministic fallback. Measure with `python scripts/eval_llm.py`.

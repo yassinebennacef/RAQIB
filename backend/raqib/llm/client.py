@@ -176,6 +176,70 @@ def _chat(system: str, user: str, *, schema, temperature, num_predict, timeout) 
     return content, ms
 
 
+def stream_chat(messages: list[dict], *, temperature: float | None = None, num_predict: int | None = None,
+                timeout: float | None = None):
+    """Yield the answer piece by piece (Ollama streaming). Raises LLMError before the first piece on failure."""
+    global _interactive
+    if not available():
+        raise LLMError(_state["last_error"] or "LLM not available")
+    opts = dict(K.OPTIONS)
+    if temperature is not None:
+        opts["temperature"] = temperature
+    if num_predict is not None:
+        opts["num_predict"] = num_predict
+    body = {"model": _state["model"], "stream": True, "options": opts, "keep_alive": K.KEEP_ALIVE,
+            "messages": messages}
+    if _state["think_supported"]:
+        body["think"] = False
+    timeout = timeout or (K.TIMEOUT if _state["warm"] else max(K.TIMEOUT, K.COLD_TIMEOUT))
+    req = urllib.request.Request(K.OLLAMA_URL + "/api/chat", data=json.dumps(body).encode("utf-8"),
+                                 headers={"Content-Type": "application/json"}, method="POST")
+    with _ilock:
+        _interactive += 1
+    t0 = time.time()
+    try:
+        try:
+            resp = _opener.open(req, timeout=timeout)
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                _state.update(reachable=False, checked_at=time.time())
+            raise _fail(f"Ollama HTTP {exc.code} for model {_state['model']}") from exc
+        except (OSError, urllib.error.URLError) as exc:
+            if not (isinstance(exc, TimeoutError) or "timed out" in str(exc)):
+                _state.update(reachable=False, checked_at=time.time())
+            raise _fail(f"Ollama not reachable at {K.OLLAMA_URL} ({exc})") from exc
+        in_think = False
+        with resp:
+            for line in resp:
+                if not line.strip():
+                    continue
+                obj = json.loads(line.decode("utf-8"))
+                buf, piece = obj.get("message", {}).get("content", ""), ""
+                # a thinking build may still emit <think>...</think>: never show it
+                while buf:
+                    if in_think:
+                        in_think = "</think>" not in buf
+                        buf = "" if in_think else buf.split("</think>", 1)[1]
+                    elif "<think>" in buf:
+                        head, buf = buf.split("<think>", 1)
+                        piece, in_think = piece + head, True
+                    else:
+                        piece, buf = piece + buf, ""
+                if piece:
+                    yield piece
+                if obj.get("done"):
+                    break
+        ms = int((time.time() - t0) * 1000)
+        with _lock:
+            _state["calls"] += 1
+            _state["latencies"] = (_state["latencies"] + [ms])[-50:]
+            _state["warm"] = True
+            _state["last_error"] = None
+    finally:
+        with _ilock:
+            _interactive -= 1
+
+
 def warm_up() -> None:
     """Load the model into memory (non-blocking caller: run in a thread)."""
     try:
