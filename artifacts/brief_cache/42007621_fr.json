@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 42007621 présente des indicateurs de risque élevés pour la fraude, notamment une histoire passée de fraude totale pour le produit 760529. L'agent des douanes doit vérifier la déclaration, la valeur déclarée et l'origine. La voie rouge (inspection physique) est recommandée en raison de l'interaction entre le historique du produit et la valeur déclarée. La règle actuelle prévoit un contrôle.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine et faire une voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7253,
+  "cached": false,
+  "generated_at": "2026-09-26T01:35:13+00:00"
+}

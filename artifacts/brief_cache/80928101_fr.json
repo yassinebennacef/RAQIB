@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 80928101 présente des indicateurs de risque élevés : historique de fraude du produit et de l'importateur, valeur unitaire anormale. L'agent des douanes doit vérifier la déclaration, la valeur, l'origine et effectuer une voie rouge. Le produit 950300 présente un risque de violation de sécurité critique. La règle actuelle prévoit une libération, mais la voie rouge est recommandée en raison des indicateurs de risque.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7659,
+  "cached": false,
+  "generated_at": "2026-09-26T01:29:45+00:00"
+}

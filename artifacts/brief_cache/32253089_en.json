@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (92%) due to 100% past fraud in product 841690, despite normal declared value. Risk indicators show strong historical fraud pattern. Suggested_check: Verify documents, declared value, origin, and physical exam of furnace parts. Current rule decision is release, but fraud risk warrants close review.\nSuggested check: documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 4875,
+  "cached": false,
+  "generated_at": "2026-09-26T01:42:08+00:00"
+}

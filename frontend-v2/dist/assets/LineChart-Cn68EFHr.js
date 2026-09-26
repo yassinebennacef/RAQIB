@@ -1,0 +1,1 @@
+import{f as e,h as t}from"./button-C-GSVPNP.js";import{t as n,z as r}from"./CartesianChart-Ce1xa69z.js";var i=t(e()),a=[`axis`],o=(0,i.forwardRef)((e,t)=>i.createElement(n,{chartName:`LineChart`,defaultTooltipEventType:`axis`,validateTooltipEventTypes:a,tooltipPayloadSearcher:r,categoricalChartProps:e,ref:t}));export{o as t};

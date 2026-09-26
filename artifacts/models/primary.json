@@ -1,0 +1,5 @@
+{
+  "fraud": "ebm",
+  "critical": "lightgbm",
+  "rule": "EBM (glass box) is primary for a target when its operating metric (fraud: precision @5%, critical: recall @5%) is within 1.5 points of LightGBM or better; otherwise LightGBM stays primary and EBM is the transparent twin."
+}

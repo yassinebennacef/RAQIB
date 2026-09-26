@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 29221200 présente des indicateurs de risque élevés : historique de fraude total pour le produit 621520 et taux de fraude de l'importateur à 50 %. La voie rouge est activée pour une inspection physique. S'agissant d'un produit à forte valeur fiscale, vérifier la déclaration, la valeur unitaire, l'origine et la masse réelle. L'agent des douanes applique la règle actuelle : libération, malgré les risques, car la valeur unitaire est conforme à l'usage typique.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 8351,
+  "cached": false,
+  "generated_at": "2026-09-26T01:35:21+00:00"
+}

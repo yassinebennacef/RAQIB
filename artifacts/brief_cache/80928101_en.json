@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (31%) and safety alert (77.3%) for product 950300. Risk indicators show past fraud in product and importer, elevated unit value, and glass-box interaction. Safety alert due to critical violation in 9.4% of past declarations. Suggested_check: Verify documents, value, origin, and physical exam for compliance and authenticity.\nSuggested check: verify documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 5423,
+  "cached": false,
+  "generated_at": "2026-09-26T01:30:01+00:00"
+}

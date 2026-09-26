@@ -1,0 +1,360 @@
+{
+  "curve": [
+    {
+      "rate": 0.01,
+      "inspections": 138,
+      "ai": {
+        "frauds": 98,
+        "threats": 32
+      },
+      "rule": {
+        "frauds": 80,
+        "threats": 2
+      },
+      "random": {
+        "frauds": 35,
+        "threats": 0
+      }
+    },
+    {
+      "rate": 0.02,
+      "inspections": 216,
+      "ai": {
+        "frauds": 150,
+        "threats": 37
+      },
+      "rule": {
+        "frauds": 127,
+        "threats": 2
+      },
+      "random": {
+        "frauds": 46,
+        "threats": 3
+      }
+    },
+    {
+      "rate": 0.03,
+      "inspections": 296,
+      "ai": {
+        "frauds": 210,
+        "threats": 39
+      },
+      "rule": {
+        "frauds": 170,
+        "threats": 3
+      },
+      "random": {
+        "frauds": 80,
+        "threats": 5
+      }
+    },
+    {
+      "rate": 0.04,
+      "inspections": 381,
+      "ai": {
+        "frauds": 265,
+        "threats": 40
+      },
+      "rule": {
+        "frauds": 224,
+        "threats": 5
+      },
+      "random": {
+        "frauds": 72,
+        "threats": 2
+      }
+    },
+    {
+      "rate": 0.05,
+      "inspections": 470,
+      "ai": {
+        "frauds": 317,
+        "threats": 41
+      },
+      "rule": {
+        "frauds": 259,
+        "threats": 7
+      },
+      "random": {
+        "frauds": 103,
+        "threats": 3
+      }
+    },
+    {
+      "rate": 0.06,
+      "inspections": 549,
+      "ai": {
+        "frauds": 363,
+        "threats": 41
+      },
+      "rule": {
+        "frauds": 297,
+        "threats": 8
+      },
+      "random": {
+        "frauds": 122,
+        "threats": 6
+      }
+    },
+    {
+      "rate": 0.07,
+      "inspections": 643,
+      "ai": {
+        "frauds": 415,
+        "threats": 42
+      },
+      "rule": {
+        "frauds": 336,
+        "threats": 9
+      },
+      "random": {
+        "frauds": 128,
+        "threats": 2
+      }
+    },
+    {
+      "rate": 0.08,
+      "inspections": 722,
+      "ai": {
+        "frauds": 457,
+        "threats": 42
+      },
+      "rule": {
+        "frauds": 367,
+        "threats": 12
+      },
+      "random": {
+        "frauds": 154,
+        "threats": 6
+      }
+    },
+    {
+      "rate": 0.09,
+      "inspections": 802,
+      "ai": {
+        "frauds": 494,
+        "threats": 43
+      },
+      "rule": {
+        "frauds": 397,
+        "threats": 13
+      },
+      "random": {
+        "frauds": 171,
+        "threats": 6
+      }
+    },
+    {
+      "rate": 0.1,
+      "inspections": 891,
+      "ai": {
+        "frauds": 543,
+        "threats": 44
+      },
+      "rule": {
+        "frauds": 431,
+        "threats": 15
+      },
+      "random": {
+        "frauds": 196,
+        "threats": 7
+      }
+    },
+    {
+      "rate": 0.11,
+      "inspections": 972,
+      "ai": {
+        "frauds": 584,
+        "threats": 44
+      },
+      "rule": {
+        "frauds": 460,
+        "threats": 16
+      },
+      "random": {
+        "frauds": 211,
+        "threats": 8
+      }
+    },
+    {
+      "rate": 0.12,
+      "inspections": 1059,
+      "ai": {
+        "frauds": 614,
+        "threats": 44
+      },
+      "rule": {
+        "frauds": 494,
+        "threats": 17
+      },
+      "random": {
+        "frauds": 238,
+        "threats": 7
+      }
+    },
+    {
+      "rate": 0.13,
+      "inspections": 1148,
+      "ai": {
+        "frauds": 647,
+        "threats": 44
+      },
+      "rule": {
+        "frauds": 524,
+        "threats": 17
+      },
+      "random": {
+        "frauds": 220,
+        "threats": 7
+      }
+    },
+    {
+      "rate": 0.14,
+      "inspections": 1236,
+      "ai": {
+        "frauds": 685,
+        "threats": 44
+      },
+      "rule": {
+        "frauds": 563,
+        "threats": 18
+      },
+      "random": {
+        "frauds": 280,
+        "threats": 8
+      }
+    },
+    {
+      "rate": 0.15,
+      "inspections": 1315,
+      "ai": {
+        "frauds": 712,
+        "threats": 44
+      },
+      "rule": {
+        "frauds": 590,
+        "threats": 21
+      },
+      "random": {
+        "frauds": 277,
+        "threats": 11
+      }
+    },
+    {
+      "rate": 0.16,
+      "inspections": 1399,
+      "ai": {
+        "frauds": 741,
+        "threats": 45
+      },
+      "rule": {
+        "frauds": 616,
+        "threats": 21
+      },
+      "random": {
+        "frauds": 323,
+        "threats": 15
+      }
+    },
+    {
+      "rate": 0.17,
+      "inspections": 1489,
+      "ai": {
+        "frauds": 772,
+        "threats": 46
+      },
+      "rule": {
+        "frauds": 645,
+        "threats": 21
+      },
+      "random": {
+        "frauds": 340,
+        "threats": 17
+      }
+    },
+    {
+      "rate": 0.18,
+      "inspections": 1565,
+      "ai": {
+        "frauds": 794,
+        "threats": 46
+      },
+      "rule": {
+        "frauds": 668,
+        "threats": 21
+      },
+      "random": {
+        "frauds": 323,
+        "threats": 11
+      }
+    },
+    {
+      "rate": 0.19,
+      "inspections": 1654,
+      "ai": {
+        "frauds": 820,
+        "threats": 47
+      },
+      "rule": {
+        "frauds": 697,
+        "threats": 24
+      },
+      "random": {
+        "frauds": 359,
+        "threats": 14
+      }
+    },
+    {
+      "rate": 0.2,
+      "inspections": 1730,
+      "ai": {
+        "frauds": 844,
+        "threats": 48
+      },
+      "rule": {
+        "frauds": 718,
+        "threats": 24
+      },
+      "random": {
+        "frauds": 367,
+        "threats": 13
+      }
+    }
+  ],
+  "matching": {
+    "reference": {
+      "policy": "rule",
+      "rate": 0.05,
+      "frauds": 259,
+      "threats": 7,
+      "inspections": 470
+    },
+    "ai_rate": 0.039,
+    "ai_inspections": 379,
+    "ai_frauds": 263,
+    "ai_threats": 40,
+    "fewer_inspections": 91,
+    "fewer_pct": 0.19361702127659575
+  },
+  "pooled": {
+    "k_rule": 425,
+    "rule_frauds": 227,
+    "k_ai_needed": 302,
+    "fewer_inspections": 123,
+    "fewer_pct": 0.28941176470588237
+  },
+  "threats": {
+    "rule_at_ref": 7,
+    "ai_rate_matching_threats": 0.005,
+    "ai_inspections": 96
+  },
+  "officer_hours": {
+    "minutes_per_inspection": 60.0,
+    "assumption": true,
+    "hours_freed_test_period": 91.0,
+    "test_days": 91,
+    "hours_freed_per_year": 365.0,
+    "note": "Assumption: average officer time per physical inspection; edit it to your own figure."
+  },
+  "policy_note": "Daily replay without exploration; public-safety alerts take AI slots first."
+}

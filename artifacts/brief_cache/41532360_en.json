@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (94.4%) due to product's 100% fraud history in past declarations. Risk amplified by glass-box interaction between fraud history and declared value. Verify product models, declared value, and physical match. Suggested_check: documents, value, origin, physical exam.\nSuggested check: documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 4296,
+  "cached": false,
+  "generated_at": "2026-09-26T01:41:58+00:00"
+}

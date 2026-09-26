@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 14856338 présente des indicateurs de risque élevés : 60 % de fraude dans les 5 déclarations passées pour le produit 321310. L'agent des douanes doit vérifier la déclaration, la valeur unitaire, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle prévoit une libération, mais la violation critique en 60 % des cas justifie une vérification physique. Le risque de sécurité est élevé, avec un alerte critique.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 8195,
+  "cached": false,
+  "generated_at": "2026-09-26T01:39:26+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 24519914 présente des indicateurs de risque élevés : historique de fraude pour le produit 090240 et l'origine LK. L'agent des douanes doit vérifier la déclaration, la valeur et l'origine. Voie jaune : contrôle documentaire. Règle actuelle : libération, malgré les risques.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine et faire un examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6646,
+  "cached": false,
+  "generated_at": "2026-09-26T01:37:44+00:00"
+}

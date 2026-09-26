@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 54794554 présente des indicateurs de risque élevés liés à l'origine MX et au historique frauduleux du produit 731815. L'agent des douanes doit vérifier la déclaration, la valeur déclarée et l'origine physique. Voie rouge : inspection physique du produit. Règle actuelle : libération, malgré les indicateurs de risque.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine et faire une voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6851,
+  "cached": false,
+  "generated_at": "2026-09-26T01:47:06+00:00"
+}

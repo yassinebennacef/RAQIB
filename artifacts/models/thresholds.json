@@ -1,0 +1,14 @@
+{
+  "alert_threshold": 0.13853433797326445,
+  "red_threshold": 0.5828651694442195,
+  "yellow_threshold": 0.38574607853361403,
+  "disagreement_threshold": 0.17932323463497127,
+  "primary": {
+    "fraud": "ebm",
+    "critical": "lightgbm"
+  },
+  "note": "Thresholds on the primary models' scores from the TEST period: alert = 99th pct of the critical score; RED = 95th pct and YELLOW = 85th pct of the fraud score. Disagreement threshold = 95th pct of |p(EBM) - p(LightGBM)| on the last 4 training weeks (models trained without those weeks).",
+  "alert_p_critical": 0.1417624521072797,
+  "red_p_fraud": 0.5828651694442195,
+  "yellow_p_fraud": 0.38574607853361403
+}

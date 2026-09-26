@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 69546352 présente des indicateurs de risque élevés : historique de fraude pour le produit, l'origine BA et le vendeur UNCISOP. L'agent des douanes doit vérifier la déclaration, la valeur déclarée, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle impose un contrôle. Le risque de fraude est très élevé, mais aucun risque de sécurité n'est détecté.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 8988,
+  "cached": false,
+  "generated_at": "2026-09-26T01:48:43+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 98371540 présente des indicateurs de risque élevés : valeur déclarée anormale, historique de fraude de l'importateur (50 %) et origine MX (45 % de fraude). L'agent des douanes doit vérifier la valeur, l'origine et la conformité physique. Suggestion de contrôle : voie rouge (inspection physique). Règle actuelle : libération.\nContrôle suggéré: valeur, origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6179,
+  "cached": false,
+  "generated_at": "2026-09-26T01:35:48+00:00"
+}

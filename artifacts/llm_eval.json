@@ -1,0 +1,841 @@
+{
+  "generated_at": "2026-09-26T01:43:06+00:00",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "nlq": {
+    "rules": {
+      "n": 30,
+      "exact_match": 1.0,
+      "field_accuracy": 1.0,
+      "by_lang": {
+        "fr": 1.0,
+        "en": 1.0,
+        "ar": 1.0
+      },
+      "tricky_exact": 1.0,
+      "seconds": 0.0,
+      "cases": [
+        {
+          "q": "déclarations rouges d'origine CN au chapitre 85 au-dessus de 80%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "cas où les modèles sont en désaccord",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "alertes de sécurité",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations jaunes du bureau 30",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "top 20 des vêtements venant de Chine",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations vertes d'origine Japon",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "médicaments avec un risque de fraude supérieur à 50%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations rouges de juin",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "jouets d'origine chinoise en alerte sécurité",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "les plus récentes déclarations rouges",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "show uncertain cases from office 20",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "red declarations from China above 90%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "public safety alerts",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "yellow lane electrical machinery",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "top 10 vehicles",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "green declarations from Vietnam",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "declarations from Germany in May",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "HS 8517 red lane",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "cases where the models disagree about coffee",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "most recent safety alerts from Korea",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الحالات ذات التنبيه الأمني",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الحمراء من الصين",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الصفراء من المكتب 40",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الحالات غير المؤكدة",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الأدوية من الهند",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الخضراء من اليابان",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الملابس من تركيا",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الحمراء أكثر من 70%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "السيارات من ألمانيا في يونيو",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الألعاب ذات التنبيه الأمني من الصين",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        }
+      ]
+    },
+    "qwen": {
+      "n": 30,
+      "exact_match": 0.7333333333333333,
+      "field_accuracy": 0.975,
+      "by_lang": {
+        "fr": 0.8,
+        "en": 0.6,
+        "ar": 0.8
+      },
+      "tricky_exact": 0.8333333333333334,
+      "seconds": 154.7,
+      "cases": [
+        {
+          "q": "déclarations rouges d'origine CN au chapitre 85 au-dessus de 80%",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "cas où les modèles sont en désaccord",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "alertes de sécurité",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations jaunes du bureau 30",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "top 20 des vêtements venant de Chine",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations vertes d'origine Japon",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "lane"
+          ]
+        },
+        {
+          "q": "médicaments avec un risque de fraude supérieur à 50%",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "lane"
+          ]
+        },
+        {
+          "q": "déclarations rouges de juin",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "jouets d'origine chinoise en alerte sécurité",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "les plus récentes déclarations rouges",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "show uncertain cases from office 20",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "red declarations from China above 90%",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "hs_prefix"
+          ]
+        },
+        {
+          "q": "public safety alerts",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "yellow lane electrical machinery",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "top 10 vehicles",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "lane"
+          ]
+        },
+        {
+          "q": "green declarations from Vietnam",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "declarations from Germany in May",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "HS 8517 red lane",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "min_fraud"
+          ]
+        },
+        {
+          "q": "cases where the models disagree about coffee",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "most recent safety alerts from Korea",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "office"
+          ]
+        },
+        {
+          "q": "الحالات ذات التنبيه الأمني",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الحمراء من الصين",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "min_fraud",
+            "hs_prefix"
+          ]
+        },
+        {
+          "q": "التصاريح الصفراء من المكتب 40",
+          "source": "qwen3-4b",
+          "exact": false,
+          "wrong_fields": [
+            "lane"
+          ]
+        },
+        {
+          "q": "الحالات غير المؤكدة",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الأدوية من الهند",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الخضراء من اليابان",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الملابس من تركيا",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الحمراء أكثر من 70%",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "السيارات من ألمانيا في يونيو",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الألعاب ذات التنبيه الأمني من الصين",
+          "source": "qwen3-4b",
+          "exact": true,
+          "wrong_fields": []
+        }
+      ]
+    },
+    "hybrid": {
+      "n": 30,
+      "exact_match": 1.0,
+      "field_accuracy": 1.0,
+      "by_lang": {
+        "fr": 1.0,
+        "en": 1.0,
+        "ar": 1.0
+      },
+      "tricky_exact": 1.0,
+      "seconds": 0.0,
+      "cases": [
+        {
+          "q": "déclarations rouges d'origine CN au chapitre 85 au-dessus de 80%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "cas où les modèles sont en désaccord",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "alertes de sécurité",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations jaunes du bureau 30",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "top 20 des vêtements venant de Chine",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations vertes d'origine Japon",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "médicaments avec un risque de fraude supérieur à 50%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "déclarations rouges de juin",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "jouets d'origine chinoise en alerte sécurité",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "les plus récentes déclarations rouges",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "show uncertain cases from office 20",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "red declarations from China above 90%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "public safety alerts",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "yellow lane electrical machinery",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "top 10 vehicles",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "green declarations from Vietnam",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "declarations from Germany in May",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "HS 8517 red lane",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "cases where the models disagree about coffee",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "most recent safety alerts from Korea",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الحالات ذات التنبيه الأمني",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الحمراء من الصين",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الصفراء من المكتب 40",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الحالات غير المؤكدة",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الأدوية من الهند",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الخضراء من اليابان",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الملابس من تركيا",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "التصاريح الحمراء أكثر من 70%",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "السيارات من ألمانيا في يونيو",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        },
+        {
+          "q": "الألعاب ذات التنبيه الأمني من الصين",
+          "source": "rules",
+          "exact": true,
+          "wrong_fields": []
+        }
+      ]
+    },
+    "note": "The rule parser was written alongside these 30 questions, so its score is optimistic; Qwen handles free phrasings the rules do not know (hybrid = rules first, then Qwen)."
+  },
+  "brief": {
+    "n": 70,
+    "guard_pass_rate": 1.0,
+    "fallback_rate": 0.0,
+    "latency_ms_p50": 6944,
+    "latency_ms_p95": 9871,
+    "by_lang": {
+      "fr": {
+        "n": 50,
+        "guard_pass_rate": 1.0
+      },
+      "ar": {
+        "n": 10,
+        "guard_pass_rate": 1.0
+      },
+      "en": {
+        "n": 10,
+        "guard_pass_rate": 1.0
+      }
+    },
+    "rejections": []
+  },
+  "assistant": {
+    "n": 20,
+    "in_scope_n": 18,
+    "guard_pass_rate": 0.9444444444444444,
+    "fallback_rate": 0.05555555555555555,
+    "latency_ms_p50": 7485,
+    "latency_ms_p95": 26540,
+    "out_of_scope_n": 2,
+    "out_of_scope_refused": 2,
+    "in_scope_wrongly_refused": 1,
+    "cases": [
+      {
+        "q": "Comment RAQIB choisit les contrôles ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 7256,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "RAQIB choisit les contrôles en priorisant d'abord les alertes de sécurité publique, puis les risques de fraude les plus élevés. En option, 10 % des places sont tirées au hasard pour une exploration. Les déclarations classées juste après les inspections passent en JAUNE (contrôle documentaire), tandi"
+      },
+      {
+        "q": "Que signifie précision à 5 % ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 7724,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "La précision à 5 % signifie que 5 % des déclarations les plus risquées sont effectivement frauduleuses. RAQIB détecte 71,8 % de ces cas réels de fraude, contre 53,4 % pour la règle et 21,4 % pour un hasard. Cette mesure évalue la capacité du système à identifier les déclarations frauduleuses parmi l"
+      },
+      {
+        "q": "D'où viennent les données ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 8142,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "Les données proviennent du jeu de données public « Customs Import Declaration Datasets », issu de l'Institute for Basic Science et du Korea Customs Service, sous licence MIT. Ce jeu de données comprend 54 000 déclarations synthétiques issues de déclarations réellement inspectées. Il est composé d'un"
+      },
+      {
+        "q": "Que fait l'exploration ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 6563,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "L'exploration consiste à tirer au hasard une petite part des inspections afin que le système apprenne sur des produits qu'il ne choisirait pas autrement. Cela permet d'élargir la couverture des produits analysés, passant de 261 à 280 produits différents. Cette fonction est active pendant la période "
+      },
+      {
+        "q": "Pourquoi cette déclaration est ROUGE ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 14207,
+        "out_of_scope": false,
+        "refused": true,
+        "answer": "Cette déclaration est ROUGE car le risque de fraude est de 74,1 %, ce qui dépasse le seuil de 58,3 % requis pour une déclaration en ROUGE. Ce seuil est défini dans la section 'Pourquoi une déclaration est ROUGE'. Les risques identifiés incluent une histoire frauduleuse du produit 731815 (36 % de fra"
+      },
+      {
+        "q": "Que dois-je vérifier en priorité ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 7714,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "Vérifiez en priorité les indicateurs de risque de fraude, notamment l'histoire de fraude du produit (731815) et de l'origine MX, puis le taux de fraude passé de l'importateur. Le risque de fraude est de 74,1 %, ce qui est élevé. La règle actuelle prévoit un rejet, mais RAQIB ne décide pas : l'offici"
+      },
+      {
+        "q": "À quoi sert le journal SHA-256 ?",
+        "lang": "fr",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 7746,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "Le journal SHA-256 sert à enregistrer chaque décision de l'agent, comme l'inspection ou la libération, sous forme d'un journal chaîné où chaque ligne est hashée avec SHA-256, incluant le hash de la ligne précédente. Cela permet de détecter toute modification, suppression ou réordonnancement, car cel"
+      },
+      {
+        "q": "Quelle est la capitale de l'Australie ?",
+        "lang": "fr",
+        "source": "faq",
+        "guard_passed": false,
+        "latency_ms": 1,
+        "out_of_scope": true,
+        "refused": true,
+        "answer": "Je ne trouve pas cette information dans la base RAQIB. Je peux expliquer les voies, les modèles, les résultats mesurés ou une déclaration ; voir la page About."
+      },
+      {
+        "q": "What does models disagree mean?",
+        "lang": "en",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 6727,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "Models disagree means that the EBM and LightGBM models assign very different fraud risk scores to a declaration, with a difference above the 95th percentile measured out-of-sample over the last four weeks. This discrepancy marks the declaration as \"models in disagreement\" and prevents its release, r"
+      },
+      {
+        "q": "How many fewer inspections does RAQIB need than the rule?",
+        "lang": "en",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 4995,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "RAQIB needs 19% fewer inspections than the rule. The rule requires 470 inspections, while RAQIB requires 379 inspections. This difference is stated in the 'Impact simulator' section. The exact number of fewer inspections is 91 (470 - 379). Page to open for details: Impact simulator."
+      },
+      {
+        "q": "Is the glass-box EBM as accurate as LightGBM?",
+        "lang": "en",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 6780,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "The glass-box EBM is as accurate as LightGBM in terms of precision at 5% (both at 71.8% and 71.1%), and achieves a slightly higher AUC (0.771 vs 0.770). However, for fraud, EBM is designated as the primary model due to its better performance metric. The comparison shows no loss of precision, and the"
+      },
+      {
+        "q": "What are the limits of the data?",
+        "lang": "en",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 6526,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "The data limits are defined by the source: synthetic import declarations from real inspections, with no Tunisian data or access to administrative systems. The dataset consists of 54,000 declarations, split into 45,519 for training and 8,481 for testing. Only 73 critical cases were identified in the "
+      },
+      {
+        "q": "Which football team won the 2018 World Cup?",
+        "lang": "en",
+        "source": "faq",
+        "guard_passed": false,
+        "latency_ms": 1,
+        "out_of_scope": true,
+        "refused": true,
+        "answer": "I cannot find this in the RAQIB knowledge base. I can explain the lanes, the models, the measured results or a declaration; see the About page."
+      },
+      {
+        "q": "Who decides in the end, the AI or the officer?",
+        "lang": "en",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 4548,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "The officer decides in the end. RAQIB provides a consultative score and reasons, but the customs officer always makes the final decision. This is stated in the 'Qui décide' section. The decision journal and 'Inspecteur de la déclaration' page detail this process. Page: Inspecteur de la déclaration"
+      },
+      {
+        "q": "كيف يختار رقيب عمليات التفتيش؟",
+        "lang": "ar",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 8408,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "يُختار التفتيش من خلال ترتيب الضروريات: أولاً يتم تخصيص أماكن التفتيش للخطرات المتعلقة بالأمن العام، ثم تُعطى الأماكن المتبقية للخطرات المرتبطة بالاحتيال، مع إمكانية توزيع 10% من الأماكن عشوائيًا. يُحدد مستوى التفتيش بناءً على هذا الترتيب، حيث تُنقل الضروريات بعد التفتيش إلى حالة 'أحمر' (تفتيش وثائق"
+      },
+      {
+        "q": "ماذا يعني اختلاف النموذجين؟",
+        "lang": "ar",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 25619,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "يُعني اختلاف النموذجين أن النموذجين (EBM وLightGBM) يُعطيان تقييمات مختلفة جدًا لخطر التزوير، حيث يتجاوز الفرق 95% من القيم في الفترة التي تم تدريبها عليها، مما يؤدي إلى وضع الإعلان بـ«تنافر النماذج» ويتطلب مراجعة من قبل موظف بشري دون تحريره. هذا الاختلاف يُلاحظ في بيانات الاختبار، حيث تُظهر 371 إعل"
+      },
+      {
+        "q": "من أين تأتي البيانات؟",
+        "lang": "ar",
+        "source": "faq",
+        "guard_passed": false,
+        "latency_ms": 31760,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "(إجابة من قاعدة المعارف بالفرنسية) Jeu de données public « Customs Import Declaration Datasets » (Institute for Basic Science et Korea Customs Service, licence MIT) : 54,000 déclarations synthétiques issues de déclarations réellement inspectées. Entraînement : 45,519 déclarations ; test : 8,481. Auc"
+      },
+      {
+        "q": "ما هي المسارات الثلاثة؟",
+        "lang": "ar",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 15671,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "المسارات الثلاثة هي: ROUGE (التفتيش البدني)، JAUNE (التحقق المستند)، وVERTE (الإفراج). تُرسل الـIA 82% من الإعلانات في المسار الأخضر خلال الفترة التجريبية. تُوجد هذه المعلومات في صفحة 'Worklist'."
+      },
+      {
+        "q": "ما هو الاستكشاف؟",
+        "lang": "ar",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 7221,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "الاستكشاف هو تجربة صغيرة من الفحوصات تُجرى عشوائيًا لمساعدات النظام على تعلم منتجات قد لا يختارها تلقائيًا. تُستخدم هذه الطريقة لتوسيع نطاق التغطية، كما في الفترة التجريبية حيث ارتفع عدد المنتجات المُغطى من 261 إلى 280. تُعد هذه الفحوصات مكلفة بدرجة 23 حالة مخاطرة. تُوجد معلومات عنها في صفحة 'Salle "
+      },
+      {
+        "q": "ماذا تعني الدقة عند 5%؟",
+        "lang": "ar",
+        "source": "qwen3-4b",
+        "guard_passed": true,
+        "latency_ms": 5401,
+        "out_of_scope": false,
+        "refused": false,
+        "answer": "الدقة عند 5% تعني أن 5% من الاعترافات الأكثر خطرًا كانت في الواقع مُخالفة، وتم تحديد هذه الاعترافات من خلال نموذج RAQIB الذي أظهر دقة 71.8% مقارنة بـ 53.4% للقاعدة و21.4% للصدفة.\n→ Model lab"
+      }
+    ]
+  }
+}

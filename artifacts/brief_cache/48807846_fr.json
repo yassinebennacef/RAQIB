@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 48807846 présente des indicateurs de risque élevés : historique de fraude pour le produit et l'origine BA, ainsi qu'une interaction entre valeur déclarée et taux de taxe. L'agent des douanes doit vérifier la valeur déclarée, l'origine, les documents et effectuer une voie rouge (inspection physique). La règle actuelle impose un contrôle. Risque de fraude élevé, mais pas de danger pour la sécurité.\nContrôle suggéré: vérifier valeur, origine, documents, voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7281,
+  "cached": false,
+  "generated_at": "2026-09-26T01:48:58+00:00"
+}

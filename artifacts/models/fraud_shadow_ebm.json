@@ -1,0 +1,11 @@
+{
+  "key": "a481478c0522fb245f82",
+  "params": {
+    "interactions": 5,
+    "outer_bags": 2,
+    "random_state": 42,
+    "n_jobs": 2
+  },
+  "fit_seconds": 145.3,
+  "rows": 42504
+}

@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 45114997 présente des indicateurs de risque élevés : historique de fraude pour le produit, l'origine TR et le vendeur H9NE890. L'agent des douanes doit vérifier la déclaration, la valeur unitaire, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle prévoit une libération, mais le risque est élevé. La situation nécessite une vérification physique pour évaluer la conformité.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7593,
+  "cached": false,
+  "generated_at": "2026-09-26T01:33:58+00:00"
+}

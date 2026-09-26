@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 78587420 présente des indicateurs de risque élevés pour le produit 830990, notamment une histoire de fraude passée et une valeur unitaire anormalement basse. L'agent des douanes doit vérifier la déclaration, la valeur et l'origine. Voie jaune : contrôle documentaire. Règle actuelle : libération.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine et faire un examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6215,
+  "cached": false,
+  "generated_at": "2026-09-26T01:38:36+00:00"
+}

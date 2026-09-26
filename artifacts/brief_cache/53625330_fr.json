@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 53625330 présente des indicateurs de risque élevés : historique de fraude du produit et de l'importateur. L'agent des douanes doit vérifier la déclaration, la valeur, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle impose un contrôle. L'importateur a une fraude historique de 22,9 % sur 118 déclarations.\nContrôle suggéré: vérifier déclaration, valeur, origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6353,
+  "cached": false,
+  "generated_at": "2026-09-26T01:35:41+00:00"
+}

@@ -1,0 +1,2270 @@
+{
+  "generated_at": "2026-09-26T00:43:09+00:00",
+  "recipe": {
+    "train": [
+      "2020-01-01",
+      "2021-03-31"
+    ],
+    "test": [
+      "2021-04-01",
+      "2021-06-30"
+    ],
+    "n_train": 45519,
+    "n_test": 8481,
+    "features": [
+      "rate_hs6",
+      "rate_hs4",
+      "rate_hs2",
+      "rate_importer",
+      "rate_declarant",
+      "rate_seller",
+      "rate_origin",
+      "rate_office",
+      "count_hs6",
+      "count_hs4",
+      "count_hs2",
+      "count_importer",
+      "count_declarant",
+      "count_seller",
+      "count_origin",
+      "count_office",
+      "tax_rate",
+      "net_mass",
+      "item_price",
+      "unit"
+    ],
+    "lgbm_params": {
+      "n_estimators": 300,
+      "learning_rate": 0.03,
+      "num_leaves": 15,
+      "min_child_samples": 100,
+      "subsample": 0.8,
+      "subsample_freq": 1,
+      "colsample_bytree": 0.8,
+      "random_state": 42,
+      "verbose": -1
+    },
+    "smoothing_a": {
+      "fraud": 10.0,
+      "critical": 20.0
+    },
+    "ebm_params": {
+      "interactions": 5,
+      "outer_bags": 4,
+      "random_state": 42
+    },
+    "topk": "k = ceil(share x n); ties broken by one fixed random permutation (seed 0)"
+  },
+  "method_labels": {
+    "ai": "RAQIB AI (EBM primary)",
+    "rule_hs6_history": "Rule: product (HS6) history",
+    "rule_importer_history": "Rule: importer history",
+    "random": "Random selection",
+    "lightgbm": "LightGBM (black box)",
+    "ebm": "EBM (glass box)"
+  },
+  "primary_model": {
+    "fraud": "ebm",
+    "critical": "lightgbm",
+    "rule": "EBM (glass box) is primary for a target when its operating metric (fraud: precision @5%, critical: recall @5%) is within 1.5 points of LightGBM or better; otherwise LightGBM stays primary and EBM is the transparent twin."
+  },
+  "targets": {
+    "fraud": {
+      "label": "Duty fraud (revenue)",
+      "base_rate": 0.2163659945761113,
+      "n_positive": 1835,
+      "prior_train": 0.2156901513653639,
+      "primary": "ebm",
+      "methods": {
+        "ai": {
+          "auc": 0.7708618242437114,
+          "precision_at_1": 0.8470588235294118,
+          "recall_at_1": 0.03923705722070845,
+          "caught_at_1": 72,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.03903997544152745,
+          "recall_se_at_1": 0.004532505100466932,
+          "precision_at_5": 0.7176470588235294,
+          "recall_at_5": 0.16621253405994552,
+          "caught_at_5": 305,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.021835198663435314,
+          "recall_se_at_5": 0.008690435331837438,
+          "precision_at_10": 0.6136631330977621,
+          "recall_at_10": 0.2839237057220708,
+          "caught_at_10": 521,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.01671068482286107,
+          "recall_se_at_10": 0.010525977597711773
+        },
+        "rule_hs6_history": {
+          "auc": 0.7283921983762742,
+          "precision_at_1": 0.5764705882352941,
+          "recall_at_1": 0.02670299727520436,
+          "caught_at_1": 49,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.053594583696373876,
+          "recall_se_at_1": 0.0037634371219627395,
+          "precision_at_5": 0.5341176470588235,
+          "recall_at_5": 0.12370572207084468,
+          "caught_at_5": 227,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.024197033661620085,
+          "recall_se_at_5": 0.007686025976545961,
+          "precision_at_10": 0.48645465253239106,
+          "recall_at_10": 0.22506811989100817,
+          "caught_at_10": 413,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.01715365752555708,
+          "recall_se_at_10": 0.00974923908998251
+        },
+        "rule_importer_history": {
+          "auc": 0.5126206908992809,
+          "precision_at_1": 0.2,
+          "recall_at_1": 0.009264305177111716,
+          "caught_at_1": 17,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.04338609156373124,
+          "recall_se_at_1": 0.00223649173336375,
+          "precision_at_5": 0.18823529411764706,
+          "recall_at_5": 0.043596730245231606,
+          "caught_at_5": 80,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.018961432569736977,
+          "recall_se_at_5": 0.004766827663258054,
+          "precision_at_10": 0.1967020023557126,
+          "recall_at_10": 0.09100817438692098,
+          "caught_at_10": 167,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.013642340582411386,
+          "recall_se_at_10": 0.00671432185914288
+        },
+        "random": {
+          "auc": 0.49666407279460056,
+          "precision_at_1": 0.24705882352941178,
+          "recall_at_1": 0.011444141689373298,
+          "caught_at_1": 21,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.04678118792919609,
+          "recall_se_at_1": 0.0024829855140274613,
+          "precision_at_5": 0.21411764705882352,
+          "recall_at_5": 0.04959128065395095,
+          "caught_at_5": 91,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.01989805076334727,
+          "recall_se_at_5": 0.00506803766188282,
+          "precision_at_10": 0.2037691401648999,
+          "recall_at_10": 0.09427792915531336,
+          "caught_at_10": 173,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.013824036256581188,
+          "recall_se_at_10": 0.006821571859320959
+        },
+        "lightgbm": {
+          "auc": 0.7696092218301804,
+          "precision_at_1": 0.9176470588235294,
+          "recall_at_1": 0.04250681198910082,
+          "caught_at_1": 78,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.029817273765002764,
+          "recall_se_at_1": 0.004709546390719029,
+          "precision_at_5": 0.7105882352941176,
+          "recall_at_5": 0.1645776566757493,
+          "caught_at_5": 302,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.021997464835519214,
+          "recall_se_at_5": 0.008656063745341534,
+          "precision_at_10": 0.5759717314487632,
+          "recall_at_10": 0.2664850136239782,
+          "caught_at_10": 489,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.016960714533302685,
+          "recall_se_at_10": 0.010321025632288042
+        },
+        "ebm": {
+          "auc": 0.7708618242437114,
+          "precision_at_1": 0.8470588235294118,
+          "recall_at_1": 0.03923705722070845,
+          "caught_at_1": 72,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.03903997544152745,
+          "recall_se_at_1": 0.004532505100466932,
+          "precision_at_5": 0.7176470588235294,
+          "recall_at_5": 0.16621253405994552,
+          "caught_at_5": 305,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.021835198663435314,
+          "recall_se_at_5": 0.008690435331837438,
+          "precision_at_10": 0.6136631330977621,
+          "recall_at_10": 0.2839237057220708,
+          "caught_at_10": 521,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.01671068482286107,
+          "recall_se_at_10": 0.010525977597711773
+        }
+      },
+      "calibration": [
+        {
+          "bin": 1,
+          "n": 849,
+          "mean_predicted": 0.004520864521735751,
+          "observed": 0.020023557126030624
+        },
+        {
+          "bin": 2,
+          "n": 848,
+          "mean_predicted": 0.025204937530318723,
+          "observed": 0.04481132075471698
+        },
+        {
+          "bin": 3,
+          "n": 848,
+          "mean_predicted": 0.06498752397001335,
+          "observed": 0.08136792452830188
+        },
+        {
+          "bin": 4,
+          "n": 848,
+          "mean_predicted": 0.11683798146835675,
+          "observed": 0.12382075471698113
+        },
+        {
+          "bin": 5,
+          "n": 848,
+          "mean_predicted": 0.16328494940601393,
+          "observed": 0.1615566037735849
+        },
+        {
+          "bin": 6,
+          "n": 848,
+          "mean_predicted": 0.20532235905156365,
+          "observed": 0.21816037735849056
+        },
+        {
+          "bin": 7,
+          "n": 848,
+          "mean_predicted": 0.24914729863202664,
+          "observed": 0.2606132075471698
+        },
+        {
+          "bin": 8,
+          "n": 848,
+          "mean_predicted": 0.30393390048784064,
+          "observed": 0.2641509433962264
+        },
+        {
+          "bin": 9,
+          "n": 848,
+          "mean_predicted": 0.38934114973050565,
+          "observed": 0.375
+        },
+        {
+          "bin": 10,
+          "n": 848,
+          "mean_predicted": 0.6169582773825827,
+          "observed": 0.6143867924528302
+        }
+      ],
+      "calibration_models": {
+        "lightgbm": [
+          {
+            "bin": 1,
+            "n": 849,
+            "mean_predicted": 0.011654567479678368,
+            "observed": 0.012956419316843345
+          },
+          {
+            "bin": 2,
+            "n": 848,
+            "mean_predicted": 0.03532220599028457,
+            "observed": 0.03773584905660377
+          },
+          {
+            "bin": 3,
+            "n": 848,
+            "mean_predicted": 0.07409513432973071,
+            "observed": 0.09316037735849056
+          },
+          {
+            "bin": 4,
+            "n": 848,
+            "mean_predicted": 0.11982969695236588,
+            "observed": 0.11556603773584906
+          },
+          {
+            "bin": 5,
+            "n": 848,
+            "mean_predicted": 0.17847620314557494,
+            "observed": 0.18278301886792453
+          },
+          {
+            "bin": 6,
+            "n": 848,
+            "mean_predicted": 0.2049208097772343,
+            "observed": 0.20047169811320756
+          },
+          {
+            "bin": 7,
+            "n": 848,
+            "mean_predicted": 0.2545055745501322,
+            "observed": 0.2653301886792453
+          },
+          {
+            "bin": 8,
+            "n": 848,
+            "mean_predicted": 0.3003112270798103,
+            "observed": 0.3007075471698113
+          },
+          {
+            "bin": 9,
+            "n": 848,
+            "mean_predicted": 0.38360202614959954,
+            "observed": 0.3785377358490566
+          },
+          {
+            "bin": 10,
+            "n": 848,
+            "mean_predicted": 0.5798519929807008,
+            "observed": 0.5766509433962265
+          }
+        ],
+        "ebm": [
+          {
+            "bin": 1,
+            "n": 849,
+            "mean_predicted": 0.004520864521735751,
+            "observed": 0.020023557126030624
+          },
+          {
+            "bin": 2,
+            "n": 848,
+            "mean_predicted": 0.025204937530318723,
+            "observed": 0.04481132075471698
+          },
+          {
+            "bin": 3,
+            "n": 848,
+            "mean_predicted": 0.06498752397001335,
+            "observed": 0.08136792452830188
+          },
+          {
+            "bin": 4,
+            "n": 848,
+            "mean_predicted": 0.11683798146835675,
+            "observed": 0.12382075471698113
+          },
+          {
+            "bin": 5,
+            "n": 848,
+            "mean_predicted": 0.16328494940601393,
+            "observed": 0.1615566037735849
+          },
+          {
+            "bin": 6,
+            "n": 848,
+            "mean_predicted": 0.20532235905156365,
+            "observed": 0.21816037735849056
+          },
+          {
+            "bin": 7,
+            "n": 848,
+            "mean_predicted": 0.24914729863202664,
+            "observed": 0.2606132075471698
+          },
+          {
+            "bin": 8,
+            "n": 848,
+            "mean_predicted": 0.30393390048784064,
+            "observed": 0.2641509433962264
+          },
+          {
+            "bin": 9,
+            "n": 848,
+            "mean_predicted": 0.38934114973050565,
+            "observed": 0.375
+          },
+          {
+            "bin": 10,
+            "n": 848,
+            "mean_predicted": 0.6169582773825827,
+            "observed": 0.6143867924528302
+          }
+        ]
+      },
+      "weekly": [
+        {
+          "week": 1,
+          "start": "2021-04-01",
+          "n": 766,
+          "positives": 168,
+          "base_rate": 0.2193211488250653,
+          "precision_ai": 0.6923076923076923,
+          "recall_ai": 0.16071428571428573,
+          "precision_rule": 0.48717948717948717,
+          "recall_rule": 0.1130952380952381
+        },
+        {
+          "week": 2,
+          "start": "2021-04-08",
+          "n": 655,
+          "positives": 132,
+          "base_rate": 0.2015267175572519,
+          "precision_ai": 0.8181818181818182,
+          "recall_ai": 0.20454545454545456,
+          "precision_rule": 0.5151515151515151,
+          "recall_rule": 0.12878787878787878
+        },
+        {
+          "week": 3,
+          "start": "2021-04-15",
+          "n": 614,
+          "positives": 138,
+          "base_rate": 0.2247557003257329,
+          "precision_ai": 0.6451612903225806,
+          "recall_ai": 0.14492753623188406,
+          "precision_rule": 0.5483870967741935,
+          "recall_rule": 0.12318840579710146
+        },
+        {
+          "week": 4,
+          "start": "2021-04-22",
+          "n": 855,
+          "positives": 168,
+          "base_rate": 0.19649122807017544,
+          "precision_ai": 0.6976744186046512,
+          "recall_ai": 0.17857142857142858,
+          "precision_rule": 0.5813953488372093,
+          "recall_rule": 0.1488095238095238
+        },
+        {
+          "week": 5,
+          "start": "2021-04-29",
+          "n": 553,
+          "positives": 111,
+          "base_rate": 0.2007233273056058,
+          "precision_ai": 0.75,
+          "recall_ai": 0.1891891891891892,
+          "precision_rule": 0.5714285714285714,
+          "recall_rule": 0.14414414414414414
+        },
+        {
+          "week": 6,
+          "start": "2021-05-06",
+          "n": 601,
+          "positives": 138,
+          "base_rate": 0.22961730449251247,
+          "precision_ai": 0.5161290322580645,
+          "recall_ai": 0.11594202898550725,
+          "precision_rule": 0.6129032258064516,
+          "recall_rule": 0.13768115942028986
+        },
+        {
+          "week": 7,
+          "start": "2021-05-13",
+          "n": 635,
+          "positives": 143,
+          "base_rate": 0.2251968503937008,
+          "precision_ai": 0.65625,
+          "recall_ai": 0.14685314685314685,
+          "precision_rule": 0.46875,
+          "recall_rule": 0.1048951048951049
+        },
+        {
+          "week": 8,
+          "start": "2021-05-20",
+          "n": 653,
+          "positives": 155,
+          "base_rate": 0.23736600306278713,
+          "precision_ai": 0.7878787878787878,
+          "recall_ai": 0.16774193548387098,
+          "precision_rule": 0.48484848484848486,
+          "recall_rule": 0.1032258064516129
+        },
+        {
+          "week": 9,
+          "start": "2021-05-27",
+          "n": 623,
+          "positives": 143,
+          "base_rate": 0.22953451043338685,
+          "precision_ai": 0.78125,
+          "recall_ai": 0.17482517482517482,
+          "precision_rule": 0.53125,
+          "recall_rule": 0.11888111888111888
+        },
+        {
+          "week": 10,
+          "start": "2021-06-03",
+          "n": 626,
+          "positives": 149,
+          "base_rate": 0.2380191693290735,
+          "precision_ai": 0.8125,
+          "recall_ai": 0.174496644295302,
+          "precision_rule": 0.53125,
+          "recall_rule": 0.11409395973154363
+        },
+        {
+          "week": 11,
+          "start": "2021-06-10",
+          "n": 595,
+          "positives": 109,
+          "base_rate": 0.18319327731092436,
+          "precision_ai": 0.6333333333333333,
+          "recall_ai": 0.1743119266055046,
+          "precision_rule": 0.5666666666666667,
+          "recall_rule": 0.1559633027522936
+        },
+        {
+          "week": 12,
+          "start": "2021-06-17",
+          "n": 755,
+          "positives": 155,
+          "base_rate": 0.2052980132450331,
+          "precision_ai": 0.7894736842105263,
+          "recall_ai": 0.1935483870967742,
+          "precision_rule": 0.5789473684210527,
+          "recall_rule": 0.14193548387096774
+        },
+        {
+          "week": 13,
+          "start": "2021-06-24",
+          "n": 550,
+          "positives": 126,
+          "base_rate": 0.2290909090909091,
+          "precision_ai": 0.6428571428571429,
+          "recall_ai": 0.14285714285714285,
+          "precision_rule": 0.5714285714285714,
+          "recall_rule": 0.12698412698412698
+        }
+      ],
+      "importance": {
+        "features": [
+          {
+            "feature": "rate_hs6",
+            "share": 0.2164901414659626
+          },
+          {
+            "feature": "net_mass",
+            "share": 0.1382456738032899
+          },
+          {
+            "feature": "item_price",
+            "share": 0.10500905937847843
+          },
+          {
+            "feature": "unit",
+            "share": 0.06534581242932831
+          },
+          {
+            "feature": "rate_hs6 & count_hs6",
+            "share": 0.05891485148188013
+          },
+          {
+            "feature": "rate_hs6 & item_price",
+            "share": 0.051479477471542606
+          },
+          {
+            "feature": "rate_hs6 & net_mass",
+            "share": 0.05115635425208652
+          },
+          {
+            "feature": "count_hs6",
+            "share": 0.032241177633065374
+          },
+          {
+            "feature": "rate_hs4",
+            "share": 0.02934249440753661
+          },
+          {
+            "feature": "tax_rate",
+            "share": 0.025917824815767706
+          },
+          {
+            "feature": "rate_origin",
+            "share": 0.025748391555569045
+          },
+          {
+            "feature": "rate_hs2",
+            "share": 0.025516372970438784
+          },
+          {
+            "feature": "rate_hs6 & count_hs4",
+            "share": 0.022169683653775123
+          },
+          {
+            "feature": "rate_hs6 & rate_hs2",
+            "share": 0.0218668019830204
+          },
+          {
+            "feature": "count_hs4",
+            "share": 0.018062758565385972
+          },
+          {
+            "feature": "count_hs2",
+            "share": 0.017691318710560452
+          },
+          {
+            "feature": "rate_seller",
+            "share": 0.016808946782950713
+          },
+          {
+            "feature": "count_declarant",
+            "share": 0.015133012058951796
+          },
+          {
+            "feature": "rate_declarant",
+            "share": 0.014334396188200246
+          },
+          {
+            "feature": "rate_office",
+            "share": 0.013600882096404324
+          },
+          {
+            "feature": "count_seller",
+            "share": 0.009200943003148538
+          },
+          {
+            "feature": "count_office",
+            "share": 0.008236557949005166
+          },
+          {
+            "feature": "rate_importer",
+            "share": 0.0075088384741353225
+          },
+          {
+            "feature": "count_origin",
+            "share": 0.006172717732372254
+          },
+          {
+            "feature": "count_importer",
+            "share": 0.0038055111371436564
+          }
+        ],
+        "groups": [
+          {
+            "group": "value",
+            "label": "Value and mass",
+            "share": 0.3086005456110966
+          },
+          {
+            "group": "product",
+            "label": "Product (HS6) history",
+            "share": 0.3076461705809081
+          },
+          {
+            "group": "interaction",
+            "label": "Combined factors (interaction)",
+            "share": 0.14667231736042463
+          },
+          {
+            "group": "family",
+            "label": "Product family (HS4)",
+            "share": 0.047405252972922585
+          },
+          {
+            "group": "chapter",
+            "label": "HS chapter",
+            "share": 0.043207691680999236
+          },
+          {
+            "group": "origin",
+            "label": "Country of origin",
+            "share": 0.0319211092879413
+          },
+          {
+            "group": "declarant",
+            "label": "Declarant history",
+            "share": 0.029467408247152042
+          },
+          {
+            "group": "seller",
+            "label": "Seller history",
+            "share": 0.02600988978609925
+          },
+          {
+            "group": "tax",
+            "label": "Tax rate",
+            "share": 0.025917824815767706
+          },
+          {
+            "group": "office",
+            "label": "Customs office",
+            "share": 0.02183744004540949
+          },
+          {
+            "group": "importer",
+            "label": "Importer history",
+            "share": 0.011314349611278978
+          }
+        ]
+      },
+      "importance_models": {
+        "lightgbm": {
+          "features": [
+            {
+              "feature": "rate_hs6",
+              "share": 0.49220495402292713
+            },
+            {
+              "feature": "count_hs6",
+              "share": 0.10477623419488721
+            },
+            {
+              "feature": "net_mass",
+              "share": 0.08173147750611988
+            },
+            {
+              "feature": "rate_hs4",
+              "share": 0.06351124886181984
+            },
+            {
+              "feature": "item_price",
+              "share": 0.05598608670052518
+            },
+            {
+              "feature": "rate_origin",
+              "share": 0.04399870355269666
+            },
+            {
+              "feature": "unit",
+              "share": 0.024759306823981437
+            },
+            {
+              "feature": "count_hs4",
+              "share": 0.022852585070015783
+            },
+            {
+              "feature": "count_origin",
+              "share": 0.019943587862274414
+            },
+            {
+              "feature": "rate_hs2",
+              "share": 0.019934224902549372
+            },
+            {
+              "feature": "tax_rate",
+              "share": 0.01619240256333991
+            },
+            {
+              "feature": "count_hs2",
+              "share": 0.014396489274113683
+            },
+            {
+              "feature": "count_declarant",
+              "share": 0.009641923144902274
+            },
+            {
+              "feature": "rate_seller",
+              "share": 0.00573450876833824
+            },
+            {
+              "feature": "count_office",
+              "share": 0.0057002656933813145
+            },
+            {
+              "feature": "rate_office",
+              "share": 0.0050629532645393984
+            },
+            {
+              "feature": "rate_declarant",
+              "share": 0.0043602956067558514
+            },
+            {
+              "feature": "count_seller",
+              "share": 0.003838651746228196
+            },
+            {
+              "feature": "rate_importer",
+              "share": 0.0036159023275586497
+            },
+            {
+              "feature": "count_importer",
+              "share": 0.0017581981130455812
+            }
+          ],
+          "groups": [
+            {
+              "group": "product",
+              "label": "Product (HS6) history",
+              "share": 0.5969811882178143
+            },
+            {
+              "group": "value",
+              "label": "Value and mass",
+              "share": 0.1624768710306265
+            },
+            {
+              "group": "family",
+              "label": "Product family (HS4)",
+              "share": 0.08636383393183562
+            },
+            {
+              "group": "origin",
+              "label": "Country of origin",
+              "share": 0.06394229141497107
+            },
+            {
+              "group": "chapter",
+              "label": "HS chapter",
+              "share": 0.03433071417666306
+            },
+            {
+              "group": "tax",
+              "label": "Tax rate",
+              "share": 0.01619240256333991
+            },
+            {
+              "group": "declarant",
+              "label": "Declarant history",
+              "share": 0.014002218751658125
+            },
+            {
+              "group": "office",
+              "label": "Customs office",
+              "share": 0.010763218957920713
+            },
+            {
+              "group": "seller",
+              "label": "Seller history",
+              "share": 0.009573160514566437
+            },
+            {
+              "group": "importer",
+              "label": "Importer history",
+              "share": 0.005374100440604231
+            }
+          ]
+        },
+        "ebm": {
+          "features": [
+            {
+              "feature": "rate_hs6",
+              "share": 0.2164901414659626
+            },
+            {
+              "feature": "net_mass",
+              "share": 0.1382456738032899
+            },
+            {
+              "feature": "item_price",
+              "share": 0.10500905937847843
+            },
+            {
+              "feature": "unit",
+              "share": 0.06534581242932831
+            },
+            {
+              "feature": "rate_hs6 & count_hs6",
+              "share": 0.05891485148188013
+            },
+            {
+              "feature": "rate_hs6 & item_price",
+              "share": 0.051479477471542606
+            },
+            {
+              "feature": "rate_hs6 & net_mass",
+              "share": 0.05115635425208652
+            },
+            {
+              "feature": "count_hs6",
+              "share": 0.032241177633065374
+            },
+            {
+              "feature": "rate_hs4",
+              "share": 0.02934249440753661
+            },
+            {
+              "feature": "tax_rate",
+              "share": 0.025917824815767706
+            },
+            {
+              "feature": "rate_origin",
+              "share": 0.025748391555569045
+            },
+            {
+              "feature": "rate_hs2",
+              "share": 0.025516372970438784
+            },
+            {
+              "feature": "rate_hs6 & count_hs4",
+              "share": 0.022169683653775123
+            },
+            {
+              "feature": "rate_hs6 & rate_hs2",
+              "share": 0.0218668019830204
+            },
+            {
+              "feature": "count_hs4",
+              "share": 0.018062758565385972
+            },
+            {
+              "feature": "count_hs2",
+              "share": 0.017691318710560452
+            },
+            {
+              "feature": "rate_seller",
+              "share": 0.016808946782950713
+            },
+            {
+              "feature": "count_declarant",
+              "share": 0.015133012058951796
+            },
+            {
+              "feature": "rate_declarant",
+              "share": 0.014334396188200246
+            },
+            {
+              "feature": "rate_office",
+              "share": 0.013600882096404324
+            },
+            {
+              "feature": "count_seller",
+              "share": 0.009200943003148538
+            },
+            {
+              "feature": "count_office",
+              "share": 0.008236557949005166
+            },
+            {
+              "feature": "rate_importer",
+              "share": 0.0075088384741353225
+            },
+            {
+              "feature": "count_origin",
+              "share": 0.006172717732372254
+            },
+            {
+              "feature": "count_importer",
+              "share": 0.0038055111371436564
+            }
+          ],
+          "groups": [
+            {
+              "group": "value",
+              "label": "Value and mass",
+              "share": 0.3086005456110966
+            },
+            {
+              "group": "product",
+              "label": "Product (HS6) history",
+              "share": 0.3076461705809081
+            },
+            {
+              "group": "interaction",
+              "label": "Combined factors (interaction)",
+              "share": 0.14667231736042463
+            },
+            {
+              "group": "family",
+              "label": "Product family (HS4)",
+              "share": 0.047405252972922585
+            },
+            {
+              "group": "chapter",
+              "label": "HS chapter",
+              "share": 0.043207691680999236
+            },
+            {
+              "group": "origin",
+              "label": "Country of origin",
+              "share": 0.0319211092879413
+            },
+            {
+              "group": "declarant",
+              "label": "Declarant history",
+              "share": 0.029467408247152042
+            },
+            {
+              "group": "seller",
+              "label": "Seller history",
+              "share": 0.02600988978609925
+            },
+            {
+              "group": "tax",
+              "label": "Tax rate",
+              "share": 0.025917824815767706
+            },
+            {
+              "group": "office",
+              "label": "Customs office",
+              "share": 0.02183744004540949
+            },
+            {
+              "group": "importer",
+              "label": "Importer history",
+              "share": 0.011314349611278978
+            }
+          ]
+        }
+      },
+      "gain_vs_rule": {
+        "metric": "precision_at_5",
+        "mean_gain": 0.1779435294117647,
+        "ci95": [
+          0.12470588235294111,
+          0.2247647058823529
+        ],
+        "n_boot": 500,
+        "share_boot_ai_better": 1.0
+      },
+      "ebm_vs_lightgbm": {
+        "metric": "precision_at_5",
+        "mean_gain": 0.013007058823529411,
+        "ci95": [
+          -0.025882352941176467,
+          0.04941176470588232
+        ],
+        "n_boot": 500,
+        "share_boot_ai_better": 0.74
+      }
+    },
+    "critical": {
+      "label": "Critical fraud (public safety)",
+      "base_rate": 0.008607475533545572,
+      "n_positive": 73,
+      "prior_train": 0.010369296337793009,
+      "primary": "lightgbm",
+      "methods": {
+        "ai": {
+          "auc": 0.9518446228640695,
+          "precision_at_1": 0.4470588235294118,
+          "recall_at_1": 0.5205479452054794,
+          "caught_at_1": 38,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.053927754704398416,
+          "recall_se_at_1": 0.05847113583053416,
+          "precision_at_5": 0.13411764705882354,
+          "recall_at_5": 0.7808219178082192,
+          "caught_at_5": 57,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.016530193679248847,
+          "recall_se_at_5": 0.048418700462736386,
+          "precision_at_10": 0.07302709069493522,
+          "recall_at_10": 0.8493150684931506,
+          "caught_at_10": 62,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.008929387613725095,
+          "recall_se_at_10": 0.0418704759034147
+        },
+        "rule_hs6_history": {
+          "auc": 0.924328428241857,
+          "precision_at_1": 0.2235294117647059,
+          "recall_at_1": 0.2602739726027397,
+          "caught_at_1": 19,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.04518771486364413,
+          "recall_se_at_1": 0.05135578715016169,
+          "precision_at_5": 0.09411764705882353,
+          "recall_at_5": 0.547945205479452,
+          "caught_at_5": 40,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.014163708019893183,
+          "recall_se_at_5": 0.0582509047812068,
+          "precision_at_10": 0.06478209658421673,
+          "recall_at_10": 0.7534246575342466,
+          "caught_at_10": 55,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.008447536181975381,
+          "recall_se_at_10": 0.0504467633339535
+        },
+        "rule_importer_history": {
+          "auc": 0.5157734642805938,
+          "precision_at_1": 0.0,
+          "recall_at_1": 0.0,
+          "caught_at_1": 0,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.0,
+          "recall_se_at_1": 0.0,
+          "precision_at_5": 0.002352941176470588,
+          "recall_at_5": 0.0136986301369863,
+          "caught_at_5": 1,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.0023501713801291207,
+          "recall_se_at_5": 0.01360448036058687,
+          "precision_at_10": 0.005889281507656066,
+          "recall_at_10": 0.0684931506849315,
+          "caught_at_10": 5,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.0026259998086947,
+          "recall_se_at_10": 0.029563453696090036
+        },
+        "random": {
+          "auc": 0.5480788029665159,
+          "precision_at_1": 0.0,
+          "recall_at_1": 0.0,
+          "caught_at_1": 0,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.0,
+          "recall_se_at_1": 0.0,
+          "precision_at_5": 0.011764705882352941,
+          "recall_at_5": 0.0684931506849315,
+          "caught_at_5": 5,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.005230295813893753,
+          "recall_se_at_5": 0.029563453696090036,
+          "precision_at_10": 0.011778563015312132,
+          "recall_at_10": 0.136986301369863,
+          "caught_at_10": 10,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.0037027078348811863,
+          "recall_se_at_10": 0.04024259561042188
+        },
+        "lightgbm": {
+          "auc": 0.9518446228640695,
+          "precision_at_1": 0.4470588235294118,
+          "recall_at_1": 0.5205479452054794,
+          "caught_at_1": 38,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.053927754704398416,
+          "recall_se_at_1": 0.05847113583053416,
+          "precision_at_5": 0.13411764705882354,
+          "recall_at_5": 0.7808219178082192,
+          "caught_at_5": 57,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.016530193679248847,
+          "recall_se_at_5": 0.048418700462736386,
+          "precision_at_10": 0.07302709069493522,
+          "recall_at_10": 0.8493150684931506,
+          "caught_at_10": 62,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.008929387613725095,
+          "recall_se_at_10": 0.0418704759034147
+        },
+        "ebm": {
+          "auc": 0.9255585026654328,
+          "precision_at_1": 0.32941176470588235,
+          "recall_at_1": 0.3835616438356164,
+          "caught_at_1": 28,
+          "k_at_1": 85,
+          "precision_se_at_1": 0.050978617660537635,
+          "recall_se_at_1": 0.0569116244973546,
+          "precision_at_5": 0.11529411764705882,
+          "recall_at_5": 0.6712328767123288,
+          "caught_at_5": 49,
+          "k_at_5": 425,
+          "precision_se_at_5": 0.015492038492915909,
+          "recall_se_at_5": 0.054981852788588643,
+          "precision_at_10": 0.06831566548881036,
+          "recall_at_10": 0.7945205479452054,
+          "caught_at_10": 58,
+          "k_at_10": 849,
+          "precision_se_at_10": 0.008658460961180763,
+          "recall_se_at_10": 0.047290655747930364
+        }
+      },
+      "calibration": [
+        {
+          "bin": 1,
+          "n": 849,
+          "mean_predicted": 0.00042365712276738873,
+          "observed": 0.0
+        },
+        {
+          "bin": 2,
+          "n": 848,
+          "mean_predicted": 0.0004970673029128143,
+          "observed": 0.0
+        },
+        {
+          "bin": 3,
+          "n": 848,
+          "mean_predicted": 0.0007566534553545007,
+          "observed": 0.0
+        },
+        {
+          "bin": 4,
+          "n": 848,
+          "mean_predicted": 0.0010567761725551736,
+          "observed": 0.0
+        },
+        {
+          "bin": 5,
+          "n": 848,
+          "mean_predicted": 0.0016081968811967945,
+          "observed": 0.0011792452830188679
+        },
+        {
+          "bin": 6,
+          "n": 848,
+          "mean_predicted": 0.0016802688430148825,
+          "observed": 0.0011792452830188679
+        },
+        {
+          "bin": 7,
+          "n": 848,
+          "mean_predicted": 0.001728021603409272,
+          "observed": 0.0023584905660377358
+        },
+        {
+          "bin": 8,
+          "n": 848,
+          "mean_predicted": 0.003525627690641818,
+          "observed": 0.0011792452830188679
+        },
+        {
+          "bin": 9,
+          "n": 848,
+          "mean_predicted": 0.007719647934866373,
+          "observed": 0.007075471698113208
+        },
+        {
+          "bin": 10,
+          "n": 848,
+          "mean_predicted": 0.07509842259593963,
+          "observed": 0.07311320754716981
+        }
+      ],
+      "calibration_models": {
+        "lightgbm": [
+          {
+            "bin": 1,
+            "n": 849,
+            "mean_predicted": 0.00042365712276738873,
+            "observed": 0.0
+          },
+          {
+            "bin": 2,
+            "n": 848,
+            "mean_predicted": 0.0004970673029128143,
+            "observed": 0.0
+          },
+          {
+            "bin": 3,
+            "n": 848,
+            "mean_predicted": 0.0007566534553545007,
+            "observed": 0.0
+          },
+          {
+            "bin": 4,
+            "n": 848,
+            "mean_predicted": 0.0010567761725551736,
+            "observed": 0.0
+          },
+          {
+            "bin": 5,
+            "n": 848,
+            "mean_predicted": 0.0016081968811967945,
+            "observed": 0.0011792452830188679
+          },
+          {
+            "bin": 6,
+            "n": 848,
+            "mean_predicted": 0.0016802688430148825,
+            "observed": 0.0011792452830188679
+          },
+          {
+            "bin": 7,
+            "n": 848,
+            "mean_predicted": 0.001728021603409272,
+            "observed": 0.0023584905660377358
+          },
+          {
+            "bin": 8,
+            "n": 848,
+            "mean_predicted": 0.003525627690641818,
+            "observed": 0.0011792452830188679
+          },
+          {
+            "bin": 9,
+            "n": 848,
+            "mean_predicted": 0.007719647934866373,
+            "observed": 0.007075471698113208
+          },
+          {
+            "bin": 10,
+            "n": 848,
+            "mean_predicted": 0.07509842259593963,
+            "observed": 0.07311320754716981
+          }
+        ],
+        "ebm": [
+          {
+            "bin": 1,
+            "n": 849,
+            "mean_predicted": 7.026473714824915e-07,
+            "observed": 0.0
+          },
+          {
+            "bin": 2,
+            "n": 848,
+            "mean_predicted": 6.925685313708302e-06,
+            "observed": 0.0
+          },
+          {
+            "bin": 3,
+            "n": 848,
+            "mean_predicted": 2.6793195871739698e-05,
+            "observed": 0.0023584905660377358
+          },
+          {
+            "bin": 4,
+            "n": 848,
+            "mean_predicted": 7.503874960011433e-05,
+            "observed": 0.0
+          },
+          {
+            "bin": 5,
+            "n": 848,
+            "mean_predicted": 0.00019189834796343253,
+            "observed": 0.0011792452830188679
+          },
+          {
+            "bin": 6,
+            "n": 848,
+            "mean_predicted": 0.0004267347191185408,
+            "observed": 0.0
+          },
+          {
+            "bin": 7,
+            "n": 848,
+            "mean_predicted": 0.0009129848375610695,
+            "observed": 0.0023584905660377358
+          },
+          {
+            "bin": 8,
+            "n": 848,
+            "mean_predicted": 0.0020410808832383182,
+            "observed": 0.003537735849056604
+          },
+          {
+            "bin": 9,
+            "n": 848,
+            "mean_predicted": 0.0065639672961713925,
+            "observed": 0.008254716981132075
+          },
+          {
+            "bin": 10,
+            "n": 848,
+            "mean_predicted": 0.08061836583456805,
+            "observed": 0.06839622641509434
+          }
+        ]
+      },
+      "weekly": [
+        {
+          "week": 1,
+          "start": "2021-04-01",
+          "n": 766,
+          "positives": 5,
+          "base_rate": 0.006527415143603133,
+          "precision_ai": 0.10256410256410256,
+          "recall_ai": 0.8,
+          "precision_rule": 0.05128205128205128,
+          "recall_rule": 0.4
+        },
+        {
+          "week": 2,
+          "start": "2021-04-08",
+          "n": 655,
+          "positives": 3,
+          "base_rate": 0.004580152671755725,
+          "precision_ai": 0.06060606060606061,
+          "recall_ai": 0.6666666666666666,
+          "precision_rule": 0.06060606060606061,
+          "recall_rule": 0.6666666666666666
+        },
+        {
+          "week": 3,
+          "start": "2021-04-15",
+          "n": 614,
+          "positives": 4,
+          "base_rate": 0.006514657980456026,
+          "precision_ai": 0.0967741935483871,
+          "recall_ai": 0.75,
+          "precision_rule": 0.0967741935483871,
+          "recall_rule": 0.75
+        },
+        {
+          "week": 4,
+          "start": "2021-04-22",
+          "n": 855,
+          "positives": 11,
+          "base_rate": 0.012865497076023392,
+          "precision_ai": 0.20930232558139536,
+          "recall_ai": 0.8181818181818182,
+          "precision_rule": 0.13953488372093023,
+          "recall_rule": 0.5454545454545454
+        },
+        {
+          "week": 5,
+          "start": "2021-04-29",
+          "n": 553,
+          "positives": 2,
+          "base_rate": 0.003616636528028933,
+          "precision_ai": 0.07142857142857142,
+          "recall_ai": 1.0,
+          "precision_rule": 0.07142857142857142,
+          "recall_rule": 1.0
+        },
+        {
+          "week": 6,
+          "start": "2021-05-06",
+          "n": 601,
+          "positives": 7,
+          "base_rate": 0.011647254575707155,
+          "precision_ai": 0.16129032258064516,
+          "recall_ai": 0.7142857142857143,
+          "precision_rule": 0.16129032258064516,
+          "recall_rule": 0.7142857142857143
+        },
+        {
+          "week": 7,
+          "start": "2021-05-13",
+          "n": 635,
+          "positives": 6,
+          "base_rate": 0.009448818897637795,
+          "precision_ai": 0.1875,
+          "recall_ai": 1.0,
+          "precision_rule": 0.125,
+          "recall_rule": 0.6666666666666666
+        },
+        {
+          "week": 8,
+          "start": "2021-05-20",
+          "n": 653,
+          "positives": 9,
+          "base_rate": 0.013782542113323124,
+          "precision_ai": 0.18181818181818182,
+          "recall_ai": 0.6666666666666666,
+          "precision_rule": 0.15151515151515152,
+          "recall_rule": 0.5555555555555556
+        },
+        {
+          "week": 9,
+          "start": "2021-05-27",
+          "n": 623,
+          "positives": 5,
+          "base_rate": 0.008025682182985553,
+          "precision_ai": 0.09375,
+          "recall_ai": 0.6,
+          "precision_rule": 0.0625,
+          "recall_rule": 0.4
+        },
+        {
+          "week": 10,
+          "start": "2021-06-03",
+          "n": 626,
+          "positives": 7,
+          "base_rate": 0.011182108626198083,
+          "precision_ai": 0.15625,
+          "recall_ai": 0.7142857142857143,
+          "precision_rule": 0.03125,
+          "recall_rule": 0.14285714285714285
+        },
+        {
+          "week": 11,
+          "start": "2021-06-10",
+          "n": 595,
+          "positives": 4,
+          "base_rate": 0.0067226890756302525,
+          "precision_ai": 0.06666666666666667,
+          "recall_ai": 0.5,
+          "precision_rule": 0.06666666666666667,
+          "recall_rule": 0.5
+        },
+        {
+          "week": 12,
+          "start": "2021-06-17",
+          "n": 755,
+          "positives": 5,
+          "base_rate": 0.006622516556291391,
+          "precision_ai": 0.10526315789473684,
+          "recall_ai": 0.8,
+          "precision_rule": 0.07894736842105263,
+          "recall_rule": 0.6
+        },
+        {
+          "week": 13,
+          "start": "2021-06-24",
+          "n": 550,
+          "positives": 5,
+          "base_rate": 0.00909090909090909,
+          "precision_ai": 0.17857142857142858,
+          "recall_ai": 1.0,
+          "precision_rule": 0.14285714285714285,
+          "recall_rule": 0.8
+        }
+      ],
+      "importance": {
+        "features": [
+          {
+            "feature": "rate_hs6",
+            "share": 0.293558602195174
+          },
+          {
+            "feature": "net_mass",
+            "share": 0.1002353287650835
+          },
+          {
+            "feature": "item_price",
+            "share": 0.09987929440648394
+          },
+          {
+            "feature": "rate_hs4",
+            "share": 0.07361522252427634
+          },
+          {
+            "feature": "rate_origin",
+            "share": 0.05222687315471785
+          },
+          {
+            "feature": "count_hs6",
+            "share": 0.047837670630931826
+          },
+          {
+            "feature": "unit",
+            "share": 0.04069991573097016
+          },
+          {
+            "feature": "count_hs4",
+            "share": 0.03332286917401176
+          },
+          {
+            "feature": "count_origin",
+            "share": 0.031037245293965482
+          },
+          {
+            "feature": "rate_declarant",
+            "share": 0.030091200876304267
+          },
+          {
+            "feature": "rate_hs2",
+            "share": 0.029999651059770507
+          },
+          {
+            "feature": "tax_rate",
+            "share": 0.026853356972367275
+          },
+          {
+            "feature": "count_hs2",
+            "share": 0.023070607490899578
+          },
+          {
+            "feature": "count_declarant",
+            "share": 0.02276526537757127
+          },
+          {
+            "feature": "rate_office",
+            "share": 0.022310107601961844
+          },
+          {
+            "feature": "count_office",
+            "share": 0.020259638407071845
+          },
+          {
+            "feature": "rate_importer",
+            "share": 0.01895639413114603
+          },
+          {
+            "feature": "rate_seller",
+            "share": 0.011672970281398931
+          },
+          {
+            "feature": "count_seller",
+            "share": 0.011306445446245227
+          },
+          {
+            "feature": "count_importer",
+            "share": 0.010301340479648395
+          }
+        ],
+        "groups": [
+          {
+            "group": "product",
+            "label": "Product (HS6) history",
+            "share": 0.3413962728261058
+          },
+          {
+            "group": "value",
+            "label": "Value and mass",
+            "share": 0.24081453890253757
+          },
+          {
+            "group": "family",
+            "label": "Product family (HS4)",
+            "share": 0.1069380916982881
+          },
+          {
+            "group": "origin",
+            "label": "Country of origin",
+            "share": 0.08326411844868334
+          },
+          {
+            "group": "chapter",
+            "label": "HS chapter",
+            "share": 0.05307025855067009
+          },
+          {
+            "group": "declarant",
+            "label": "Declarant history",
+            "share": 0.052856466253875536
+          },
+          {
+            "group": "office",
+            "label": "Customs office",
+            "share": 0.04256974600903369
+          },
+          {
+            "group": "importer",
+            "label": "Importer history",
+            "share": 0.029257734610794423
+          },
+          {
+            "group": "tax",
+            "label": "Tax rate",
+            "share": 0.026853356972367275
+          },
+          {
+            "group": "seller",
+            "label": "Seller history",
+            "share": 0.022979415727644156
+          }
+        ]
+      },
+      "importance_models": {
+        "lightgbm": {
+          "features": [
+            {
+              "feature": "rate_hs6",
+              "share": 0.293558602195174
+            },
+            {
+              "feature": "net_mass",
+              "share": 0.1002353287650835
+            },
+            {
+              "feature": "item_price",
+              "share": 0.09987929440648394
+            },
+            {
+              "feature": "rate_hs4",
+              "share": 0.07361522252427634
+            },
+            {
+              "feature": "rate_origin",
+              "share": 0.05222687315471785
+            },
+            {
+              "feature": "count_hs6",
+              "share": 0.047837670630931826
+            },
+            {
+              "feature": "unit",
+              "share": 0.04069991573097016
+            },
+            {
+              "feature": "count_hs4",
+              "share": 0.03332286917401176
+            },
+            {
+              "feature": "count_origin",
+              "share": 0.031037245293965482
+            },
+            {
+              "feature": "rate_declarant",
+              "share": 0.030091200876304267
+            },
+            {
+              "feature": "rate_hs2",
+              "share": 0.029999651059770507
+            },
+            {
+              "feature": "tax_rate",
+              "share": 0.026853356972367275
+            },
+            {
+              "feature": "count_hs2",
+              "share": 0.023070607490899578
+            },
+            {
+              "feature": "count_declarant",
+              "share": 0.02276526537757127
+            },
+            {
+              "feature": "rate_office",
+              "share": 0.022310107601961844
+            },
+            {
+              "feature": "count_office",
+              "share": 0.020259638407071845
+            },
+            {
+              "feature": "rate_importer",
+              "share": 0.01895639413114603
+            },
+            {
+              "feature": "rate_seller",
+              "share": 0.011672970281398931
+            },
+            {
+              "feature": "count_seller",
+              "share": 0.011306445446245227
+            },
+            {
+              "feature": "count_importer",
+              "share": 0.010301340479648395
+            }
+          ],
+          "groups": [
+            {
+              "group": "product",
+              "label": "Product (HS6) history",
+              "share": 0.3413962728261058
+            },
+            {
+              "group": "value",
+              "label": "Value and mass",
+              "share": 0.24081453890253757
+            },
+            {
+              "group": "family",
+              "label": "Product family (HS4)",
+              "share": 0.1069380916982881
+            },
+            {
+              "group": "origin",
+              "label": "Country of origin",
+              "share": 0.08326411844868334
+            },
+            {
+              "group": "chapter",
+              "label": "HS chapter",
+              "share": 0.05307025855067009
+            },
+            {
+              "group": "declarant",
+              "label": "Declarant history",
+              "share": 0.052856466253875536
+            },
+            {
+              "group": "office",
+              "label": "Customs office",
+              "share": 0.04256974600903369
+            },
+            {
+              "group": "importer",
+              "label": "Importer history",
+              "share": 0.029257734610794423
+            },
+            {
+              "group": "tax",
+              "label": "Tax rate",
+              "share": 0.026853356972367275
+            },
+            {
+              "group": "seller",
+              "label": "Seller history",
+              "share": 0.022979415727644156
+            }
+          ]
+        },
+        "ebm": {
+          "features": [
+            {
+              "feature": "rate_hs6",
+              "share": 0.11100795729100434
+            },
+            {
+              "feature": "rate_hs4",
+              "share": 0.0781641046309725
+            },
+            {
+              "feature": "rate_hs2 & item_price",
+              "share": 0.07385521746211225
+            },
+            {
+              "feature": "rate_origin",
+              "share": 0.06568965005946821
+            },
+            {
+              "feature": "item_price",
+              "share": 0.06445674124737719
+            },
+            {
+              "feature": "net_mass",
+              "share": 0.060859226701672195
+            },
+            {
+              "feature": "rate_hs2 & net_mass",
+              "share": 0.060374151405171536
+            },
+            {
+              "feature": "rate_hs2",
+              "share": 0.056628283440819646
+            },
+            {
+              "feature": "rate_hs6 & count_office",
+              "share": 0.04811254543021152
+            },
+            {
+              "feature": "rate_declarant",
+              "share": 0.04044968008545664
+            },
+            {
+              "feature": "unit",
+              "share": 0.03972071255682831
+            },
+            {
+              "feature": "count_hs6",
+              "share": 0.0343730054865489
+            },
+            {
+              "feature": "count_hs2",
+              "share": 0.03190750272829578
+            },
+            {
+              "feature": "rate_hs6 & rate_office",
+              "share": 0.031570099419569515
+            },
+            {
+              "feature": "count_hs4",
+              "share": 0.030140114229546714
+            },
+            {
+              "feature": "count_declarant",
+              "share": 0.028666653961695706
+            },
+            {
+              "feature": "tax_rate",
+              "share": 0.021047363862831344
+            },
+            {
+              "feature": "rate_origin & rate_office",
+              "share": 0.018219569882861743
+            },
+            {
+              "feature": "rate_office",
+              "share": 0.016827799803840776
+            },
+            {
+              "feature": "count_origin",
+              "share": 0.015577463275192303
+            },
+            {
+              "feature": "count_office",
+              "share": 0.01528927481065613
+            },
+            {
+              "feature": "count_seller",
+              "share": 0.015094117921622768
+            },
+            {
+              "feature": "rate_importer",
+              "share": 0.015026634577548194
+            },
+            {
+              "feature": "rate_seller",
+              "share": 0.015023080035532392
+            },
+            {
+              "feature": "count_importer",
+              "share": 0.01191904969316342
+            }
+          ],
+          "groups": [
+            {
+              "group": "interaction",
+              "label": "Combined factors (interaction)",
+              "share": 0.23213158359992656
+            },
+            {
+              "group": "value",
+              "label": "Value and mass",
+              "share": 0.16503668050587766
+            },
+            {
+              "group": "product",
+              "label": "Product (HS6) history",
+              "share": 0.14538096277755325
+            },
+            {
+              "group": "family",
+              "label": "Product family (HS4)",
+              "share": 0.1083042188605192
+            },
+            {
+              "group": "chapter",
+              "label": "HS chapter",
+              "share": 0.08853578616911542
+            },
+            {
+              "group": "origin",
+              "label": "Country of origin",
+              "share": 0.08126711333466051
+            },
+            {
+              "group": "declarant",
+              "label": "Declarant history",
+              "share": 0.06911633404715234
+            },
+            {
+              "group": "office",
+              "label": "Customs office",
+              "share": 0.03211707461449691
+            },
+            {
+              "group": "seller",
+              "label": "Seller history",
+              "share": 0.03011719795715516
+            },
+            {
+              "group": "importer",
+              "label": "Importer history",
+              "share": 0.026945684270711614
+            },
+            {
+              "group": "tax",
+              "label": "Tax rate",
+              "share": 0.021047363862831344
+            }
+          ]
+        }
+      },
+      "gain_vs_rule": {
+        "metric": "recall_at_5",
+        "mean_gain": 0.22485484838208147,
+        "ci95": [
+          0.1333842834022658,
+          0.3229236812570145
+        ],
+        "n_boot": 500,
+        "share_boot_ai_better": 1.0
+      },
+      "ebm_vs_lightgbm": {
+        "metric": "recall_at_5",
+        "mean_gain": -0.10409576327780073,
+        "ci95": [
+          -0.19588223787167452,
+          -0.014698247890979888
+        ],
+        "n_boot": 500,
+        "share_boot_ai_better": 0.004
+      }
+    }
+  },
+  "ablation_no_value": {
+    "removed": [
+      "net_mass",
+      "item_price",
+      "unit"
+    ],
+    "model": "lightgbm",
+    "fraud": {
+      "auc": 0.7498698280746608,
+      "precision_at_5": 0.6329411764705882,
+      "recall_at_5": 0.14659400544959128,
+      "full_auc": 0.7696092218301804,
+      "full_precision_at_5": 0.7105882352941176,
+      "full_recall_at_5": 0.1645776566757493
+    },
+    "critical": {
+      "auc": 0.9365477105952582,
+      "precision_at_5": 0.10823529411764705,
+      "recall_at_5": 0.6301369863013698,
+      "full_auc": 0.9518446228640695,
+      "full_precision_at_5": 0.13411764705882354,
+      "full_recall_at_5": 0.7808219178082192
+    }
+  },
+  "fairness": {
+    "k": 425,
+    "share": 0.05,
+    "office": {
+      "rows": [
+        {
+          "code": "40",
+          "label": "Incheon Regional Customs (Airport)",
+          "n": 2950,
+          "share_declarations": 0.3478363400542389,
+          "share_inspections_ai": 0.34352941176470586,
+          "share_inspections_rule": 0.34352941176470586,
+          "selection_rate_ai": 0.04949152542372881,
+          "selection_rate_rule": 0.04949152542372881,
+          "fraud_rate": 0.21864406779661016
+        },
+        {
+          "code": "20",
+          "label": "Incheon Regional Customs (Port)",
+          "n": 2650,
+          "share_declarations": 0.312463152930079,
+          "share_inspections_ai": 0.2847058823529412,
+          "share_inspections_rule": 0.30823529411764705,
+          "selection_rate_ai": 0.045660377358490566,
+          "selection_rate_rule": 0.04943396226415094,
+          "fraud_rate": 0.210188679245283
+        },
+        {
+          "code": "30",
+          "label": "Busan Regional Customs",
+          "n": 1423,
+          "share_declarations": 0.16778681759226508,
+          "share_inspections_ai": 0.17411764705882352,
+          "share_inspections_rule": 0.18352941176470589,
+          "selection_rate_ai": 0.05200281096275474,
+          "selection_rate_rule": 0.054813773717498245,
+          "fraud_rate": 0.21784961349262122
+        },
+        {
+          "code": "16",
+          "label": "Pyeongtaek Customs",
+          "n": 486,
+          "share_declarations": 0.05730456314113902,
+          "share_inspections_ai": 0.07058823529411765,
+          "share_inspections_rule": 0.05647058823529412,
+          "selection_rate_ai": 0.06172839506172839,
+          "selection_rate_rule": 0.04938271604938271,
+          "fraud_rate": 0.24074074074074073
+        },
+        {
+          "code": "13",
+          "label": "Incheon Airport Intl. Postal Customs",
+          "n": 236,
+          "share_declarations": 0.02782690720433911,
+          "share_inspections_ai": 0.02588235294117647,
+          "share_inspections_rule": 0.03294117647058824,
+          "selection_rate_ai": 0.046610169491525424,
+          "selection_rate_rule": 0.059322033898305086,
+          "fraud_rate": 0.2076271186440678
+        },
+        {
+          "code": "33",
+          "label": "Office 33",
+          "n": 145,
+          "share_declarations": 0.017097040443343946,
+          "share_inspections_ai": 0.02588235294117647,
+          "share_inspections_rule": 0.01411764705882353,
+          "selection_rate_ai": 0.07586206896551724,
+          "selection_rate_rule": 0.041379310344827586,
+          "fraud_rate": 0.2206896551724138
+        },
+        {
+          "code": "10",
+          "label": "Seoul Regional Customs",
+          "n": 139,
+          "share_declarations": 0.016389576700860747,
+          "share_inspections_ai": 0.01647058823529412,
+          "share_inspections_rule": 0.011764705882352941,
+          "selection_rate_ai": 0.050359712230215826,
+          "selection_rate_rule": 0.03597122302158273,
+          "fraud_rate": 0.18705035971223022
+        },
+        {
+          "code": "39",
+          "label": "Office 39",
+          "n": 79,
+          "share_declarations": 0.00931493927602877,
+          "share_inspections_ai": 0.004705882352941176,
+          "share_inspections_rule": 0.002352941176470588,
+          "selection_rate_ai": 0.02531645569620253,
+          "selection_rate_rule": 0.012658227848101266,
+          "fraud_rate": 0.16455696202531644
+        },
+        {
+          "code": "62",
+          "label": "Office 62",
+          "n": 52,
+          "share_declarations": 0.0061313524348543804,
+          "share_inspections_ai": 0.004705882352941176,
+          "share_inspections_rule": 0.007058823529411765,
+          "selection_rate_ai": 0.038461538461538464,
+          "selection_rate_rule": 0.057692307692307696,
+          "fraud_rate": 0.28846153846153844
+        },
+        {
+          "code": "other",
+          "label": "Others (< 50 decl. each)",
+          "n": 321,
+          "share_declarations": 0.03784931022285108,
+          "share_inspections_ai": 0.04941176470588235,
+          "share_inspections_rule": 0.04,
+          "selection_rate_ai": 0.06542056074766354,
+          "selection_rate_rule": 0.0529595015576324,
+          "fraud_rate": 0.22118380062305296
+        }
+      ],
+      "max_min_selection_ratio_ai": 1.6614420062695925
+    },
+    "transport": {
+      "rows": [
+        {
+          "code": "10",
+          "label": "Maritime",
+          "n": 4948,
+          "share_declarations": 0.5834217663011437,
+          "share_inspections_ai": 0.6094117647058823,
+          "share_inspections_rule": 0.5835294117647059,
+          "selection_rate_ai": 0.05234438156831043,
+          "selection_rate_rule": 0.050121261115602264,
+          "fraud_rate": 0.21705739692805173
+        },
+        {
+          "code": "40",
+          "label": "Air",
+          "n": 3342,
+          "share_declarations": 0.39405730456314114,
+          "share_inspections_ai": 0.37176470588235294,
+          "share_inspections_rule": 0.4047058823529412,
+          "selection_rate_ai": 0.04727707959305805,
+          "selection_rate_rule": 0.05146618791143028,
+          "fraud_rate": 0.2151406343506882
+        },
+        {
+          "code": "50",
+          "label": "Mail",
+          "n": 149,
+          "share_declarations": 0.017568682938332743,
+          "share_inspections_ai": 0.01647058823529412,
+          "share_inspections_rule": 0.011764705882352941,
+          "selection_rate_ai": 0.04697986577181208,
+          "selection_rate_rule": 0.03355704697986577,
+          "fraud_rate": 0.2214765100671141
+        },
+        {
+          "code": "other",
+          "label": "Others (< 50 decl. each)",
+          "n": 42,
+          "share_declarations": 0.004952246197382384,
+          "share_inspections_ai": 0.002352941176470588,
+          "share_inspections_rule": 0.0,
+          "selection_rate_ai": 0.023809523809523808,
+          "selection_rate_rule": 0.0,
+          "fraud_rate": 0.21428571428571427
+        }
+      ],
+      "max_min_selection_ratio_ai": 1.1141875505254648
+    }
+  },
+  "n_critical_test": 73,
+  "thresholds": {
+    "alert_threshold": 0.13853433797326445,
+    "red_threshold": 0.5828651694442195,
+    "yellow_threshold": 0.38574607853361403,
+    "disagreement_threshold": 0.17932323463497127,
+    "primary": {
+      "fraud": "ebm",
+      "critical": "lightgbm"
+    },
+    "note": "Thresholds on the primary models' scores from the TEST period: alert = 99th pct of the critical score; RED = 95th pct and YELLOW = 85th pct of the fraud score. Disagreement threshold = 95th pct of |p(EBM) - p(LightGBM)| on the last 4 training weeks (models trained without those weeks).",
+    "alert_p_critical": 0.1417624521072797,
+    "red_p_fraud": 0.5828651694442195,
+    "yellow_p_fraud": 0.38574607853361403
+  },
+  "uncertainty": {
+    "threshold": 0.17932323463497127,
+    "n_flagged": 371,
+    "share_flagged": 0.04374484141021106,
+    "fraud_rate_flagged": 0.444743935309973,
+    "fraud_rate_all": 0.2163659945761113,
+    "green_to_yellow": 136,
+    "fraud_rate_green_to_yellow": 0.19117647058823528,
+    "fraud_rate_green_after": 0.15449599083619703,
+    "shadow": {
+      "late_period": [
+        "2021-03-04",
+        "2021-03-31"
+      ],
+      "n_late": 3015
+    }
+  },
+  "replay_summary": {
+    "rate": 0.05,
+    "explore": 0.1,
+    "totals": {
+      "declarations": 8481,
+      "frauds": 1835,
+      "threats": 73,
+      "inspections": 470
+    },
+    "n_days": 91,
+    "policies": {
+      "ai": {
+        "label": "RAQIB AI",
+        "inspections": 470,
+        "frauds": 317,
+        "threats": 41,
+        "hit_rate": 0.674468085106383,
+        "fraud_recall": 0.17275204359673024,
+        "threat_recall": 0.5616438356164384,
+        "distinct_hs6": 261,
+        "explored": 0,
+        "explored_frauds": 0,
+        "green_share": 0.8234877962504422,
+        "yellow_share": 0.12109421058837401
+      },
+      "ai_explore": {
+        "label": "RAQIB AI + exploration",
+        "inspections": 470,
+        "frauds": 294,
+        "threats": 41,
+        "hit_rate": 0.625531914893617,
+        "fraud_recall": 0.16021798365122616,
+        "threat_recall": 0.5616438356164384,
+        "distinct_hs6": 280,
+        "explored": 49,
+        "explored_frauds": 7,
+        "green_share": 0.8231340643792006,
+        "yellow_share": 0.12144794245961561
+      },
+      "rule": {
+        "label": "Current rule (product history)",
+        "inspections": 470,
+        "frauds": 259,
+        "threats": 7,
+        "hit_rate": 0.551063829787234,
+        "fraud_recall": 0.14114441416893733,
+        "threat_recall": 0.0958904109589041,
+        "distinct_hs6": 163,
+        "explored": 0,
+        "explored_frauds": 0
+      },
+      "random": {
+        "label": "Random",
+        "inspections": 470,
+        "frauds": 103,
+        "threats": 3,
+        "hit_rate": 0.21914893617021278,
+        "fraud_recall": 0.0561307901907357,
+        "threat_recall": 0.0410958904109589,
+        "distinct_hs6": 309,
+        "explored": 0,
+        "explored_frauds": 0
+      }
+    }
+  },
+  "efficiency": {
+    "matching": {
+      "reference": {
+        "policy": "rule",
+        "rate": 0.05,
+        "frauds": 259,
+        "threats": 7,
+        "inspections": 470
+      },
+      "ai_rate": 0.039,
+      "ai_inspections": 379,
+      "ai_frauds": 263,
+      "ai_threats": 40,
+      "fewer_inspections": 91,
+      "fewer_pct": 0.19361702127659575
+    },
+    "pooled": {
+      "k_rule": 425,
+      "rule_frauds": 227,
+      "k_ai_needed": 302,
+      "fewer_inspections": 123,
+      "fewer_pct": 0.28941176470588237
+    },
+    "threats": {
+      "rule_at_ref": 7,
+      "ai_rate_matching_threats": 0.005,
+      "ai_inspections": 96
+    },
+    "officer_hours": {
+      "minutes_per_inspection": 60.0,
+      "assumption": true,
+      "hours_freed_test_period": 91.0,
+      "test_days": 91,
+      "hours_freed_per_year": 365.0,
+      "note": "Assumption: average officer time per physical inspection; edit it to your own figure."
+    }
+  }
+}

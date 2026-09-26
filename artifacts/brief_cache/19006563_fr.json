@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 19006563 présente des indicateurs de risque élevés : produit frauduleux dans 75 % des déclarations passées (historique limité) et déclarant avec 26 % de fraude. L'agent des douanes doit vérifier la valeur, l'origine et la conformité physique. Voie rouge : inspection physique nécessaire. Règle actuelle : libération, malgré les risques.\nContrôle suggéré: vérifier la valeur, l'origine, les documents, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6620,
+  "cached": false,
+  "generated_at": "2026-09-26T01:35:35+00:00"
+}

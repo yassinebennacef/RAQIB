@@ -1,0 +1,11 @@
+{
+  "lang": "en",
+  "dir": "ltr",
+  "text": "High fraud risk (96.9%) for product 880529 from PL, with 100% past fraud in its history and 29% fraud in PL origin declarations. Risk amplified by product and origin history interaction. Unit value is within expected range, reducing risk slightly. Suggested_check: Verify documents, value, origin, and physical items for consistency with declared details.\nSuggested check: verify documents, value, origin, physical exam",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 14156,
+  "cached": false,
+  "generated_at": "2026-09-26T01:41:33+00:00"
+}

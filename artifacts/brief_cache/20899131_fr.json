@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 20899131 présente des indicateurs de risque élevés liés à l'histoire de fraude du produit et à la valeur déclarée. L'agent des douanes doit vérifier la déclaration, la valeur, l'origine et effectuer une voie rouge (inspection physique). La règle actuelle prévoit une mainlevée, malgré les indicateurs de risque. Le modèle est en désaccord, ce qui renforce la nécessité d'une vérification physique.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, voie rouge",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7236,
+  "cached": false,
+  "generated_at": "2026-09-26T01:36:42+00:00"
+}

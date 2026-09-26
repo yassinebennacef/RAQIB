@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "La déclaration 40473893 présente des indicateurs de risque élevés pour le produit 620422, avec une histoire frauduleuse importante dans les déclarations passées. L'agent des douanes doit vérifier la déclaration, la valeur unitaire et l'origine. La voie rouge (inspection physique) est recommandée en raison de la forte corrélation entre le produit et les fraudes historiques. La règle actuelle impose un contrôle physique.\nContrôle suggéré: vérifier la déclaration, la valeur, l'origine, examen physique",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 6963,
+  "cached": false,
+  "generated_at": "2026-09-26T01:37:15+00:00"
+}

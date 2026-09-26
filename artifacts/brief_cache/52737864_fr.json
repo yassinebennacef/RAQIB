@@ -1,0 +1,11 @@
+{
+  "lang": "fr",
+  "dir": "ltr",
+  "text": "L'agent des douanes doit vérifier la déclaration 52737864 du 05/04/2021 originant de CN. Les indicateurs de risque soulignent un historique élevé de fraude pour le produit HS 390461 et l'importateur. La règle actuelle impose une voie rouge (inspection physique). Suggested_check: vérifier la valeur, l'origine, la masse réelle et les documents de déclaration.\nContrôle suggéré: vérifier la valeur, l'origine, la masse réelle et les documents de déclaration",
+  "source": "qwen3-4b",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "guard_passed": true,
+  "latency_ms": 7743,
+  "cached": false,
+  "generated_at": "2026-09-26T01:48:51+00:00"
+}

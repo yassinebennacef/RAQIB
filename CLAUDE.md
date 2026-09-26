@@ -86,7 +86,7 @@ out-of-fold TRAIN predictions (KFold 5, seed 1). Ranking uses the raw model scor
     artifacts/test_scored.parquet artifacts/train_index.joblib artifacts/hs_names.json artifacts/efficiency.json
     artifacts/experiments.json artifacts/xai_global.json artifacts/model_card.json artifacts/llm_eval.json
     artifacts/tunisia_ref.json
-    artifacts/brief_cache frontend/dist frontend-v2/dist`
+    artifacts/brief_cache artifacts/assistant_cache frontend/dist frontend-v2/dist`
    (never decisions.jsonl, logs or screenshots scratch; check the total is < 100 MB).
 3. `git commit -m "Release v1.0"`, `git tag -a v1.0 -m "RAQIB v1.0"`, `git push --follow-tags`.
 
