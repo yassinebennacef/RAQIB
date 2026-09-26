@@ -40,7 +40,7 @@ export default function About() {
     {
       icon: BrainCircuit,
       title: "Two calibrated models",
-      text: "LightGBM predicts duty fraud (revenue) and critical fraud (public safety); isotonic calibration turns scores into real probabilities.",
+      text: "Duty fraud (revenue): a glass-box Explainable Boosting Machine, as accurate as the black-box LightGBM. Critical fraud (public safety): LightGBM with isotonic calibration. Probabilities, not just scores.",
     },
     {
       icon: GaugeIcon,
@@ -50,7 +50,7 @@ export default function About() {
     {
       icon: MessageSquareText,
       title: "Explain every decision",
-      text: "The 4 strongest factors (exact TreeSHAP), written in plain language with the real historical numbers, next to what the current rule would do.",
+      text: "The 4 strongest factors (exact additive contributions), written in plain language with the real historical numbers, next to what the current rule would do.",
     },
     {
       icon: ClipboardCheck,

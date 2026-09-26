@@ -318,8 +318,8 @@ export interface Metrics {
   n_critical_test: number;
   ablation_no_value: {
     removed: string[];
-    fraud: { auc: number; precision_at_5: number; recall_at_5: number };
-    critical: { auc: number; precision_at_5: number; recall_at_5: number };
+    fraud: { auc: number; precision_at_5: number; recall_at_5: number; full_auc: number; full_precision_at_5: number; full_recall_at_5: number };
+    critical: { auc: number; precision_at_5: number; recall_at_5: number; full_auc: number; full_precision_at_5: number; full_recall_at_5: number };
   };
   thresholds: { red_p_fraud: number; yellow_p_fraud: number; alert_p_critical: number };
   replay_summary: {

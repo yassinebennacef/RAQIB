@@ -317,7 +317,7 @@ export default function ModelLab() {
           <CardHeader>
             <div>
               <CardTitle>What the model relies on</CardTitle>
-              <CardDescription>Share of total LightGBM split gain, grouped by concept</CardDescription>
+              <CardDescription>Share of the primary model's importance, grouped by concept</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="h-72">
@@ -454,9 +454,9 @@ export default function ModelLab() {
               <li className="flex gap-2">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-lane-yellow" />
                 <span>
-                  Value and mass matter here ({pct(valueShare)} of the fraud model's gain): without them, duty-fraud precision @5% falls from{" "}
-                  {pct(M.targets.fraud.methods.ai.precision_at_5)} to {pct(M.ablation_no_value.fraud.precision_at_5)} and public-safety recall @5% from{" "}
-                  {pct(critR5)} to {pct(M.ablation_no_value.critical.recall_at_5)}. But {pct(C.test_unit_value_equals_product_median)} of test declarations
+                  Value and mass matter here ({pct(valueShare)} of the fraud model's importance): without them, LightGBM duty-fraud precision @5% falls from{" "}
+                  {pct(M.ablation_no_value.fraud.full_precision_at_5)} to {pct(M.ablation_no_value.fraud.precision_at_5)} and public-safety recall @5% from{" "}
+                  {pct(M.ablation_no_value.critical.full_recall_at_5)} to {pct(M.ablation_no_value.critical.recall_at_5)}. But {pct(C.test_unit_value_equals_product_median)} of test declarations
                   carry exactly their product's usual unit value (a synthetic-data artefact), so value signals must be re-validated on real data.
                 </span>
               </li>

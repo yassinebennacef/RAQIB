@@ -141,3 +141,67 @@ def hs6_unit_context(train: pd.DataFrame) -> dict:
     uv = train["Item Price"] / np.maximum(train["Net Mass"], 0.1)
     med = uv.groupby(train["HS6 Code"]).median()
     return {"hs6_unit_median": med, "global_unit_median": float(uv.median())}
+
+
+# ------------------------------------------------------------------------------ glass-box twin (EBM)
+EBM_PARAMS = dict(interactions=5, outer_bags=4, random_state=42, n_jobs=4)  # 4 bags -> 4 workers (memory-safe)
+EBM_SHADOW_PARAMS = dict(interactions=5, outer_bags=2, random_state=42, n_jobs=2)
+
+
+def _cache_key(name: str, X: pd.DataFrame, y, params: dict) -> str:
+    import hashlib
+    import json as _json
+
+    h = hashlib.sha256()
+    h.update(name.encode())
+    h.update(_json.dumps(params, sort_keys=True).encode())
+    h.update(",".join(X.columns).encode())
+    h.update(pd.util.hash_pandas_object(X, index=False).to_numpy().tobytes())
+    h.update(np.asarray(y, dtype=np.int64).tobytes())
+    return h.hexdigest()[:20]
+
+
+def fit_ebm_cached(name: str, X: pd.DataFrame, y, params: dict | None = None):
+    """Fit an ExplainableBoostingClassifier once; reuse it while features, labels and params are unchanged."""
+    import json as _json
+    import time as _time
+
+    from interpret.glassbox import ExplainableBoostingClassifier
+
+    params = params or EBM_PARAMS
+    C.MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    path = C.MODELS_DIR / f"{name}_ebm.joblib"
+    meta = C.MODELS_DIR / f"{name}_ebm.json"
+    key = _cache_key(name, X, y, params)
+    if path.exists() and meta.exists():
+        info = _json.loads(meta.read_text(encoding="utf-8"))
+        if info.get("key") == key:
+            return joblib.load(path), info
+    t0 = _time.time()
+    ebm = ExplainableBoostingClassifier(**params).fit(X, np.asarray(y, dtype=int))
+    info = {"key": key, "params": params, "fit_seconds": round(_time.time() - t0, 1), "rows": int(len(X))}
+    joblib.dump(ebm, path)
+    meta.write_text(_json.dumps(info, indent=2), encoding="utf-8")
+    return ebm, info
+
+
+def shadow_split(train: pd.DataFrame, weeks: int = 4) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """TRAIN minus its last `weeks` weeks, and those last weeks (for out-of-sample thresholds)."""
+    cut = train["Date"].max() - pd.Timedelta(days=7 * weeks - 1)
+    return train[train["Date"] < cut], train[train["Date"] >= cut]
+
+
+def fit_shadow_pair(train: pd.DataFrame, target: str = "fraud") -> dict:
+    """LightGBM + EBM trained without the last 4 TRAIN weeks; their raw probabilities on those weeks."""
+    early, late = shadow_split(train)
+    y_e = early[target].to_numpy(int)
+    a = C.TARGETS[target]
+    prior = float(y_e.mean())
+    X_e = build_X(oof_encode(early, y_e, a, prior), early)
+    enc = TargetEncoder.fit(early, y_e, a, prior)
+    X_l = build_X(enc.transform(late), late)
+    lgbm = LGBMClassifier(**C.LGBM_PARAMS).fit(X_e, y_e)
+    ebm, info = fit_ebm_cached(f"{target}_shadow", X_e, y_e, EBM_SHADOW_PARAMS)
+    return {"p_lgbm": lgbm.predict_proba(X_l)[:, 1], "p_ebm": ebm.predict_proba(X_l)[:, 1],
+            "n_late": int(len(late)), "late_period": [str(late["Date"].min().date()), str(late["Date"].max().date())],
+            "fit": info}

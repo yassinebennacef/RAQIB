@@ -118,7 +118,7 @@ export default function Inspector() {
                 <CardTitle>Risk assessment</CardTitle>
                 <CardDescription>{ai.lane_reason}</CardDescription>
               </div>
-              <InfoTip text="Calibrated probabilities from two LightGBM models trained on 15 months of past inspections, ranked against the other declarations of the same day." />
+              <InfoTip text="Probabilities from the primary models (glass-box EBM for duty fraud, LightGBM for public safety) trained on 15 months of past inspections, ranked against the other declarations of the same day." />
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-2">
@@ -271,7 +271,7 @@ export default function Inspector() {
             <CardHeader>
               <div>
                 <CardTitle>Why this risk — duty fraud</CardTitle>
-                <CardDescription>The 4 strongest factors (exact TreeSHAP contributions of the model), with the real historical numbers</CardDescription>
+                <CardDescription>The 4 strongest factors (exact contributions of the model), with the real historical numbers</CardDescription>
               </div>
             </CardHeader>
             <CardContent>

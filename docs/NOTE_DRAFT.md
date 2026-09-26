@@ -11,7 +11,7 @@ inspection capacity**, which declarations to inspect (RED), to check on document
 (GREEN), for two objectives: **revenue** (duty fraud) and **public safety** (critical violations).
 
 ## 2. Technical approach
-1. **Two supervised models** (LightGBM) learn from past inspection outcomes: duty fraud and critical fraud.
+1. **Two supervised models** learn from past inspection outcomes: duty fraud (primary: EBM) and critical fraud (primary: LIGHTGBM); each has a twin (glass-box EBM and LightGBM) and their disagreement flags uncertain cases.
 2. **Risk history as features**: for 8 keys (product HS6, HS4, HS2, importer, declarant, seller, origin, office),
    the smoothed past fraud rate and volume, computed *out-of-fold* so the model never sees its own labels;
    plus tax rate, net mass, value and unit value.
@@ -19,12 +19,12 @@ inspection capacity**, which declarations to inspect (RED), to check on document
 4. **Daily allocation**: capacity = 5% of the day's declarations (adjustable); public-safety alerts (top 1% of
    critical risk) take slots first, then the highest fraud probabilities; an optional 10% random **exploration**
    keeps the system learning; the next 10% go to YELLOW, the rest to GREEN.
-5. **Explanations**: exact TreeSHAP contributions grouped into the 4 strongest reasons, written with the real
-   historical numbers (e.g. "Product 853590 (Electrical apparatus; n.e.c. in heading no. 8535, for swi…) was fraudulent in 44% of its 25 past declarations (average 22%)."), shown next to what the
+5. **Explanations**: exact additive contributions (EBM terms or TreeSHAP) grouped into the 4 strongest reasons and an exact waterfall, written with the real
+   historical numbers (e.g. "Product 731815 (Iron or steel; threaded screws and bolts n.e.c. in item n…) was fraudulent in 36% of its 127 past declarations (average 22%)."), shown next to what the
    current rule would decide.
 6. **Human in the loop**: the officer decides; every decision is appended to a hash-chained, tamper-evident journal.
 
-Stack: Python (pandas, scikit-learn, LightGBM), FastAPI, React. The full pipeline trains in about 15 seconds on
+Stack: Python (pandas, scikit-learn, LightGBM, InterpretML EBM), FastAPI, React (shadcn-admin template). The full pipeline trains in about 15 seconds on
 a laptop CPU; a new declaration is scored in about 0.1 s. No LLM is used for scoring or decisions.
 
 ## 3. Data
@@ -38,34 +38,42 @@ Product names: datasets/harmonized-system (ODC-PDDL). **No Tunisian data; no acc
 ## 4. Results versus current practice (measured on the test period)
 | Method | Fraud AUC | Fraud precision @1% | @5% | @10% | Critical AUC | Critical recall @1% | @5% | @10% |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| RAQIB AI | 0.770 | 91.8% | 71.1% | 57.6% | 0.952 | 52.1% | 78.1% | 84.9% |
+| RAQIB AI | 0.771 | 84.7% | 71.8% | 61.4% | 0.952 | 52.1% | 78.1% | 84.9% |
 | Rule: product (HS6) history | 0.728 | 57.6% | 53.4% | 48.6% | 0.924 | 26.0% | 54.8% | 75.3% |
 | Rule: importer history | 0.513 | 20.0% | 18.8% | 19.7% | 0.516 | 0.0% | 1.4% | 6.8% |
 | Random | 0.497 | 24.7% | 21.4% | 20.4% | 0.548 | 0.0% | 6.8% | 13.7% |
 
-- Duty fraud precision @5%: 71.1% vs 53.4% for the rule: +16.5 pts (95% bootstrap CI +11.6 pts to +21.1 pts).
+- Duty fraud precision @5%: 71.8% vs 53.4% for the rule: +17.8 pts (95% bootstrap CI +12.5 pts to +22.5 pts).
 - Public-safety recall @5%: 78.1% vs 54.8%: +22.5 pts (95% CI +13.3 pts to +32.3 pts); 73 critical cases only, so ±5 pts (1 s.e.).
 - Stable: the AI beats the rule in 12 of 13 weeks (precision @5% within each week).
-- Calibrated: in the riskiest tenth of declarations the model predicts 58.0% fraud and 57.7% is observed.
+- Calibrated: in the riskiest tenth of declarations the model predicts 61.7% fraud and 61.4% is observed.
 
 **Daily replay** (91 real test days, identical capacity for every policy):
 
 | Policy (same inspections every day) | Inspections | Frauds caught | Threats caught | Hit rate | Distinct products inspected |
 |---|---:|---:|---:|---:|---:|
-| RAQIB AI | 470 | 315 | 40 | 67.0% | 253 |
-| RAQIB AI + exploration | 470 | 298 | 40 | 63.4% | 274 |
+| RAQIB AI | 470 | 317 | 41 | 67.4% | 261 |
+| RAQIB AI + exploration | 470 | 294 | 41 | 62.6% | 280 |
 | Current rule (product history) | 470 | 259 | 7 | 55.1% | 163 |
 | Random | 470 | 103 | 3 | 21.9% | 309 |
 
-With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **315 frauds and 40 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+56 frauds (+22%) and 5.7x the threats**, same workload. Exploration (10% of slots at random) costs 17 frauds but widens
-coverage from 253 to 274 distinct products. The AI releases
-84% of declarations in the green lane.
+With the same 470 inspections over 91 test days (5% of declarations), RAQIB catches **317 frauds and 41 public-safety threats**, against 259 and 7 for the best current rule (product history) and 103 and 3 at random: **+58 frauds (+22%) and 5.9x the threats**, same workload.
+
+**Same frauds with fewer inspections:** the rule needs 470 inspections (5% a day) to catch 259 frauds; RAQIB catches 263 with 379 (3.9% a day): **19% fewer inspections** (pooled ranking: 302 vs 425, 29% fewer).
+
+**Glass box, no accuracy lost:** the transparent EBM reaches duty-fraud AUC 0.771 and precision @5% 71.8% vs 0.770 / 71.1% for the black-box LightGBM; primary model: fraud = EBM, critical = LIGHTGBM.
+
+**When the two models disagree, RAQIB asks a human:** 371 test declarations (4.4%) are flagged, with a fraud rate of 44% (average 22%); 136 of them move from GREEN to a document check.
+
+Exploration (10% of slots at random) costs 23 frauds but widens
+coverage from 261 to 280 distinct products. The AI releases
+82% of declarations in the green lane.
 
 ## 5. Limits (stated openly)
 - Synthetic data of Korean origin; only inspected declarations were synthesised, so the fraud rate is
   21.6%, far above reality: absolute precision is optimistic, **the claim is the gain over the rule**.
 - Only 73 critical cases in the test period (±5 pts on recall @5%).
-- Value and mass carry signal here (without them, precision @5% falls to 63.3%), but
+- Value and mass carry signal here (without them, LightGBM precision @5% falls from 71.1% to 63.3%), but
   78% of test declarations have exactly their product's usual unit value: to re-validate on real data.
 - 10% of test declarations come from importers never seen before: treated as average risk.
 - Learning only from inspected declarations creates selection bias; exploration and a control group correct it.
@@ -83,7 +91,7 @@ coverage from 253 to 274 distinct products. The AI releases
    Law 2004-63 on personal data and review by the INPDP.
 
 ## 7. Third-party components
-Libraries: pandas, NumPy, PyArrow, scikit-learn, LightGBM, joblib, FastAPI, Uvicorn, Pydantic, React, Vite,
-Tailwind CSS, Recharts, Framer Motion, Lucide, Sonner (all permissive licences; full list in THIRD_PARTY.md).
+Libraries: pandas, NumPy, PyArrow, scikit-learn, LightGBM, InterpretML (EBM), joblib, FastAPI, Uvicorn, Pydantic, React, Vite,
+Tailwind CSS, shadcn-admin template, Radix UI, TanStack, Recharts, Framer Motion, Lucide, Sonner (all permissive licences; full list in THIRD_PARTY.md).
 Datasets: Customs Import Declaration Datasets (MIT), datasets/harmonized-system (ODC-PDDL).
 AI coding assistant: Claude Code (Anthropic) was used to write and test the code. Scoring uses only the models above.

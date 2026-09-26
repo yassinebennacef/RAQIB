@@ -181,3 +181,150 @@ The record (with the AI lane and probabilities at decision time) is appended to
  "verify": {"ok": true, "n_entries": 2, "first_bad_id": null}}
 ```
 Newest first. `verify` recomputes the whole chain: any edited, deleted or reordered line is detected.
+
+
+---
+
+# v2 additions (branch v2) — contract first
+
+All v2 fields are **additive**: every v1 field above keeps its name and meaning.
+`model` values: `"lightgbm"` | `"ebm"` (Explainable Boosting Machine, glass box). `primary` = the model that
+drives lanes, replay and "ai" metrics for that target (chosen by the rule in the model card).
+
+## Waterfall object (used below)
+Exact additive explanation of one model's probability for one declaration: start from the model's base value,
+add each concept group's contribution (log-odds), convert the running sum to a probability after each step.
+```json
+{"model": "ebm", "target": "fraud",
+ "base": 0.183,
+ "final": 0.642,
+ "steps": [{"group": "product", "label": "Product (HS6) history", "contribution": 1.21,
+            "delta": 0.211, "cumulative": 0.394}],
+ "other": {"contribution": 0.05, "delta": 0.01},
+ "note": "..."}
+```
+- `base` = sigmoid(intercept or bias); `final` = the model probability = sigmoid(base log-odds + all contributions).
+- `contribution` is in log-odds; `delta` and `cumulative` are in probability terms. Top 6 groups by |contribution|,
+  the rest summed in `other`.
+- Groups: product, family, chapter, importer, declarant, seller, origin, office, tax, value, interaction (EBM pairs).
+
+## GET /api/declaration/{id} — new fields
+```json
+{"ai": {"uncertain": false, "disagreement": 0.031,
+        "models": {"primary": {"fraud": "ebm", "critical": "lightgbm"},
+                   "lightgbm": {"p_fraud": 0.61, "p_critical": 0.012},
+                   "ebm": {"p_fraud": 0.64, "p_critical": 0.010}}},
+ "waterfall": {"...": "Waterfall of the primary fraud model"},
+ "waterfall_critical": {"...": "Waterfall of the primary critical model"}}
+```
+`uncertain` = the two fraud models disagree by more than the 95th percentile of their disagreement measured
+out-of-sample on the last 4 training weeks; such a declaration is never released GREEN (it goes to YELLOW).
+
+## GET /api/stream — new item fields
+`"uncertain": bool, "disagreement": float` on every item.
+
+## GET /api/worklist
+Query (all optional): `day` (0-90, default all), `lane=RED,YELLOW`, `origin=CN,KR`, `hs2=61,85`, `office=30`,
+`uncertain=true`, `min_p=0.3`, `q=text` (id, HS code, product name, importer, declarant, seller),
+`sort` (p_fraud | p_critical | date | disagreement | item_price), `order` (asc | desc), `page`, `page_size`,
+`rate`, `explore`.
+```json
+{"total": 470, "page": 1, "page_size": 50,
+ "facets": {"lane": {"RED": 470, "YELLOW": 900, "GREEN": 7111}, "uncertain": {"true": 400, "false": 8081},
+            "origin": [{"value": "CN", "n": 2500}],
+            "office": [{"value": "30", "label": "Busan Regional Customs", "n": 1400}],
+            "hs2": [{"value": "85", "label": "Electrical machinery ...", "n": 900}]},
+ "items": [{"id": "83368645", "date": "2021-06-30", "day": 90, "hs6": "853590", "hs_desc": "...", "hs2": "85",
+            "origin": "CN", "office": 30, "office_label": "...", "transport_label": "Air", "item_price": 1200.0,
+            "lane": "RED", "alert": false, "uncertain": false, "disagreement": 0.02,
+            "p_fraud": 0.66, "p_critical": 0.004, "top_reason": "...", "rule_decision": "RELEASE",
+            "truth": {"fraud": 1, "critical": 0}}]}
+```
+
+## POST /api/whatif
+Request: a test declaration id or a form declaration (same fields as POST /api/score), plus changes
+(all optional; operator values are an id or `"new"`):
+```json
+{"declaration_id": "83368645",
+ "declaration": null,
+ "changes": {"item_price": 5000, "net_mass": 10, "tax_rate": 8, "origin": "CN", "hs6": "621149",
+             "importer": "new", "declarant": "ABC1234", "seller": "new"}}
+```
+Response (< 300 ms):
+```json
+{"before": {"p_fraud": 0.64, "p_critical": 0.01, "lane": "RED", "alert": false,
+            "waterfall": {"...": "Waterfall"}, "reasons_fraud": ["4 reasons"]},
+ "after":  {"...": "same shape"},
+ "deltas": [{"group": "value", "label": "Value and mass", "before": 0.10, "after": -0.35, "delta": -0.45}],
+ "changed": ["item_price", "importer"],
+ "note": "Officer-only simulation tool; never shown to traders."}
+```
+
+## GET /api/efficiency?minutes_per_inspection=60
+Daily replay (same rules as /api/replay, no exploration) for capacities 1% to 20%, plus the "same result with
+fewer inspections" comparisons.
+```json
+{"curve": [{"rate": 0.01, "inspections": 105, "ai": {"frauds": 90, "threats": 20},
+            "rule": {"frauds": 60, "threats": 3}, "random": {"frauds": 22, "threats": 1}}],
+ "matching": {"reference": {"policy": "rule", "rate": 0.05, "inspections": 470, "frauds": 259},
+              "ai_rate": 0.04, "ai_inspections": 381, "ai_frauds": 261,
+              "fewer_inspections": 89, "fewer_pct": 0.19},
+ "pooled": {"k_rule": 425, "rule_frauds": 227, "k_ai_needed": 300, "fewer_inspections": 125, "fewer_pct": 0.29},
+ "threats": {"rule_at_5": 7, "ai_rate_matching_threats": 0.01, "ai_inspections": 105},
+ "officer_hours": {"minutes_per_inspection": 60, "assumption": true,
+                   "hours_freed_test_period": 89.0, "test_days": 91, "hours_freed_per_year": 357.0}}
+```
+
+## GET /api/experiments
+```json
+{"experiments": [
+  {"key": "ebm", "title": "Glass-box model (EBM)", "decision": "kept", "hypothesis": "...", "method": "...",
+   "result": {"fraud_auc": 0.77, "fraud_precision_at_5": 0.717, "critical_auc": 0.95, "critical_recall_at_5": 0.76},
+   "baseline": {"...": "same keys for LightGBM"}, "reason": "..."},
+  {"key": "disagreement", "title": "Uncertainty from model disagreement", "decision": "kept", "result": {}},
+  {"key": "isolation_forest", "title": "Anomaly detection (Isolation Forest)", "decision": "rejected",
+   "result": {"fraud_auc": 0.48, "top1_fraud_rate": 0.21, "base_rate": 0.216}, "reason": "no signal"},
+  {"key": "network_2hop", "title": "2-hop network features", "decision": "rejected",
+   "result": {"auc_with": 0.7687, "auc_without": 0.7702, "p5_with": 0.70, "p5_without": 0.71},
+   "reason": "CTGAN synthesises rows independently, so cross-row links are artefacts; re-test on real Tunisian data."}]}
+```
+(Numbers above only show the shape; real values come from artifacts/experiments.json.)
+
+## GET /api/xai-global
+```json
+{"primary_model": {"fraud": "ebm", "critical": "lightgbm"},
+ "targets": {"fraud": {
+   "model": "ebm", "intercept": -1.6, "base_rate": 0.216,
+   "importances": [{"term": "rate_hs6", "label": "Past fraud rate of the product (HS6)", "group": "product",
+                    "importance": 0.41, "share": 0.35}],
+   "shapes": [{"term": "rate_hs6", "label": "Past fraud rate of the product (HS6)",
+               "x_label": "past fraud rate of the product (%)", "y_label": "effect on risk (log-odds)",
+               "points": [{"x": 5.0, "y": -0.8, "lower": -0.9, "upper": -0.7}]}]},
+  "critical": {"...": "same shape"}}}
+```
+The top 8 main-effect terms get a shape (x in natural units: rates in %, counts, tax %, mass kg, value KRW).
+
+## GET /api/model-card
+```json
+{"title": "RAQIB model card", "version": "v2", "generated_at": "...",
+ "sections": [{"key": "intended_use", "title": "Intended use", "text": "...", "bullets": ["..."],
+               "table": {"columns": ["Metric", "Value"], "rows": [["AUC", "0.770"]]}}]}
+```
+Sections: intended_use, users, out_of_scope, data, models, metrics, calibration, fairness, uncertainty,
+tested_and_rejected, limits, human_oversight, monitoring, contact. Same content in docs/MODEL_CARD.md.
+
+## POST /api/brief/{id}?lang=fr|en|ar
+```json
+{"id": "83368645", "lang": "fr", "text": "4 sentences for the officer ...", "source": "template",
+ "model": null, "cached": false, "facts": {"p_fraud": 0.64, "lane": "RED"}}
+```
+Without an OpenAI key the brief is a deterministic template built only from the computed facts (FR / EN / AR).
+
+## GET /api/metrics — new keys
+```json
+{"primary_model": {"fraud": "ebm", "critical": "lightgbm", "rule": "..."},
+ "targets": {"fraud": {"methods": {"ai": {"...": "primary model"}, "lightgbm": {}, "ebm": {}}}},
+ "uncertainty": {"threshold": 0.12, "n_flagged": 424, "share_flagged": 0.05, "fraud_rate_flagged": 0.35,
+                 "fraud_rate_all": 0.216, "green_to_yellow": 120, "fraud_rate_green_to_yellow": 0.18},
+ "efficiency": {"...": "matching + pooled, as in /api/efficiency"}}
+```

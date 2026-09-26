@@ -31,6 +31,13 @@ if not exist frontend\dist\index.html (
   echo [3/4] Web app already built.
 )
 
+if not exist frontend-v2\dist\index.html (
+  echo [3b/4] Building the v2 web app...
+  pushd frontend-v2
+  call corepack pnpm install --frozen-lockfile && call corepack pnpm build || (call npm install && call npm run build)
+  popd
+)
+
 echo [4/4] Starting RAQIB at http://127.0.0.1:8000  - press Ctrl+C to stop
 .venv\Scripts\python -m raqib.serve --port 8000 --open
 goto :eof
