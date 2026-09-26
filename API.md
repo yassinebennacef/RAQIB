@@ -346,6 +346,9 @@ Request `{"id": "54794554", "lang": "fr|ar|en", "refresh": false}` →
 ```
 Guards: every number must be in the facts (rounding, percent/fraction and Arabic-Indic digits handled), banned
 accusatory claims, right language, no echo of the instructions; one retry at temperature 0, then the template.
+When the template is served while the LLM is switched on, the answer says why (never silent):
+`"llm_fallback": "unavailable"` (Ollama down, model missing, timeout) or `"rejected"` (guard refused the text), with
+`"llm_error": "..."`; the UI shows a toast « LLM local indisponible → mode modèle ». Both are `null` with `RAQIB_LLM=off`.
 Cached in `artifacts/brief_cache/{id}_{lang}.json`. (The older `POST /api/brief/{id}?lang=` template endpoint is kept.)
 
 ## POST /api/nlq
@@ -358,6 +361,7 @@ Request `{"q": "déclarations rouges d'origine CN au chapitre 85 au-dessus de 80
 ```
 Rules first (when the rule parser recognises the question), otherwise Qwen with a JSON schema; always validated
 against the real data vocabularies. `explanation` is generated from the filter, not by the LLM.
+`llm_fallback` (`null|"unavailable"|"rejected"`) is set when Qwen was needed but the rule parser answered instead.
 
 ## POST /api/worklist/query
 Request `{"filter": {...NLQ filter...}, "page": 1, "page_size": 50}` → same shape as `GET /api/worklist`.
@@ -365,7 +369,12 @@ Request `{"filter": {...NLQ filter...}, "page": 1, "page_size": 50}` → same sh
 
 ## GET /api/llm/status
 `{"enabled": true, "mode": "ollama|off", "model": "...", "reachable": true, "warm": true, "avg_latency_ms": 6665,
-  "calls": 7, "errors": 0, "installed_models": ["..."]}`
+  "calls": 7, "errors": 0, "installed_models": ["..."], "last_error": null, "url": "http://127.0.0.1:11434"}`
+Each call re-probes Ollama. The model is the configured one if installed, else the best installed Qwen3 build
+(`:latest` and quantisation suffixes accepted). Ollama is always called without any HTTP proxy. When it was down,
+RAQIB probes again after `LLM_RECHECK` s (default 10) and warms the model up as soon as it appears; the first call
+allows `LLM_COLD_TIMEOUT` s (default 120) for loading, then `LLM_TIMEOUT` (25). Clicks take priority over the
+background brief pre-generation.
 
 ## GET /api/llm/eval
 Contents of `artifacts/llm_eval.json` (written by `scripts/eval_llm.py`), or `{"skipped": true}`.

@@ -17,6 +17,7 @@ import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAboutRouteImport } from './routes/_authenticated/about'
+import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedExplainabilityRouteImport } from './routes/_authenticated/explainability'
 import { Route as AuthenticatedImpactRouteImport } from './routes/_authenticated/impact'
 import { Route as AuthenticatedJournalRouteImport } from './routes/_authenticated/journal'
@@ -63,6 +64,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedAboutRoute = AuthenticatedAboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExplainabilityRoute =
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/about': typeof AuthenticatedAboutRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/explainability': typeof AuthenticatedExplainabilityRoute
   '/impact': typeof AuthenticatedImpactRoute
   '/journal': typeof AuthenticatedJournalRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/about': typeof AuthenticatedAboutRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/explainability': typeof AuthenticatedExplainabilityRoute
   '/impact': typeof AuthenticatedImpactRoute
   '/journal': typeof AuthenticatedJournalRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/about': typeof AuthenticatedAboutRoute
+  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/explainability': typeof AuthenticatedExplainabilityRoute
   '/_authenticated/impact': typeof AuthenticatedImpactRoute
   '/_authenticated/journal': typeof AuthenticatedJournalRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/about'
+    | '/assistant'
     | '/explainability'
     | '/impact'
     | '/journal'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/about'
+    | '/assistant'
     | '/explainability'
     | '/impact'
     | '/journal'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/about'
+    | '/_authenticated/assistant'
     | '/_authenticated/explainability'
     | '/_authenticated/impact'
     | '/_authenticated/journal'
@@ -283,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAboutRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assistant': {
+      id: '/_authenticated/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/explainability': {
       id: '/_authenticated/explainability'
       path: '/explainability'
@@ -344,6 +363,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAboutRoute: typeof AuthenticatedAboutRoute
+  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedExplainabilityRoute: typeof AuthenticatedExplainabilityRoute
   AuthenticatedImpactRoute: typeof AuthenticatedImpactRoute
   AuthenticatedJournalRoute: typeof AuthenticatedJournalRoute
@@ -357,6 +377,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAboutRoute: AuthenticatedAboutRoute,
+  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedExplainabilityRoute: AuthenticatedExplainabilityRoute,
   AuthenticatedImpactRoute: AuthenticatedImpactRoute,
   AuthenticatedJournalRoute: AuthenticatedJournalRoute,

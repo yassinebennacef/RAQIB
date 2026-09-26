@@ -671,6 +671,9 @@ export interface LlmBrief {
   guard_passed: boolean;
   latency_ms: number;
   cached?: boolean;
+  /** set when the local LLM is on but the template was served: "unavailable" (Ollama down/timeout) or "rejected" (guard) */
+  llm_fallback?: "unavailable" | "rejected" | null;
+  llm_error?: string | null;
 }
 
 export interface NlqFilter {
@@ -693,6 +696,7 @@ export interface NlqResult {
   source: "qwen3-4b" | "rules";
   warnings: string[];
   explanation: string;
+  llm_fallback?: "unavailable" | "rejected" | null;
 }
 
 export interface LlmStatus {
@@ -702,6 +706,7 @@ export interface LlmStatus {
   reachable: boolean;
   warm: boolean;
   avg_latency_ms: number | null;
+  last_error?: string | null;
 }
 
 export const apiLLM = {
